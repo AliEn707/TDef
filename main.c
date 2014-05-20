@@ -10,6 +10,8 @@ int main(){
 //	memset(grid,0,sizeof(grid));
 	
 	grid=loadMap("test.mp");
+	loadTypes("types.cfg");
+	
 	int i;
 /*	for(i=0;i<100;i++){
 		grid[i].buildable=1;

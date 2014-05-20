@@ -26,7 +26,7 @@ typedef
 struct vector2{
 	float x;
 	float y;
-} v2;
+} vec;
 
 
 typedef 
@@ -35,7 +35,7 @@ struct effect{ //модификаторы свойств > 0
 	float shield;
 	float damage;
 	int time;
-	float status; //вероятность срабатывания
+	int status; //вероятность срабатывания в %
 } effect;
 
 typedef
@@ -45,7 +45,8 @@ struct tower_type{
 	int damage;
 	int energy;
 	int shield;
-	float attack_speed;
+	int attack_speed; //ticks to attack
+	int cost;
 	effect effects;   //наносимые эффекты
 }tower_type;
 
@@ -55,8 +56,9 @@ struct npc_type{
 	int health;
 	int damage;
 	int shield;
-	float attack_speed;
+	int attack_speed;
 	float move_speed;
+	int cost;
 	effect effects;  //наносимые эффекты
 }npc_type;
 
@@ -66,9 +68,11 @@ struct tower{
 	int x;
 	int y;
 	int id;
+	int position;
 	int type;
 	int health;
 	int energy;
+	int attack;
 	effect effects;  //полученные эффекты
 	struct npc* target;
 }tower;
@@ -77,11 +81,12 @@ typedef
 struct npc{
 	char status;
 	char iffriend;
-	v2 position;
-	v2 direction;
+	vec position;
+	vec direction;
 	int id;
 	int type;
 	int health;
+	int attack;
 	effect effects; //полученные эффекты
 	union {
 		struct npc* ntarget;
@@ -93,8 +98,8 @@ struct npc{
 
 typedef
 struct bullet{
-	v2 position;
-	v2 destination;
+	vec position;
+	vec destination;
 	int type;
 	int speed;
 	union {
@@ -124,13 +129,14 @@ typedef
 struct config{
 	int gridsize;
 	int tower_max;
-	int tower_types;
+	int tower_types_size;
+		tower_type* tower_types;
 		struct tower* tower_array;
 	int npc_max;
-	int npc_types;
+	int npc_types_size;
+		npc_type* npc_types;
 		struct npc* npc_array;
 	int bullet_max;
-	int bullet_types;
 		struct bullet* bullet_array;
 } engine_config;
 
@@ -143,7 +149,7 @@ engine_config config;
 #define idtox(id)  (id/config.gridsize)
 #define idtoy(id)  (id%config.gridsize)
 
-#define setv2to0(v) v.x=0;v.y=0
+#define setvecto0(v) v.x=0;v.y=0
 
 
 int aSearch(gnode* grid,gnode* start,gnode* goal);//start-куда, goal-откуда
