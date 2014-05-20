@@ -10,7 +10,7 @@
 //npc statuses
 #define IN_ATTACK 1
 #define IN_MOVE 2
-#define IN_IDLE 3
+#define IN_IDLE 0
 
 
 //gnode type (buildable component)
@@ -65,14 +65,12 @@ struct npc_type{
 
 typedef
 struct tower{
-	int x;
-	int y;
 	int id;
 	int position;
 	int type;
 	int health;
 	int energy;
-	int attack;
+	int attack_tick;
 	effect effects;  //полученные эффекты
 	struct npc* target;
 }tower;
@@ -80,13 +78,14 @@ struct tower{
 typedef
 struct npc{
 	char status;
-	char iffriend;
+	char isfriend;
 	vec position;
 	vec direction;
 	int id;
 	int type;
 	int health;
-	int attack;
+	int shield;
+	int attack_tick;
 	effect effects; //полученные эффекты
 	union {
 		struct npc* ntarget;
@@ -128,16 +127,17 @@ struct gnode{
 typedef
 struct config{
 	int gridsize;
-	int tower_max;
-	int tower_types_size;
+	unsigned int tower_max;
+	unsigned int tower_types_size;
 		tower_type* tower_types;
 		struct tower* tower_array;
-	int npc_max;
-	int npc_types_size;
+	unsigned int npc_max;
+	unsigned int npc_types_size;
 		npc_type* npc_types;
 		struct npc* npc_array;
-	int bullet_max;
+	unsigned int bullet_max;
 		struct bullet* bullet_array;
+	unsigned int global_id;
 } engine_config;
 
 ///////
@@ -145,11 +145,17 @@ struct config{
 engine_config config;
 
 ///////
+#define getGridx(id) (idtox(id)+0.5f)
+#define getGridy(id) (idtoy(id)+0.5f)
+
+#define getGridId(v) to2d(((int)v.x),((int)v.y))
 #define to2d(x,y)  ((x)*config.gridsize+(y))
+
 #define idtox(id)  (id/config.gridsize)
 #define idtoy(id)  (id%config.gridsize)
 
-#define setvecto0(v) v.x=0;v.y=0
+//////
+#define setVecto0(v) v.x=0;v.y=0
 
 
 int aSearch(gnode* grid,gnode* start,gnode* goal);//start-куда, goal-откуда

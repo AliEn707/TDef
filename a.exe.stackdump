@@ -1,6 +1,10 @@
-Exception: STATUS_ACCESS_VIOLATION at eip=00000001
-eax=00000002 ebx=0028AC5C ecx=80000038 edx=61186C20 esi=612A7A24 edi=0028CD84
-ebp=00000001 esp=0028AC40 program=C:\Users\Alien707\Clouds\YandexDisk\codding\TDef\a.exe, pid 4448, thread main
+Exception: STATUS_ACCESS_VIOLATION at eip=00401F0C
+eax=00000000 ebx=0028AC5C ecx=80000038 edx=00000000 esi=612A7A24 edi=0028CD84
+ebp=0028ABE8 esp=0028ABB0 program=C:\Users\Alien707\Clouds\YandexDisk\codding\GitHub\TDef\a.exe, pid 9016, thread main
 cs=0023 ds=002B es=002B fs=0053 gs=002B ss=002B
 Stack trace:
 Frame     Function  Args
+0028ABE8  00401F0C (800492E8, 00000003, 00000000, 00000001)
+0028AC38  00402A19 (00000001, 0028AC5C, 80010100, 61007F48)
+0028ACF8  61007FA5 (00000000, 0028CD84, 61007110, 00000000)
+End of stack trace

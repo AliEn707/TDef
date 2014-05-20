@@ -7,12 +7,12 @@ gnode * loadMap(char *filepath){
 	gnode * grid;
 	FILE * file;
 	if ((file=fopen(filepath,"r"))==0) 
-		perror("fopen loadMap\n");
+		perror("fopen loadMap");
 	int size;
 	fscanf(file,"%d\n",&size);
 	setGridSize(size);
 	if ((grid=malloc(sizeof(gnode)*size*size))==0)
-		perror("malloc loadMap\n");
+		perror("malloc loadMap");
 	memset(grid,0,sizeof(gnode)*size*size);
 	int i;
 	for(i=0;i<size*size;i++){
@@ -37,12 +37,12 @@ void loadConfig(char* filepath){
 	FILE * file;
 //	printf("loading configuration\n");
 	if ((file=fopen(filepath,"r"))==0) 
-		perror("fopen loadConfig\n");
+		perror("fopen loadConfig");
 	char buf[100];
-	fscanf(file,"%d %s\n",config.tower_max,buf);
-	fscanf(file,"%d %s\n",config.npc_max,buf);
-	fscanf(file,"%d %s\n",config.bullet_max,buf);
-	
+	fscanf(file,"%d %s\n",&config.tower_max,buf);
+	fscanf(file,"%d %s\n",&config.npc_max,buf);
+	fscanf(file,"%d %s\n",&config.bullet_max,buf);
+	config.global_id=1;
 	fclose(file);
 }
 
@@ -51,7 +51,7 @@ void loadTypes(char * filepath){
 	FILE * file;
 //	printf("loading configuration\n");
 	if ((file=fopen(filepath,"r"))==0) 
-		perror("fopen loadTypes\n");
+		perror("fopen loadTypes");
 	char buf[100];
 	int i;
 	fscanf(file,"%d ",&i);
@@ -83,7 +83,7 @@ void loadTypes(char * filepath){
 			}
 		}while(i!=-1);
 		if ((config.tower_types=malloc(sizeof(tower_type)*config.tower_types_size))==0)
-			perror("malloc tower_types loadTypes\n");
+			perror("malloc tower_types loadTypes");
 		memcpy(config.tower_types,t,sizeof(tower_type)*config.tower_types_size);
 	}	
 	{
@@ -113,7 +113,7 @@ void loadTypes(char * filepath){
 			}
 		}while(i!=-1);
 		if ((config.npc_types=malloc(sizeof(npc_type)*config.npc_types_size))==0)
-			perror("malloc npc_types loadTypes\n");
+			perror("malloc npc_types loadTypes");
 		memcpy(config.npc_types,t,sizeof(npc_type)*config.npc_types_size);
 	}	
 //	printf("%d %d\n",config.tower_types_size,config.npc_types_size);
@@ -122,5 +122,8 @@ void loadTypes(char * filepath){
 
 
 void realizeTypes(){
+	free(config.tower_types);
+	free(config.npc_types);
+	
 }
 

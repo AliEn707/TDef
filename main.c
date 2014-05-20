@@ -8,10 +8,11 @@ int main(){
 	gnode* grid;
 //	gridsize=10;
 //	memset(grid,0,sizeof(grid));
-	
+	loadConfig("test.cfg");
 	grid=loadMap("test.mp");
 	loadTypes("types.cfg");
-	
+	initArrays();
+	spawnNpc(grid,3,0,1);
 	int i;
 /*	for(i=0;i<100;i++){
 		grid[i].buildable=1;
@@ -28,6 +29,13 @@ int main(){
 		printf("\n");
 	}
 	
-	realizeMap(grid);
+	vec v={1.5,1.3};
+	printf("%d\n",getGridId(v));
 	printf("%d\n",a);
-}
+//	sleep(10);
+
+	realizeMap(grid);
+	realizeTypes();
+	realizeArrays();
+	return 0;
+}	

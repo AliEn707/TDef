@@ -9,7 +9,7 @@ struct set{
 set* setInit(){
 	set* tmp;
 	if ((tmp=malloc(sizeof(set)))==0) 
-		perror("malloc initSet\n");
+		perror("malloc initSet");
 	memset(tmp,0,sizeof(set));
 	return tmp;
 }
@@ -18,7 +18,7 @@ set* setAdd(set* s,gnode * node){
 	set* tmp=s;
 	for(;s->next!=0;s=s->next);
 	if((s->next=malloc(sizeof(set)))==0) 
-		perror("malloc setAdd\n");
+		perror("malloc setAdd");
 	memset(s->next,0,sizeof(set));
 	s->next->gnode=node;
 	return s;
@@ -84,7 +84,7 @@ int * neighbor_nodes(gnode* grid,gnode* n){
 	int out=8;	
 	int * z;
 	if((z=malloc(sizeof(int)*out+sizeof(int)))==0)
-		perror("malloc neighbor_nodes\n");
+		perror("malloc neighbor_nodes");
 	memset(z,0,sizeof(sizeof(int)*out+sizeof(int)));
 	int x=n->id/config.gridsize;
 	int y=n->id%config.gridsize;
