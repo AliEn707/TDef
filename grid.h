@@ -30,7 +30,7 @@ struct vector2{
 
 
 typedef 
-struct effect{
+struct effect{ //модификаторы свойств > 0
 	float speed;
 	float shield;
 	float damage;
@@ -71,7 +71,6 @@ struct tower{
 	int energy;
 	effect effects;  //полученные эффекты
 	struct npc* target;
-	struct tower* next;
 }tower;
 
 typedef
@@ -88,14 +87,9 @@ struct npc{
 		struct npc* ntarget;
 		struct tower* ttarget;
 	};
+	struct npc * next; //for list in gnode
 }npc;
 
-
-typedef
-struct npclist{
-	npc* n;
-	struct npclist * next;
-} npclist;
 
 typedef
 struct bullet{
@@ -103,7 +97,6 @@ struct bullet{
 	v2 destination;
 	int type;
 	int speed;
-	effect * effects; //указатель на эффекты типа
 	union {
 		struct npc* ntarget;
 		struct tower* ttarget;
@@ -118,7 +111,8 @@ struct gnode{
 	int id;
 	int next;
 	tower * tower;
-	npclist * npcs;
+	npc * enpcs;
+	npc * fnpcs;
 	float f;
 	float g;
 	float h;

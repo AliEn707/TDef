@@ -43,3 +43,14 @@ void loadConfig(char* filepath){
 	
 	fclose(file);
 }
+
+
+void loadTypes(char * filepath){
+	
+	
+}
+
+
+void realizeTypes(){
+}
+
