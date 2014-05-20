@@ -33,7 +33,7 @@ int main(){
 	}
 */	int j;
 	
-	int a=aSearch(grid,grid+80,grid+3);
+	int a=aSearch(grid,grid+80,grid+3,0);
 	
 	while(1){
 	

@@ -138,7 +138,7 @@ void tickMoveNpc(gnode* grid,npc* n){
 	//check node change 
 	int a,b;
 	if ((a=getGridId(n->position))!=(b=getGridId(pos))){
-		npc* tn
+		npc* tn;
 		if((tn=getNpc(grid,n))==0)
 			perror("getNpc tickMoveNpc");
 		else

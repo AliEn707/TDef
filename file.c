@@ -18,6 +18,8 @@ gnode * loadMap(char *filepath){
 	for(i=0;i<size*size;i++){
 		int c;
 		/////////////////
+		fscanf(file,"%d ",&c);
+		grid[i].walkable=(char)c;
 		fscanf(file,"%d\n",&c);
 		grid[i].buildable=(char)c;
 		/////////////////

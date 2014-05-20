@@ -99,7 +99,7 @@ int * neighbor_nodes(gnode* grid,gnode* n){
 	int i,j=0;
 	for(i=0;i<8;i++)
 		if (a[i]>0)
-			if (grid[a[i]].buildable>0)
+			if (grid[a[i]].walkable>0)
 				z[++j]=a[i];
 		//printf("%d\n",out);
 	*z=j;
@@ -114,7 +114,7 @@ int reconstruct_path(gnode *start,gnode *goal){
 	return 0;
 }
 
-int aSearch(gnode* grid,gnode* start,gnode* goal){
+int aSearch(gnode* grid,gnode* start,gnode* goal, int* path){
 	set* closedset = setInit();   
 	set* openset = setInit();
 	setAdd(openset,start);

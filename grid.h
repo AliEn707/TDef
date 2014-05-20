@@ -15,9 +15,6 @@
 
 //gnode type (buildable component)
 #define NOTHING -1
-#define MAY_BUILD 0
-#define MAY_WALK 1 //not build
-#define MAY_WALK_AND_BUILD 2
 //>1 may walk and build
 
 
@@ -113,17 +110,29 @@ struct bullet{
 
 typedef
 struct gnode{
-	char buildable;
-	int id;
-	int next;
-	tower * tower;
-	npc * enpcs;
-	npc * fnpcs;
 	float f;
 	float g;
 	float h;
+	int id;
+	int next;
+	char walkable; //-1 no see, 0 no walk, 1 walk
+	tower * tower;
+	npc * enpcs;
+	npc * fnpcs;
+	char buildable; //<=0 no build, >0 build 
 	
 } gnode;
+
+
+typedef
+struct gnode_lite{
+	float f;
+	float g;
+	float h;
+	int id;
+	int next;
+	char walkable;
+} gnode_lite;
 
 
 typedef
@@ -162,5 +171,5 @@ engine_config config;
 #define setVecto0(v) v.x=0;v.y=0
 
 
-int aSearch(gnode* grid,gnode* start,gnode* goal);//start-куда, goal-откуда
+int aSearch(gnode* grid,gnode* start,gnode* goal, int* path);//start-куда, goal-откуда
 #define setNPCPath(grid,start,goul) aSearch(grid,grid+goul,grid+start)
