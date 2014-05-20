@@ -127,9 +127,10 @@ int aSearch(gnode* grid,gnode* start,gnode* goal){
 		
 		gnode* x =0;
 		x=setMinf(openset);
-		if (x->id == goal->id) 
+		if (x->id == goal->id) {
+		//	start->next=stat->id;
 			return reconstruct_path(start,goal); 
-	 
+		}
 		setDel(openset,x); 
 		setAdd(closedset,x); 
 		int *y=neighbor_nodes(grid,x);

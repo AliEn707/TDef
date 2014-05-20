@@ -1,5 +1,8 @@
 #include <math.h>
 #include <stdio.h>
+#include "grid.h"
+
+
 
 float cos_grid[6284];
 float sin_grid[6284];
@@ -35,6 +38,12 @@ void initGridMath(){
 	for(i=0;i<=200;i+=0.001)
 		sqrt_grid[(int)(i*1000)]=sqrt(i);
 		
+}
+
+void getDir(vec* v1,vec* v2, vec* out){
+	float length=gsqrt(sqr(v1->x-v2->x)+sqr(v1->y-v2->y));
+	out->x=(v2->x-v1->x)/length;
+	out->y=(v2->y-v1->y)/length;
 }
 //test
 /*

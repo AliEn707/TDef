@@ -19,4 +19,6 @@ int delNpc(gnode* grid,npc* n);
 
 void setNpcBase(npc* n);
 
-int spawnNpc(gnode* grid,int node_id,int isfriend,int type);
+npc* spawnNpc(gnode* grid,int node_id,int isfriend,int type);
+
+void tickMoveNpc(gnode* grid,npc* n);

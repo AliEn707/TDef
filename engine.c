@@ -51,13 +51,13 @@ bullet* newBullet(){
 }
 
 npc* addNpc(gnode* node,npc* n){
-	npc *root=n->isfriend?node->fnpcs:node->enpcs;
-	if (root==0){
-		root=n;
+	npc **root=n->isfriend==1?&node->fnpcs:&node->enpcs;
+	if (*root==0){
+		*root=n;
 		return n;
 	}else{
 		npc* tmp;
-		for(tmp=root;tmp->next!=0;tmp=tmp->next);
+		for(tmp=*root;tmp->next!=0;tmp=tmp->next);
 		tmp->next=n;
 		n->next=0;
 		return n;
@@ -69,14 +69,19 @@ npc* addNpc(gnode* node,npc* n){
 npc*  getNpc(gnode* grid,npc* n){
 	npc* tmp;
 	gnode * node=&grid[getGridId(n->position)];
-	npc *root=n->isfriend?node->fnpcs:node->enpcs;
-	if (root!=0){
-		for(tmp=root;tmp->next!=n;tmp=tmp->next)
-			if (tmp->next==0)
-				return 0;
-		npc* out=tmp->next;
-		tmp->next=out->next;
-		return out;
+	npc **root=n->isfriend?&node->fnpcs:&node->enpcs;
+	if (*root!=0){
+		tmp=*root;
+		if (*root==n){
+			*root=n->next;
+		}else{
+			for(tmp=*root;tmp->next!=n;tmp=tmp->next)
+				if (tmp->next==0)
+					return 0;
+			npc* out=tmp->next;
+			tmp->next=out->next;
+		}
+		return n;
 	}
 	return 0;
 }
@@ -97,16 +102,52 @@ void setNpcBase(npc* n){
 }
 
 
-void spawnNpc(gnode* grid,int node_id,int isfriend,int type){
+npc* spawnNpc(gnode* grid,int node_id,int isfriend,int type){
 	npc* n;
 	if((n=newNpc())==0)
 		perror("newNpc spawnNpc");
 	n->isfriend=isfriend;
 	n->position.x=getGridx(node_id);
 	n->position.y=getGridy(node_id);
+	memcpy(&n->destination,&n->position,sizeof(vec));
 	n->type=type;
 	setNpcBase(n);
 	if (addNpc(&grid[node_id],n)==0)
-		perror("adMpc spawnNpc");
+		perror("addMpc spawnNpc");
+	return n;
+}
+
+void tickMoveNpc(gnode* grid,npc* n){
+	if (n->status!=IN_MOVE)
+		return;
+	
+	//check path from position
+	if (eqInD(n->position.x,n->destination.x,config.npc_types[n->type].move_speed) &&
+				eqInD(n->position.y,n->destination.y,config.npc_types[n->type].move_speed)){
+		int node_id=getGridId(n->position);
+		node_id=grid[node_id].next;
+		n->destination.x=getGridx(node_id);
+		n->destination.y=getGridy(node_id);
+	}
+	
+	vec dir={0,0};
+	getDir(&n->position,&n->destination,&dir);
+	
+	vec pos={n->position.x+dir.x*config.npc_types[n->type].move_speed,
+			n->position.y+dir.y*config.npc_types[n->type].move_speed};
+	//check node change 
+	int a,b;
+	if ((a=getGridId(n->position))!=(b=getGridId(pos))){
+		npc* tn
+		if((tn=getNpc(grid,n))==0)
+			perror("getNpc tickMoveNpc");
+		else
+			addNpc(&grid[b],tn);
+	}
+	
+	//write new position
+	memcpy(&n->position,&pos,sizeof(vec));
+	
+	
 }
 

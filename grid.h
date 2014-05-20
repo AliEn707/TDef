@@ -4,7 +4,7 @@
 #include <string.h>
 #include <strings.h>
 
-
+#define TPS 25
 
 
 //npc statuses
@@ -45,6 +45,7 @@ struct tower_type{
 	int damage;
 	int energy;
 	int shield;
+	int distanse;
 	int attack_speed; //ticks to attack
 	int cost;
 	effect effects;   //наносимые эффекты
@@ -56,6 +57,7 @@ struct npc_type{
 	int health;
 	int damage;
 	int shield;
+	int distanse;
 	int attack_speed;
 	float move_speed;
 	int cost;
@@ -80,7 +82,7 @@ struct npc{
 	char status;
 	char isfriend;
 	vec position;
-	vec direction;
+	vec destination;
 	int id;
 	int type;
 	int health;
@@ -145,8 +147,8 @@ struct config{
 engine_config config;
 
 ///////
-#define getGridx(id) (idtox(id)+0.5f)
-#define getGridy(id) (idtoy(id)+0.5f)
+#define getGridx(id) (1.0*idtox(id)+0.5f)
+#define getGridy(id) (1.0*idtoy(id)+0.5f)
 
 #define getGridId(v) to2d(((int)v.x),((int)v.y))
 #define to2d(x,y)  ((x)*config.gridsize+(y))
@@ -154,6 +156,8 @@ engine_config config;
 #define idtox(id)  (id/config.gridsize)
 #define idtoy(id)  (id%config.gridsize)
 
+#define sqr(x)  ((x)*(x))
+#define eqInD(a,b,eq) (fabs(a-b)<eq)
 //////
 #define setVecto0(v) v.x=0;v.y=0
 

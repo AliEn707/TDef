@@ -65,11 +65,12 @@ void loadTypes(char * filepath){
 				fscanf(file,"%s\n",buf);
 			else{
 				t[i].id=i;
-				fscanf(file,"%d %d %d %d %d %d\n",
+				fscanf(file,"%d %d %d %d %d %d %d\n",
 						&t[i].health,
 						&t[i].damage,
 						&t[i].energy,
 						&t[i].shield,
+						&t[i].distanse,
 						&t[i].attack_speed,
 						&t[i].cost
 				);
@@ -95,14 +96,16 @@ void loadTypes(char * filepath){
 				fscanf(file,"%s\n",buf);
 			else{
 				t[i].id=i;
-				fscanf(file,"%d %d %d %d %f %d\n",
+				fscanf(file,"%d %d %d  %d %d %f %d\n",
 						&t[i].health,
 						&t[i].damage,
 						&t[i].shield,
+						&t[i].distanse,
 						&t[i].attack_speed,
 						&t[i].move_speed,
 						&t[i].cost
 				);
+				t[i].move_speed/=TPS;
 				fscanf(file," %f %f %f %d %d\n",
 						&t[i].effects.speed,
 						&t[i].effects.shield,
