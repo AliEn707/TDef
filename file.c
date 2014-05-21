@@ -85,6 +85,7 @@ void loadTypes(char * filepath){
 				);
 			}
 		}while(i!=-1);
+		config.tower_types_size++;
 		if ((config.tower_types=malloc(sizeof(tower_type)*config.tower_types_size))==0)
 			perror("malloc tower_types loadTypes");
 		memcpy(config.tower_types,t,sizeof(tower_type)*config.tower_types_size);
@@ -117,6 +118,7 @@ void loadTypes(char * filepath){
 				);
 			}
 		}while(i!=-1);
+		config.npc_types_size++;
 		if ((config.npc_types=malloc(sizeof(npc_type)*config.npc_types_size))==0)
 			perror("malloc npc_types loadTypes");
 		memcpy(config.npc_types,t,sizeof(npc_type)*config.npc_types_size);

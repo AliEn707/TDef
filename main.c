@@ -17,14 +17,37 @@ int main(){
 	loadTypes("types.cfg");
 	initArrays();
 	npc* n=spawnNpc(grid,3,0,1);
+	npc* n2=spawnNpc(grid,3,0,2);
 	printf("%p %p\n",grid[3].enpcs,grid[3].fnpcs);
+	
 	n->status=IN_MOVE;
+	n2->status=IN_MOVE;
 	
 	{vec a={1,2},b={2,3},c;
 		getDir(&n->position,&n->destination,&c);
 	}
 	
 	int i;
+/*	npc_type* t=config.npc_types;
+	for(i=1;i<3;i++){
+		printf("%d %d %d  %d %d %f %d\n",
+						t[i].health,
+						t[i].damage,
+						t[i].shield,
+						t[i].distanse,
+						t[i].attack_speed,
+						t[i].move_speed,
+						t[i].cost
+				);
+				printf(" %f %f %f %d %d\n",
+						t[i].effects.speed,
+						t[i].effects.shield,
+						t[i].effects.damage,
+						t[i].effects.time,
+						t[i].effects.status
+				);
+	}
+*/	
 /*	for(i=0;i<100;i++){
 		grid[i].buildable=1;
 		grid[i].id=i;
@@ -44,6 +67,7 @@ int main(){
 		printf("\n");
 	}
 	tickMoveNpc(grid,n);
+	tickMoveNpc(grid,n2);
 	sleep(1);
 	printf("\n");
 	}

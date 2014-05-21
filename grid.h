@@ -125,17 +125,6 @@ struct gnode{
 
 
 typedef
-struct gnode_lite{
-	float f;
-	float g;
-	float h;
-	int id;
-	int next;
-	char walkable;
-} gnode_lite;
-
-
-typedef
 struct config{
 	int gridsize;
 	unsigned int tower_max;

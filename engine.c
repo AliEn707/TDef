@@ -78,9 +78,10 @@ npc*  getNpc(gnode* grid,npc* n){
 			for(tmp=*root;tmp->next!=n;tmp=tmp->next)
 				if (tmp->next==0)
 					return 0;
-			npc* out=tmp->next;
-			tmp->next=out->next;
+//			npc* out=tmp->next;
+			tmp->next=tmp->next->next;
 		}
+		n->next=0;
 		return n;
 	}
 	return 0;
