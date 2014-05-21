@@ -103,7 +103,7 @@ void loadTypes(char * filepath){
 						&t[i].health,
 						&t[i].damage,
 						&t[i].shield,
-						&t[i].distanse,
+						&t[i].attack_distanse,
 						&t[i].attack_speed,
 						&t[i].move_speed,
 						&t[i].cost

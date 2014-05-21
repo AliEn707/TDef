@@ -34,7 +34,7 @@ npc* newNpc(){
 
 tower* newTower(){
 	int i;
-	for(i=0;i<0;i++)
+	for(i=0;i<config.tower_max;i++)
 		if (config.tower_array[i].id==0){
 			config.tower_array[i].id=config.global_id++;
 			return &config.tower_array[i];
@@ -44,9 +44,11 @@ tower* newTower(){
 
 bullet* newBullet(){
 	int i;
-	for(i=0;i<0;i++)
-		if (config.bullet_array[i].type==0)
+	for(i=0;i<config.bullet_max;i++)
+		if (config.bullet_array[i].id==0){
+			config.bullet_array[i].id=config.global_id++;
 			return &config.bullet_array[i];
+		}
 	return 0;
 }
 
@@ -108,7 +110,7 @@ npc* spawnNpc(gnode* grid,int node_id,int isfriend,int type){
 	if((n=newNpc())==0)
 		perror("newNpc spawnNpc");
 	n->isfriend=isfriend;
-	s->status=IN_MOVE;
+	n->status=IN_MOVE;
 	n->position.x=getGridx(node_id);
 	n->position.y=getGridy(node_id);
 	memcpy(&n->destination,&n->position,sizeof(vec));
@@ -120,36 +122,58 @@ npc* spawnNpc(gnode* grid,int node_id,int isfriend,int type){
 }
 
 void tickMoveNpc(gnode* grid,npc* n){
-	if (n->status!=IN_MOVE)
-		return;
-	
-	//check path from position
-	if (eqInD(n->position.x,n->destination.x,config.npc_types[n->type].move_speed) &&
-				eqInD(n->position.y,n->destination.y,config.npc_types[n->type].move_speed)){
-		int node_id=getGridId(n->position);
-		node_id=grid[node_id].next;
-		n->destination.x=getGridx(node_id);
-		n->destination.y=getGridy(node_id);
+	if (n->status==IN_MOVE){
+		
+		//check path from position
+		if (eqInD(n->position.x,n->destination.x,config.npc_types[n->type].move_speed) &&
+					eqInD(n->position.y,n->destination.y,config.npc_types[n->type].move_speed)){
+			int node_id=getGridId(n->position);
+			node_id=grid[node_id].next;
+			n->destination.x=getGridx(node_id);
+			n->destination.y=getGridy(node_id);
+		}
+		
+		vec dir={0,0};
+		getDir(&n->position,&n->destination,&dir);
+		
+		vec pos={n->position.x+dir.x*config.npc_types[n->type].move_speed,
+				n->position.y+dir.y*config.npc_types[n->type].move_speed};
+		//check node change 
+		int a,b;
+		if ((a=getGridId(n->position))!=(b=getGridId(pos))){
+			npc* tn;
+			if((tn=getNpc(grid,n))==0)
+				perror("getNpc tickMoveNpc");
+			else
+				addNpc(&grid[b],tn);
+		}
+		
+		//write new position
+		memcpy(&n->position,&pos,sizeof(vec));
 	}
-	
-	vec dir={0,0};
-	getDir(&n->position,&n->destination,&dir);
-	
-	vec pos={n->position.x+dir.x*config.npc_types[n->type].move_speed,
-			n->position.y+dir.y*config.npc_types[n->type].move_speed};
-	//check node change 
-	int a,b;
-	if ((a=getGridId(n->position))!=(b=getGridId(pos))){
-		npc* tn;
-		if((tn=getNpc(grid,n))==0)
-			perror("getNpc tickMoveNpc");
-		else
-			addNpc(&grid[b],tn);
-	}
-	
-	//write new position
-	memcpy(&n->position,&pos,sizeof(vec));
-	
+}
+
+void setTowerBase(tower* t){
 	
 }
 
+
+tower* spawnTower(gnode * grid,int node_id,int owner,int type){
+	tower* t;
+	gnode* node=&grid[node_id];
+	if((t=newTower())==0)
+		perror("newTower spawnTower");
+	t->owner=owner;
+	t->position=node_id;
+	t->type=type;
+	setTowerBase(t);
+	node->tower=t;
+	return t;
+}
+
+int removeTower(gnode * grid,tower* t){
+	gnode * node=&grid[t->position];
+	node->tower=0;
+	memset(t,0,sizeof(tower));
+	return 0;
+}

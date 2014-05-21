@@ -10,6 +10,8 @@
 //npc statuses
 #define IN_ATTACK 1
 #define IN_MOVE 2
+#define IN_TARGET 3
+#define IN_MOVE_ATTACK 4
 #define IN_IDLE 0
 
 
@@ -45,6 +47,8 @@ struct tower_type{
 	int distanse;
 	int attack_speed; //ticks to attack
 	int cost;
+	char ignor_type;
+	char prior_type;
 	effect effects;   //наносимые эффекты
 }tower_type;
 
@@ -54,10 +58,14 @@ struct npc_type{
 	int health;
 	int damage;
 	int shield;
-	int distanse;
+	int attack_distanse;
+	int see_distanse;
 	int attack_speed;
 	float move_speed;
 	int cost;
+	char type;
+	char ignor_type;
+	char prior_type;
 	effect effects;  //наносимые эффекты
 }npc_type;
 
@@ -70,6 +78,7 @@ struct tower{
 	int health;
 	int energy;
 	int attack_tick;
+	int owner;
 	effect effects;  //полученные эффекты
 	struct npc* target;
 }tower;
@@ -86,16 +95,15 @@ struct npc{
 	int shield;
 	int attack_tick;
 	effect effects; //полученные эффекты
-	union {
-		struct npc* ntarget;
-		struct tower* ttarget;
-	};
+	struct npc* ntarget;
+	struct tower* ttarget;
 	struct npc * next; //for list in gnode
 }npc;
 
 
 typedef
 struct bullet{
+	int id;
 	vec position;
 	vec destination;
 	int type;

@@ -18,6 +18,7 @@ int main(){
 	initArrays();
 	npc* n=spawnNpc(grid,3,0,1);
 	npc* n2=spawnNpc(grid,3,0,2);
+	spawnTower(grid,25,1,1);
 	printf("%p %p\n",grid[3].enpcs,grid[3].fnpcs);
 	
 	n->status=IN_MOVE;
@@ -63,7 +64,7 @@ int main(){
 	for(i=0;i<10;i++){
 		for(j=0;j<10;j++)
 //			printf("{%d}[%d]%d ",grid[to2d(i,j)].buildable,grid[to2d(i,j)].id,grid[to2d(i,j)].next);
-			printf("%c ",grid[to2d(i,j)].enpcs==0?'O':'X');
+			printf("%c ",grid[to2d(i,j)].tower!=0?'T':grid[to2d(i,j)].enpcs==0?'O':'X');
 		printf("\n");
 	}
 	tickMoveNpc(grid,n);
