@@ -108,6 +108,7 @@ npc* spawnNpc(gnode* grid,int node_id,int isfriend,int type){
 	if((n=newNpc())==0)
 		perror("newNpc spawnNpc");
 	n->isfriend=isfriend;
+	s->status=IN_MOVE;
 	n->position.x=getGridx(node_id);
 	n->position.y=getGridy(node_id);
 	memcpy(&n->destination,&n->position,sizeof(vec));
