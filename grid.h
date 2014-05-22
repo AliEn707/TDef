@@ -102,6 +102,7 @@ struct npc{
 	effect effects; //полученные эффекты
 	struct npc* ntarget;
 	struct tower* ttarget;
+	int path_count;
 	int path[NPC_PATH];
 	struct npc * next; //for list in gnode
 }npc;
@@ -177,7 +178,7 @@ engine_config config;
 #define idtoy(id)  (id%config.gridsize)
 
 #define sqr(x)  ((x)*(x))
-#define eqInD(a,b,eq) (fabs(a-b)<eq)
+#define eqInD(a,b,eq) (fabs(a-b)<=eq)
 //////
 #define setVecto0(v) v.x=0;v.y=0
 

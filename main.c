@@ -4,6 +4,35 @@
 #include "file.h"
 //Test main file
 
+void pinfo(npc* n){
+	int i;
+	printf("%g %g -> %g %g\n",n->position.x,n->position.y,n->destination.x,n->destination.y);
+	for(i=0;i<NPC_PATH;i++)
+		printf("%d ",n->path[i]);
+	printf("\n");
+		
+}
+
+void drawGrid(gnode* grid){
+	int i,j;
+	for(i=0;i<10;i++){
+		for(j=0;j<10;j++)
+//			printf("{%d}[%d]%d ",grid[to2d(i,j)].buildable,grid[to2d(i,j)].id,grid[to2d(i,j)].next);
+			printf("%c ",
+					grid[to2d(i,j)].tower!=0?
+						grid[to2d(i,j)].tower->type==1?
+							'B':
+						'T':
+						grid[to2d(i,j)].enpcs==0?
+							grid[to2d(i,j)].walkable<1?
+								'X':
+							'O':
+						'N');
+		printf("\n");
+	}		
+}
+
+
 int main(){
 	
 //	gnode grid[100];
@@ -19,8 +48,10 @@ int main(){
 	initArrays();
 	npc* n=spawnNpc(grid,3,0,1);
 	npc* n2=spawnNpc(grid,3,0,2);
+	spawnNpc(grid,5,0,3);
 	setupPlayer(0,1,0);
-	spawnTower(grid,25,0,1);
+	setupPlayer(1,0,0);
+	spawnTower(grid,75,0,1);
 	printf("%p %p\n",grid[3].enpcs,grid[3].fnpcs);
 	
 	n->status=IN_MOVE;
@@ -58,23 +89,22 @@ int main(){
 			grid[i].buildable=0;
 	}
 */	int j;
-	
 	int a=aSearch(grid,grid+80,grid+3,0);
-	
+	//for (i=0;i<NPC_PATH;i++)
 	while(1){
 	
-	for(i=0;i<10;i++){
-		for(j=0;j<10;j++)
-//			printf("{%d}[%d]%d ",grid[to2d(i,j)].buildable,grid[to2d(i,j)].id,grid[to2d(i,j)].next);
-			printf("%c ",grid[to2d(i,j)].tower!=0?'T':grid[to2d(i,j)].enpcs==0?'O':'X');
-		printf("\n");
-	}
+	drawGrid(grid);
+	
+	forEachNpc(grid,tickTargetNpc);
 	forEachNpc(grid,tickMoveNpc);
-//	tickMoveNpc(grid,n);
-//	tickMoveNpc(grid,n2);
+		
 	sleep(1);
 	printf("\n");
 	}
+//	pinfo(n);
+//	pinfo(n2);
+	
+	
 //	vec v={1.5,1.3};
 //	printf("%d\n",getGridId(v));
 	printf("%d\n",a);

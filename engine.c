@@ -120,6 +120,7 @@ npc* spawnNpc(gnode* grid,int node_id,int isfriend,int type){
 	n->status=IN_MOVE;
 	n->position.x=getGridx(node_id);
 	n->position.y=getGridy(node_id);
+	n->path_count=NPC_PATH;
 	memcpy(&n->destination,&n->position,sizeof(vec));
 	n->type=type;
 	setNpcBase(n);
@@ -128,40 +129,63 @@ npc* spawnNpc(gnode* grid,int node_id,int isfriend,int type){
 	return n;
 }
 
-int findNearEnemy(gnode* grid,npc* n){
+tower* findNearTower(gnode* grid,npc* n){
 	/**/
 	return 0;
+}
+void tickTargetNpc(gnode* grid,npc* n){
+	if ((n->ttarget=findNearTower(grid,n))!=0)
+		return;
+	int id;
+	if((id=findEnemyBase((int)n->isfriend))<0){
+		perror("findEnemyBase tickTargetNpc");
+		return;
+	}
+	if ((n->ttarget=grid[id].tower)==0)
+		perror("ttarget tickTargetNpc");
 }
 
 void tickMoveNpc(gnode* grid,npc* n){
 	if (n->status==IN_MOVE){
-		
-		//check path from position
-		if (eqInD(n->position.x,n->destination.x,config.npc_types[n->type].move_speed) &&
-					eqInD(n->position.y,n->destination.y,config.npc_types[n->type].move_speed)){
-			int node_id=getGridId(n->position);
-			node_id=grid[node_id].next;
-			n->destination.x=getGridx(node_id);
-			n->destination.y=getGridy(node_id);
+		if (n->ttarget!=0){
+			//check path from position
+			if (eqInD(n->position.x,n->destination.x,config.npc_types[n->type].move_speed) &&
+						eqInD(n->position.y,n->destination.y,config.npc_types[n->type].move_speed)||
+				glength(&n->position,&n->destination)<0.05){
+				if (n->path_count>=NPC_PATH){
+					memset(n->path,-1,sizeof(int)*NPC_PATH);
+					if(aSearch(grid,
+							grid+n->ttarget->position,
+							grid+getGridId(n->position),
+							n->path)<0)
+						perror("aSearch tickMoveNpc");
+					n->path_count=0;
+					}
+				
+				int node_id;
+				node_id=n->path[n->path_count++];
+				n->destination.x=getGridx(node_id);
+				n->destination.y=getGridy(node_id);
+			}
+			
+			vec dir={0,0};
+			getDir(&n->position,&n->destination,&dir);
+			
+			vec pos={n->position.x+dir.x*config.npc_types[n->type].move_speed,
+					n->position.y+dir.y*config.npc_types[n->type].move_speed};
+			//check node change 
+			int a,b;
+			if ((a=getGridId(n->position))!=(b=getGridId(pos))){
+				npc* tn;
+				if((tn=getNpc(grid,n))==0)
+					perror("getNpc tickMoveNpc");
+				else
+					addNpc(&grid[b],tn);
+			}
+			
+			//write new position
+			memcpy(&n->position,&pos,sizeof(vec));
 		}
-		
-		vec dir={0,0};
-		getDir(&n->position,&n->destination,&dir);
-		
-		vec pos={n->position.x+dir.x*config.npc_types[n->type].move_speed,
-				n->position.y+dir.y*config.npc_types[n->type].move_speed};
-		//check node change 
-		int a,b;
-		if ((a=getGridId(n->position))!=(b=getGridId(pos))){
-			npc* tn;
-			if((tn=getNpc(grid,n))==0)
-				perror("getNpc tickMoveNpc");
-			else
-				addNpc(&grid[b],tn);
-		}
-		
-		//write new position
-		memcpy(&n->position,&pos,sizeof(vec));
 	}
 }
 
@@ -209,12 +233,12 @@ int removeTower(gnode * grid,tower* t){
 int findEnemyBase(int isfriend){
 	#define t config.tower_array
 	int i;
-	int id=0;
+	int id=-1;
 	for(i=0;i<config.tower_max;i++)
 		if (t[i].id>0)
 			if (t[i].type==BASE)
 				if (config.players[t[i].owner].isfriend!=isfriend){//add friend check
-					id=i;
+					id=t[i].position;
 					return id;
 				}
 	return id;

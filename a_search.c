@@ -112,8 +112,6 @@ int reconstruct_path(gnode *grid,gnode *goal,int* path){
 	if (path!=0)
 		for(i=0;i<NPC_PATH;i++){
 			path[i]=tmp->next;
-			if (path[i]==0)
-				return 2;
 			tmp=&grid[path[i]];
 		}
 	return 0;

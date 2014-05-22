@@ -21,6 +21,8 @@ void setNpcBase(npc* n);
 
 npc* spawnNpc(gnode* grid,int node_id,int isfriend,int type);
 
+void tickTargetNpc(gnode* grid,npc* n);
+
 void tickMoveNpc(gnode* grid,npc* n);
 
 void forEachNpc(gnode* grid, void (process)(gnode*g,npc*n));
