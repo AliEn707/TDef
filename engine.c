@@ -2,6 +2,8 @@
 #include "engine.h"
 
 
+
+
 void initArrays(){
 	if ((config.tower_array=malloc(sizeof(tower)*config.tower_max))==0)
 		perror("malloc tower initArrays");
@@ -12,10 +14,15 @@ void initArrays(){
 	if ((config.bullet_array=malloc(sizeof(bullet)*config.bullet_max))==0)
 		perror("malloc bullet initArrays");
 	memset(config.bullet_array,0,sizeof(bullet)*config.bullet_max);
+	if ((config.players=malloc(sizeof(bullet)*config.player_max))==0)
+		perror("malloc player initArrays");
+	memset(config.players,0,sizeof(bullet)*config.player_max);
+	
 //	printf("%d %d %d\n",sizeof(tower)*config.tower_max,sizeof(npc)*config.npc_max,sizeof(bullet)*config.bullet_max);
 }
 
 void realizeArrays(){
+	free(config.players);
 	free(config.tower_array);
 	free(config.npc_array);
 	free(config.bullet_array);
@@ -26,7 +33,7 @@ npc* newNpc(){
 	int i;
 	for(i=0;i<config.npc_max;i++)
 		if (config.npc_array[i].id==0){
-			config.npc_array[i].id=config.global_id++;
+			config.npc_array[i].id=getGlobalId();
 			return &config.npc_array[i];
 		}	
 	return 0;
@@ -36,7 +43,7 @@ tower* newTower(){
 	int i;
 	for(i=0;i<config.tower_max;i++)
 		if (config.tower_array[i].id==0){
-			config.tower_array[i].id=config.global_id++;
+			config.tower_array[i].id=getGlobalId();
 			return &config.tower_array[i];
 		}	
 	return 0;
@@ -46,7 +53,7 @@ bullet* newBullet(){
 	int i;
 	for(i=0;i<config.bullet_max;i++)
 		if (config.bullet_array[i].id==0){
-			config.bullet_array[i].id=config.global_id++;
+			config.bullet_array[i].id=getGlobalId();
 			return &config.bullet_array[i];
 		}
 	return 0;
@@ -121,6 +128,11 @@ npc* spawnNpc(gnode* grid,int node_id,int isfriend,int type){
 	return n;
 }
 
+int findNearEnemy(gnode* grid,npc* n){
+	/**/
+	return 0;
+}
+
 void tickMoveNpc(gnode* grid,npc* n){
 	if (n->status==IN_MOVE){
 		
@@ -153,8 +165,24 @@ void tickMoveNpc(gnode* grid,npc* n){
 	}
 }
 
+void forEachNpc(gnode* grid, void (process)(gnode*g,npc*n)){//add function
+	int i;
+	for(i=0;i<config.npc_max;i++)
+		if(config.npc_array[i].id>0)
+			process(grid,&config.npc_array[i]);
+}
+
+//////////////towers
+
 void setTowerBase(tower* t){
-	
+	if (t->type==BASE){
+		t->health=config.players[t->owner].base_health;
+//		t->energy=config.players[t->owner].base_energy;
+	}
+	else{
+		t->health=config.tower_types[t->type].health;
+		t->energy=config.tower_types[t->type].energy;
+	}
 }
 
 
@@ -176,4 +204,27 @@ int removeTower(gnode * grid,tower* t){
 	node->tower=0;
 	memset(t,0,sizeof(tower));
 	return 0;
+}
+
+int findEnemyBase(int isfriend){
+	#define t config.tower_array
+	int i;
+	int id=0;
+	for(i=0;i<config.tower_max;i++)
+		if (t[i].id>0)
+			if (t[i].type==BASE)
+				if (config.players[t[i].owner].isfriend!=isfriend){//add friend check
+					id=i;
+					return id;
+				}
+	return id;
+	#undef t
+}
+
+//////////////players
+
+void setupPlayer(int id,int isfriend,int base_health){
+	config.players[id].id=getGlobalId();
+	config.players[id].isfriend=isfriend;
+	config.players[id].base_health=base_health;
 }

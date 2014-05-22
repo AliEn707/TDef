@@ -106,11 +106,16 @@ int * neighbor_nodes(gnode* grid,gnode* n){
 	return z;
 }
 
-int reconstruct_path(gnode *start,gnode *goal){
-//	town* t=goal;
-//	if (start->name!=goal->name)
-//		reconstruct_path(start,goal->came_from);
-//	printf("%c ",goal->name);
+int reconstruct_path(gnode *grid,gnode *goal,int* path){
+	gnode* tmp=goal;
+	int i;
+	if (path!=0)
+		for(i=0;i<NPC_PATH;i++){
+			path[i]=tmp->next;
+			if (path[i]==0)
+				return 2;
+			tmp=&grid[path[i]];
+		}
 	return 0;
 }
 
@@ -129,7 +134,7 @@ int aSearch(gnode* grid,gnode* start,gnode* goal, int* path){
 		x=setMinf(openset);
 		if (x->id == goal->id) {
 		//	start->next=stat->id;
-			return reconstruct_path(start,goal); 
+			return reconstruct_path(grid,goal,path); 
 		}
 		setDel(openset,x); 
 		setAdd(closedset,x); 

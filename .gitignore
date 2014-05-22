@@ -1,5 +1,4 @@
-a.exe
-a.exe.*
+
 
 #################
 ## Eclipse
@@ -10,6 +9,8 @@ a.exe.*
 .metadata
 bin/
 tmp/
+*.exe
+*.exe.*
 *.tmp
 *.bak
 *.swp

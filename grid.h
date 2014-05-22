@@ -6,6 +6,11 @@
 
 #define TPS 25
 
+#define NPC_PATH 5
+
+//tower types
+#define BASE 1
+
 
 //npc statuses
 #define IN_ATTACK 1
@@ -77,7 +82,7 @@ struct tower{
 	int type;
 	int health;
 	int energy;
-	int attack_tick;
+	int attack_count;
 	int owner;
 	effect effects;  //полученные эффекты
 	struct npc* target;
@@ -93,10 +98,11 @@ struct npc{
 	int type;
 	int health;
 	int shield;
-	int attack_tick;
+	int attack_count;
 	effect effects; //полученные эффекты
 	struct npc* ntarget;
 	struct tower* ttarget;
+	int path[NPC_PATH];
 	struct npc * next; //for list in gnode
 }npc;
 
@@ -131,6 +137,12 @@ struct gnode{
 	
 } gnode;
 
+typedef
+struct player{
+	int id;
+	int isfriend;
+	int base_health;
+} player;
 
 typedef
 struct config{
@@ -146,6 +158,8 @@ struct config{
 	unsigned int bullet_max;
 		struct bullet* bullet_array;
 	unsigned int global_id;
+	int player_max;
+		player* players;
 } engine_config;
 
 ///////
@@ -170,3 +184,6 @@ engine_config config;
 
 int aSearch(gnode* grid,gnode* start,gnode* goal, int* path);//start-куда, goal-откуда
 #define setNPCPath(grid,start,goul) aSearch(grid,grid+goul,grid+start)
+
+#define getGlobalId() config.global_id++
+

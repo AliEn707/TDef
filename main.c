@@ -15,10 +15,12 @@ int main(){
 	loadConfig("test.cfg");
 	grid=loadMap("test.mp");
 	loadTypes("types.cfg");
+	config.player_max=4;
 	initArrays();
 	npc* n=spawnNpc(grid,3,0,1);
 	npc* n2=spawnNpc(grid,3,0,2);
-	spawnTower(grid,25,1,1);
+	setupPlayer(0,1,0);
+	spawnTower(grid,25,0,1);
 	printf("%p %p\n",grid[3].enpcs,grid[3].fnpcs);
 	
 	n->status=IN_MOVE;
@@ -67,8 +69,9 @@ int main(){
 			printf("%c ",grid[to2d(i,j)].tower!=0?'T':grid[to2d(i,j)].enpcs==0?'O':'X');
 		printf("\n");
 	}
-	tickMoveNpc(grid,n);
-	tickMoveNpc(grid,n2);
+	forEachNpc(grid,tickMoveNpc);
+//	tickMoveNpc(grid,n);
+//	tickMoveNpc(grid,n2);
 	sleep(1);
 	printf("\n");
 	}
