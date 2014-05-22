@@ -34,7 +34,7 @@ void drawGrid(gnode* grid){
 
 
 int main(){
-	printf("%g\n",clock()/1.0/CLOCKS_PER_SEC);
+	timePassed();
 //	gnode grid[100];
 	gnode* grid;
 //	gridsize=10;
@@ -55,6 +55,7 @@ int main(){
 	setupPlayer(0,1,0);
 	setupPlayer(1,0,0);
 	spawnTower(grid,75,0,1);
+	printf("%d\n",timePassed());
 	printf("%p %p\n",grid[3].enpcs,grid[3].fnpcs);
 	
 	
@@ -93,7 +94,7 @@ int main(){
 	int a=aSearch(grid,grid+80,grid+3,0);
 	//for (i=0;i<NPC_PATH;i++)
 	while(1){
-	
+	printf("%d\n",timePassed());
 	drawGrid(grid);
 	
 	forEachNpc(grid,tickTargetNpc);

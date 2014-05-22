@@ -164,7 +164,7 @@ struct config{
 	unsigned int global_id;
 	int player_max;
 		player* players;
-	
+	struct timeval time;
 } engine_config;
 
 ///////

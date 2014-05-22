@@ -1,5 +1,5 @@
-
-
+//passet time between cal in microseconds
+int timePassed();
 
 void initArrays();
 

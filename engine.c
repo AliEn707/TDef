@@ -2,6 +2,14 @@
 #include "engine.h"
 
 
+int timePassed(){
+	//config.time  struct timeval
+	struct timeval end;
+	gettimeofday(&end, NULL);
+	int out=(end.tv_usec - config.time.tv_usec);
+	memcpy(&config.time,&end,sizeof(end));
+	return out;
+}
 
 
 void initArrays(){
