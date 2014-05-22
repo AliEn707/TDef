@@ -34,7 +34,7 @@ void drawGrid(gnode* grid){
 
 
 int main(){
-	
+	printf("%g\n",clock()/1.0/CLOCKS_PER_SEC);
 //	gnode grid[100];
 	gnode* grid;
 //	gridsize=10;
@@ -44,8 +44,11 @@ int main(){
 	loadConfig("test.cfg");
 	grid=loadMap("test.mp");
 	loadTypes("types.cfg");
+	
 	config.player_max=4;
 	initArrays();
+	initAreaArray();
+	
 	npc* n=spawnNpc(grid,3,0,1);
 	npc* n2=spawnNpc(grid,3,0,2);
 	spawnNpc(grid,5,0,3);
@@ -54,8 +57,6 @@ int main(){
 	spawnTower(grid,75,0,1);
 	printf("%p %p\n",grid[3].enpcs,grid[3].fnpcs);
 	
-	n->status=IN_MOVE;
-	n2->status=IN_MOVE;
 	
 	{vec a={1,2},b={2,3},c;
 		getDir(&n->position,&n->destination,&c);
@@ -97,7 +98,8 @@ int main(){
 	
 	forEachNpc(grid,tickTargetNpc);
 	forEachNpc(grid,tickMoveNpc);
-		
+	
+	
 	sleep(1);
 	printf("\n");
 	}
@@ -109,7 +111,7 @@ int main(){
 //	printf("%d\n",getGridId(v));
 	printf("%d\n",a);
 
-
+	realizeAreaArray();
 	realizeMap(grid);
 	realizeTypes();
 	realizeArrays();

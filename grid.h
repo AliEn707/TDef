@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
+#include <time.h>
+#include <sys/time.h>
 
 #define TPS 25
 
@@ -148,6 +150,7 @@ struct player{
 typedef
 struct config{
 	int gridsize;
+	int* area_array[30];
 	unsigned int tower_max;
 	unsigned int tower_types_size;
 		tower_type* tower_types;
@@ -161,6 +164,7 @@ struct config{
 	unsigned int global_id;
 	int player_max;
 		player* players;
+	
 } engine_config;
 
 ///////
