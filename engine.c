@@ -7,9 +7,10 @@ int timePassed(){
 	struct timeval end;
 	gettimeofday(&end, NULL);
 	int out=(end.tv_usec - config.time.tv_usec);
+	if(config.time.tv_usec!=0)
+		if (out>1000000/TPS)
+			perror("time to tick");
 	memcpy(&config.time,&end,sizeof(end));
-	if (out>1/TPS*1000000)
-		perror("time to tick");
 	return out;
 }
 
@@ -27,7 +28,7 @@ void initArrays(){
 	if ((config.players=malloc(sizeof(bullet)*config.player_max))==0)
 		perror("malloc player initArrays");
 	memset(config.players,0,sizeof(bullet)*config.player_max);
-	
+	initAreaArray();
 //	printf("%d %d %d\n",sizeof(tower)*config.tower_max,sizeof(npc)*config.npc_max,sizeof(bullet)*config.bullet_max);
 }
 
@@ -36,6 +37,7 @@ void realizeArrays(){
 	free(config.tower_array);
 	free(config.npc_array);
 	free(config.bullet_array);
+	realizeAreaArray();
 }
 
 
@@ -141,7 +143,26 @@ npc* spawnNpc(gnode* grid,int node_id,int isfriend,int type){
 
 tower* findNearTower(gnode* grid,npc* n){
 	/**/
-	return 0;
+	int i,j,k;
+	int x=(int)n->position.x;
+	int y=(int)n->position.y;
+	int yid,xid;
+	for(i=0;i<config.npc_types[n->type].see_distanse;i++)
+		for(j=0;j<config.area_size[i];j++)
+			if (((xid=x+config.area_array[i][j].x)>=0 && x+config.area_array[i][j].x<config.gridsize) &&
+					((yid=y+config.area_array[i][j].y)>=0 && y+config.area_array[i][j].y<config.gridsize))
+				if (grid[to2d(xid,yid)].tower!=0)
+					if(config.players[grid[to2d(xid,yid)].tower->owner].isfriend!=n->isfriend){
+						n->ttarget=grid[to2d(xid,yid)].tower;
+						if(rand()%100<40)
+							return n->ttarget;
+					}
+			
+//	config.area_array
+//	config.tower_types[i].see_distanse
+	if (n->ttarget==0)
+		return 0;
+	return n->ttarget;
 }
 void tickTargetNpc(gnode* grid,npc* n){
 	if ((n->ttarget=findNearTower(grid,n))!=0)
@@ -249,7 +270,8 @@ int findEnemyBase(int isfriend){
 			if (t[i].type==BASE)
 				if (config.players[t[i].owner].isfriend!=isfriend){//add friend check
 					id=t[i].position;
-					return id;
+					if (rand()%100<40)
+						return id;
 				}
 	return id;
 	#undef t

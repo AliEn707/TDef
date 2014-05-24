@@ -2,9 +2,11 @@ m1=[]
 s="config.gridsize"
 name="AreaArray"
 mass="config.area_array"
+mass_s="config.area_size"
 size=30
 
 printf "#include \"grid.h\"\n\n" 
+printf "#define tmp_size %s\n",mass_s
 printf "#define tmp %s\n",mass 
 printf "#define shift %s\n\n",s 
 printf "void init%s(){\n",name
@@ -22,9 +24,9 @@ size.times do |i|
 	end
 	if i!=0
 		z=m-m1
-		printf "\tint tmp%d[%d]={",i-1,z.size 
+		printf "\tveci tmp%d[%d]={",i-1,z.size 
 		z.size.times do |k|
-			printf "%d+shift*%d",z[k][0],z[k][1]
+			printf "{%d,%d}",z[k][0],z[k][1]
 			printf ", " if k!=z.size-1
 		end
 		printf "};\n"
@@ -32,6 +34,7 @@ size.times do |i|
 		printf "\tif((tmp[%d]=malloc(sizeof(tmp%d)))==0)\n",i-1,i-1
 		printf "\t\tperror(\"malloc tmp%d %s\");\n",i-1,name
 		printf "\tmemcpy(tmp[%d],tmp%d,sizeof(tmp%d));\n",i-1,i-1,i-1
+		printf "\ttmp_size[%d]=%d;\n\n",i-1,z.size
 	end
 	m1=m
 end

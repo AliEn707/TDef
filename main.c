@@ -34,7 +34,7 @@ void drawGrid(gnode* grid){
 
 
 int main(){
-	timePassed();
+	
 //	gnode grid[100];
 	gnode* grid;
 //	gridsize=10;
@@ -47,7 +47,7 @@ int main(){
 	
 	config.player_max=4;
 	initArrays();
-	initAreaArray();
+	timePassed();
 	
 	npc* n=spawnNpc(grid,3,0,1);
 	npc* n2=spawnNpc(grid,3,0,2);
@@ -55,6 +55,12 @@ int main(){
 	setupPlayer(0,1,0);
 	setupPlayer(1,0,0);
 	spawnTower(grid,75,0,1);
+	spawnTower(grid,20,0,2);
+	
+	npc* n3=spawnNpc(grid,40,0,2);
+	
+	
+	
 	printf("%d\n",timePassed());
 	printf("%p %p\n",grid[3].enpcs,grid[3].fnpcs);
 	
@@ -112,7 +118,7 @@ int main(){
 //	printf("%d\n",getGridId(v));
 	printf("%d\n",a);
 
-	realizeAreaArray();
+	
 	realizeMap(grid);
 	realizeTypes();
 	realizeArrays();

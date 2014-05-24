@@ -29,10 +29,16 @@
 
 
 typedef 
-struct vector2{
+struct vector2i{
 	float x;
 	float y;
 } vec;
+
+typedef 
+struct vector2{
+	int x;
+	int y;
+} veci;
 
 
 typedef 
@@ -150,7 +156,8 @@ struct player{
 typedef
 struct config{
 	int gridsize;
-	int* area_array[30];
+	veci* area_array[30];
+	int area_size[30];
 	unsigned int tower_max;
 	unsigned int tower_types_size;
 		tower_type* tower_types;
@@ -184,7 +191,7 @@ engine_config config;
 #define sqr(x)  ((x)*(x))
 #define eqInD(a,b,eq) (fabs(a-b)<=eq)
 //////
-#define setVecto0(v) v.x=0;v.y=0
+#define setVecto0(v) memset(&v,0,sizeof(vec))
 
 
 int aSearch(gnode* grid,gnode* start,gnode* goal, int* path);//start-куда, goal-откуда
