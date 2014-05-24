@@ -8,6 +8,8 @@ int timePassed(){
 	gettimeofday(&end, NULL);
 	int out=(end.tv_usec - config.time.tv_usec);
 	memcpy(&config.time,&end,sizeof(end));
+	if (out>1/TPS*1000000)
+		perror("time to tick");
 	return out;
 }
 

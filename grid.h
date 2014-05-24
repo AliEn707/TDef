@@ -6,7 +6,7 @@
 #include <time.h>
 #include <sys/time.h>
 
-#define TPS 25
+#define TPS 40
 
 #define NPC_PATH 5
 
