@@ -1,5 +1,5 @@
-//passet time between cal in microseconds
-int timePassed();
+//wait tto set need tps
+void syncTPS();
 
 void initArrays();
 

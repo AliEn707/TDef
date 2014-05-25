@@ -68,13 +68,23 @@ float heuristic_cost_estimate(gnode * a,gnode * b){
 	int ay=a->id%config.gridsize;
 	int bx=b->id/config.gridsize;
 	int by=b->id%config.gridsize;
-//	printf("%f\n",sqrt(ax*bx+ay*by));
-//	printf("%d %d %d %d\n\n",ax,ay,bx,by);
 	return sqrt((ax-bx)*(ax-bx)+(ay-by)*(ay-by));
 	
 }
 
-int cost(gnode* x,gnode* y){
+int cost(gnode * grid,gnode* a,gnode* b){
+	if (b->tower!=0)
+		return 50;
+	int x1=idtox(a->id),
+		y1=idtoy(a->id);
+	int x2=idtox(b->id),
+		y2=idtoy(b->id);
+	if (abs(x1-x2)==1 && abs(y1-y2)==1)
+		if(grid[to2d(x1,y2)].tower!=0 || grid[to2d(x2,y1)].tower!=0 ||
+			grid[to2d(x1,y2)].walkable<=0 || grid[to2d(x2,y1)].walkable<=0){
+			return 10;
+		}
+	
 	return 1;
 	return -1;
 	
@@ -101,7 +111,6 @@ int * neighbor_nodes(gnode* grid,gnode* n){
 		if (a[i]>0)
 			if (grid[a[i]].walkable>0)
 				z[++j]=a[i];
-		//printf("%d\n",out);
 	*z=j;
 	return z;
 }
@@ -143,7 +152,7 @@ int aSearch(gnode* grid,gnode* start,gnode* goal, int* path){
 			if (setFind(closedset,grid+y[i])>0)      
 				continue;
 	 
-			int tentative_g_score = x->g +cost(x,grid+y[i]);  
+			int tentative_g_score = x->g +cost(grid,x,grid+y[i]);  
 			if (setFind(openset,grid+y[i])<=0){
 				tentative_is_better = 1;
 				setAdd(openset,&grid[y[i]]);
@@ -162,7 +171,6 @@ int aSearch(gnode* grid,gnode* start,gnode* goal, int* path){
 						grid[y[i]].f = grid[y[i]].g + grid[y[i]].h;
 						
 					}
-				
 		}
 		free(y);
 	}

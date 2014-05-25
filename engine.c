@@ -2,16 +2,26 @@
 #include "engine.h"
 
 
-int timePassed(){
+int timePassed(int i){
 	//config.time  struct timeval
 	struct timeval end;
 	gettimeofday(&end, NULL);
-	int out=(end.tv_usec - config.time.tv_usec);
-	if(config.time.tv_usec!=0)
+	int out=((end.tv_sec - config.time.tv_sec)*1000000+
+			end.tv_usec - config.time.tv_usec);
+	if(i>0)
 		if (out>1000000/TPS)
 			perror("time to tick");
 	memcpy(&config.time,&end,sizeof(end));
 	return out;
+}
+
+
+void syncTPS(){
+	int z=timePassed(1);
+	if((z=1000000/TPS-z)>0){
+		usleep(z);
+	}
+	timePassed(0);
 }
 
 
@@ -165,7 +175,7 @@ tower* findNearTower(gnode* grid,npc* n){
 	return n->ttarget;
 }
 void tickTargetNpc(gnode* grid,npc* n){
-	if ((n->ttarget=findNearTower(grid,n))!=0)
+	if (findNearTower(grid,n)!=0)
 		return;
 	int id;
 	if((id=findEnemyBase((int)n->isfriend))<0){
