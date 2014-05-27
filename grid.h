@@ -86,9 +86,10 @@ struct npc_type{
 typedef
 struct tower{
 	int id;
-	int position;
+	int position;//id of node
 	int type;
 	int health;
+	int shield;
 	int energy;
 	int attack_count;
 	int owner;
@@ -121,6 +122,7 @@ struct bullet{
 	int id;
 	vec position;
 	vec destination;
+	vec source;
 	int type;
 	int speed;
 	union {
@@ -197,5 +199,5 @@ engine_config config;
 int aSearch(gnode* grid,gnode* start,gnode* goal, int* path);//start-куда, goal-откуда
 #define setNPCPath(grid,start,goul) aSearch(grid,grid+goul,grid+start)
 
-#define getGlobalId() config.global_id++
+#define getGlobalId() (++config.global_id!=0?config.global_id:++config.global_id)
 

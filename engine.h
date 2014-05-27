@@ -21,11 +21,17 @@ void setNpcBase(npc* n);
 
 npc* spawnNpc(gnode* grid,int node_id,int isfriend,int type);
 
+void tickCleanNpc(gnode* grid,npc* n);
+
 void tickTargetNpc(gnode* grid,npc* n);
+
+void tickAttackNpc(gnode* grid,npc* n);
 
 void tickMoveNpc(gnode* grid,npc* n);
 
 void forEachNpc(gnode* grid, void (process)(gnode*g,npc*n));
+
+tower* diedCheckTower(tower* n);
 
 void setTowerBase(tower* t);
 

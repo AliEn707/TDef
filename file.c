@@ -60,6 +60,7 @@ void loadTypes(char * filepath){
 	fscanf(file,"%s\n",buf);
 	{
 		tower_type t[1000];
+		memset(t,0,sizeof(t));
 		do{
 			config.tower_types_size=i;
 			fscanf(file,"%d ",&i);
@@ -92,6 +93,7 @@ void loadTypes(char * filepath){
 	}	
 	{
 		npc_type t[1000];
+		memset(t,0,sizeof(t));
 		do{
 			config.npc_types_size=i;
 			fscanf(file,"%d ",&i);

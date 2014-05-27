@@ -18,9 +18,11 @@ int timePassed(int i){
 
 void syncTPS(){
 	int z=timePassed(1);
-	if((z=1000000/TPS-z)>0){
+	int must=1000;
+	if((z=(1000000/TPS-must)-z)>0){
 		usleep(z);
 	}
+	usleep(must);
 	timePassed(0);
 }
 
@@ -151,39 +153,112 @@ npc* spawnNpc(gnode* grid,int node_id,int isfriend,int type){
 	return n;
 }
 
-tower* findNearTower(gnode* grid,npc* n){
+int canSee(gnode* grid,vec* a,vec* b){
+	return 1;
+}
+
+int canWalkThrough(gnode* grid,vec* a,vec* b){
+	return 1;
+}
+
+
+
+
+tower* findNearTower(gnode* grid,npc* n,int range){
 	/**/
 	int i,j,k;
 	int x=(int)n->position.x;
 	int y=(int)n->position.y;
 	int yid,xid;
-	for(i=0;i<config.npc_types[n->type].see_distanse;i++)
+	for(i=0;i<range;i++){
 		for(j=0;j<config.area_size[i];j++)
 			if (((xid=x+config.area_array[i][j].x)>=0 && x+config.area_array[i][j].x<config.gridsize) &&
 					((yid=y+config.area_array[i][j].y)>=0 && y+config.area_array[i][j].y<config.gridsize))
 				if (grid[to2d(xid,yid)].tower!=0)
-					if(config.players[grid[to2d(xid,yid)].tower->owner].isfriend!=n->isfriend){
-						n->ttarget=grid[to2d(xid,yid)].tower;
-						if(rand()%100<40)
-							return n->ttarget;
-					}
-			
+					if (canSee(grid,&(vec){x+0.5,y+0.5},&(vec){xid+0.5,yid+0.5})) //can see check
+						if(config.players[grid[to2d(xid,yid)].tower->owner].isfriend!=n->isfriend)
+							if(canWalkThrough(grid,&(vec){x+0.5,y+0.5},&(vec){xid+0.5,yid+0.5})|| rand()%100<30){//can walk check or rand<30%
+								n->ttarget=grid[to2d(xid,yid)].tower;
+								if(rand()%100<40)
+									return n->ttarget;
+							}
+		if(n->ttarget!=0)
+			return n->ttarget;
+	}
 //	config.area_array
 //	config.tower_types[i].see_distanse
-	if (n->ttarget==0)
-		return 0;
 	return n->ttarget;
 }
+
+
 void tickTargetNpc(gnode* grid,npc* n){
-	if (findNearTower(grid,n)!=0)
-		return;
-	int id;
-	if((id=findEnemyBase((int)n->isfriend))<0){
-		perror("findEnemyBase tickTargetNpc");
-		return;
+	if (n->status!=IN_ATTACK){
+		if(n->ttarget==0)
+			if (findNearTower(grid,n,config.npc_types[n->type].see_distanse)!=0)
+				return;
+		//if near no Towers
+		int id;
+		if((id=findEnemyBase((int)n->isfriend))<0){
+			perror("findEnemyBase tickTargetNpc");
+			return;
+		}
+		if ((n->ttarget=grid[id].tower)==0)
+			perror("ttarget tickTargetNpc");
 	}
-	if ((n->ttarget=grid[id].tower)==0)
-		perror("ttarget tickTargetNpc");
+}
+
+
+void tickAttackNpc(gnode* grid,npc* n){
+	if (n->status==IN_ATTACK){
+		//if target !=0
+		//-attacking
+		//else set IN_MOVE
+	}else{
+		//search target in attack distanse
+		//if finded set IN_ATTACK
+		tower* tmp=n->ttarget;
+		n->ttarget=0;
+		if (findNearTower(grid,n,config.npc_types[n->type].attack_distanse)!=0){
+			n->status=IN_ATTACK;
+			printf("%d\n",config.npc_types[n->type].attack_distanse);
+			return;
+		}
+		n->ttarget=tmp;
+	}
+}
+  
+void tickDiedCheckNpc(gnode* grid,npc* n){
+	n->ttarget=diedCheckTower(n->ttarget);
+	
+}
+
+
+
+/*
+must be this
+tickDiedCheckNpc
+tickDiedCheckTower
+tickCleanNpc
+tickCleanTower
+tickCleanBullet
+tickTargetNpc
+tickAtackNpc
+tickAtackTower
+tickProcessBullet
+tickMoveNpc
+tickMiscNpc
+tickMiscTower
+
+some user stuff
+-remove tower set it to died
+
+*/
+
+
+void tickCleanNpc(gnode* grid,npc* n){
+	if (n->health<0)
+		memset(n,0,sizeof(npc));
+	//foeachNpc
 }
 
 void tickMoveNpc(gnode* grid,npc* n){
@@ -238,6 +313,15 @@ void forEachNpc(gnode* grid, void (process)(gnode*g,npc*n)){//add function
 }
 
 //////////////towers
+tower* diedCheckTower(tower* n){
+	if (n==0)
+		return 0;
+	if (n->type!=BASE)
+		if (n->health<=0)
+			return 0;
+	return n;
+}
+
 
 void setTowerBase(tower* t){
 	if (t->type==BASE){
@@ -264,10 +348,14 @@ tower* spawnTower(gnode * grid,int node_id,int owner,int type){
 	return t;
 }
 
+int delTower(){
+	
+}
+
 int removeTower(gnode * grid,tower* t){
 	gnode * node=&grid[t->position];
 	node->tower=0;
-	memset(t,0,sizeof(tower));
+	t->health=-1;
 	return 0;
 }
 

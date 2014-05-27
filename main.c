@@ -49,15 +49,15 @@ int main(){
 	initArrays();
 	timePassed(0);
 	
-	npc* n=spawnNpc(grid,3,0,1);
-	npc* n2=spawnNpc(grid,3,0,2);
-	spawnNpc(grid,5,0,3);
+	npc* n=spawnNpc(grid,4,0,1);
+	npc* n2=spawnNpc(grid,5,0,2);
+	spawnNpc(grid,6,0,3);
 	setupPlayer(0,1,0);
 	setupPlayer(1,0,0);
 	spawnTower(grid,75,0,1);
-	spawnTower(grid,71,0,2);
+	spawnTower(grid,22,0,2);
 	
-	npc* n3=spawnNpc(grid,51,0,2);
+	npc* n3=spawnNpc(grid,42,0,2);
 	
 	
 	
@@ -105,6 +105,7 @@ int main(){
 	drawGrid(grid);
 	
 	forEachNpc(grid,tickTargetNpc);
+	forEachNpc(grid,tickAttackNpc);
 	forEachNpc(grid,tickMoveNpc);
 	
 	int z;
