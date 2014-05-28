@@ -63,25 +63,6 @@ npc* newNpc(){
 	return 0;
 }
 
-tower* newTower(){
-	int i;
-	for(i=0;i<config.tower_max;i++)
-		if (config.tower_array[i].id==0){
-			config.tower_array[i].id=getGlobalId();
-			return &config.tower_array[i];
-		}	
-	return 0;
-}
-
-bullet* newBullet(){
-	int i;
-	for(i=0;i<config.bullet_max;i++)
-		if (config.bullet_array[i].id==0){
-			config.bullet_array[i].id=getGlobalId();
-			return &config.bullet_array[i];
-		}
-	return 0;
-}
 
 npc* addNpc(gnode* node,npc* n){
 	npc **root=n->isfriend==1?&node->fnpcs:&node->enpcs;
@@ -190,6 +171,27 @@ tower* findNearTower(gnode* grid,npc* n,int range){
 	return n->ttarget;
 }
 
+npc* diedCheckNpc(npc* n){
+	return n;
+}
+
+
+int findEnemyBase(int isfriend){
+	#define t config.tower_array
+	int i;
+	int id=-1;
+	for(i=0;i<config.tower_max;i++)
+		if (t[i].id>0)
+			if (t[i].type==BASE)
+				if (config.players[t[i].owner].isfriend!=isfriend){//add friend check
+					id=t[i].position;
+					if (rand()%100<40)
+						return id;
+				}
+	return id;
+	#undef t
+}
+
 
 void tickTargetNpc(gnode* grid,npc* n){
 	if (n->status!=IN_ATTACK){
@@ -213,6 +215,23 @@ void tickAttackNpc(gnode* grid,npc* n){
 		//if target !=0
 		//-attacking
 		//else set IN_MOVE
+		//???????
+		if (n->ttarget!=0)
+			if (n->attack_count>=config.npc_types[n->type].attack_speed){
+				n->attack_count=0;
+				bullet* b;//set params of bullet
+				if ((b=newBullet())==0){
+					perror("newBullet tickAttackBullet");
+					return;
+				}
+				memcpy(&b->position,&n->position,sizeof(vec));
+				memcpy(&b->source,&n->position,sizeof(vec));
+				b->destination.x=getGridx(n->ttarget->position);
+				b->destination.y=getGridy(n->ttarget->position);
+				b->type=config.npc_types[n->type].bullet_type;
+				b->damage=config.npc_types[n->type].damage;
+//				memcpy(&b->effects,&config.npc_types[n->type].effects,sizeof(effects));
+			}
 	}else{
 		//search target in attack distanse
 		//if finded set IN_ATTACK
@@ -229,13 +248,15 @@ void tickAttackNpc(gnode* grid,npc* n){
   
 void tickDiedCheckNpc(gnode* grid,npc* n){
 	n->ttarget=diedCheckTower(n->ttarget);
-	
 }
 
 
 
 /*
 must be this
+tickMiscNpc
+tickMiscTower
+tickMiscBullet
 tickDiedCheckNpc
 tickDiedCheckTower
 tickCleanNpc
@@ -246,8 +267,6 @@ tickAtackNpc
 tickAtackTower
 tickProcessBullet
 tickMoveNpc
-tickMiscNpc
-tickMiscTower
 
 some user stuff
 -remove tower set it to died
@@ -305,6 +324,13 @@ void tickMoveNpc(gnode* grid,npc* n){
 	}
 }
 
+void tickMiscNpc(gnode* grid,npc* n){
+	if (n->attack_count<config.npc_types[n->type].attack_speed)
+		n->attack_count++;
+	n->bit_mask=0;
+}
+
+
 void forEachNpc(gnode* grid, void (process)(gnode*g,npc*n)){//add function
 	int i;
 	for(i=0;i<config.npc_max;i++)
@@ -313,6 +339,19 @@ void forEachNpc(gnode* grid, void (process)(gnode*g,npc*n)){//add function
 }
 
 //////////////towers
+
+tower* newTower(){
+	int i;
+	for(i=0;i<config.tower_max;i++)
+		if (config.tower_array[i].id==0){
+			config.tower_array[i].id=getGlobalId();
+			return &config.tower_array[i];
+		}	
+	return 0;
+}
+
+
+
 tower* diedCheckTower(tower* n){
 	if (n==0)
 		return 0;
@@ -348,7 +387,7 @@ tower* spawnTower(gnode * grid,int node_id,int owner,int type){
 	return t;
 }
 
-int delTower(){
+int delTower(tower* t){
 	
 }
 
@@ -359,21 +398,68 @@ int removeTower(gnode * grid,tower* t){
 	return 0;
 }
 
-int findEnemyBase(int isfriend){
-	#define t config.tower_array
-	int i;
-	int id=-1;
-	for(i=0;i<config.tower_max;i++)
-		if (t[i].id>0)
-			if (t[i].type==BASE)
-				if (config.players[t[i].owner].isfriend!=isfriend){//add friend check
-					id=t[i].position;
-					if (rand()%100<40)
-						return id;
-				}
-	return id;
-	#undef t
+void tickMiscTower(gnode* grid,tower* t){
+	if (t->attack_count<config.tower_types[t->type].attack_speed)
+		t->attack_count++;
+	t->bit_mask=0;
 }
+
+void tickDiedCheckTower(gnode* grid,tower* t){
+	/**/
+}
+
+void tickAttackTower(gnode* grid,tower* t){
+	/**/
+}
+
+void tickCleanTower(gnode* grid,tower* t){
+	/**/
+}
+
+
+
+void forEachTower(gnode* grid, void (process)(gnode*g,tower*t)){//add function
+	int i;
+	for(i=0;i<config.tower_max;i++)
+		if(config.tower_array[i].id>0)
+			process(grid,&config.tower_array[i]);
+}
+
+
+
+/////bulet
+
+bullet* newBullet(){
+	int i;
+	for(i=0;i<config.bullet_max;i++)
+		if (config.bullet_array[i].id==0){
+			config.bullet_array[i].id=getGlobalId();
+			return &config.bullet_array[i];
+		}
+	return 0;
+}
+
+void tickMiscBullet(gnode * grid,bullet * b){
+	
+}
+
+void tickCleanBullet(gnode * grid,bullet * b){
+	
+}
+
+void tickProcessBullet(gnode * grid,bullet * b){
+	
+}
+
+
+
+void forEachBullet(gnode* grid, void (process)(gnode*g,bullet*b)){
+	int i;
+	for(i=0;i<config.bullet_max;i++)
+		if(config.bullet_array[i].id>0)
+			process(grid,&config.bullet_array[i]);
+}
+
 
 //////////////players
 

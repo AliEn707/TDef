@@ -60,8 +60,9 @@ struct tower_type{
 	int distanse;
 	int attack_speed; //ticks to attack
 	int cost;
-	char ignor_type;
-	char prior_type;
+	int ignor_type;
+	int prior_type;
+	int bullet_type;
 	effect effects;   //наносимые эффекты
 }tower_type;
 
@@ -76,16 +77,23 @@ struct npc_type{
 	int attack_speed;
 	float move_speed;
 	int cost;
-	char type;
-	char ignor_type;
-	char prior_type;
+	int type;
+	int ignor_type;
+	int prior_type;
+	int bullet_type;
 	effect effects;  //наносимые эффекты
 }npc_type;
 
+typedef
+struct bullet_type{
+	int id;
+	float speed;
+}bullet_type;
 
 typedef
 struct tower{
 	int id;
+	int bit_mask;
 	int position;//id of node
 	int type;
 	int health;
@@ -101,16 +109,17 @@ typedef
 struct npc{
 	char status;
 	char isfriend;
+	int bit_mask;
 	vec position;
 	vec destination;
 	int id;
 	int type;
 	int health;
 	int shield;
-	int attack_count;
 	effect effects; //полученные эффекты
 	struct npc* ntarget;
 	struct tower* ttarget;
+	int attack_count;
 	int path_count;
 	int path[NPC_PATH];
 	struct npc * next; //for list in gnode
@@ -124,11 +133,8 @@ struct bullet{
 	vec destination;
 	vec source;
 	int type;
-	int speed;
-	union {
-		struct npc* ntarget;
-		struct tower* ttarget;
-	};
+	int damage;
+	effect effects;
 }bullet;
 
 
