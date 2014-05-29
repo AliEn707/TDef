@@ -4,12 +4,44 @@
 #include "file.h"
 //Test main file
 
-void pinfo(npc* n){
-	int i;
-	printf("%g %g -> %g %g\n",n->position.x,n->position.y,n->destination.x,n->destination.y);
-	for(i=0;i<NPC_PATH;i++)
-		printf("%d ",n->path[i]);
-	printf("\n");
+void pinfo(){
+	int i=0,
+		j=0,
+		k=0;
+	printf("Towers\t\t\tNpcs\t\t\tBullets\n");
+	while(i<config.tower_max||
+		j<config.npc_max||
+		k<config.bullet_max){
+		for(;config.tower_array[i].id<=0 && i<config.tower_max;i++);
+		if (i<config.tower_max){
+			printf("%d(%d)%d ",config.tower_array[i].id,
+					config.tower_array[i].position,
+					config.tower_array[i].health
+					);
+			i++;
+		}
+		printf("|\t\t\t");
+		for(;config.npc_array[j].id<=0 && j<config.npc_max;j++);
+		if (j<config.npc_max){
+			printf("%d(%g,%g)%d",config.npc_array[j].id,
+					config.npc_array[j].position.x,
+					config.npc_array[j].position.y,
+					config.npc_array[j].health
+					);
+			j++;
+		}
+		printf("|\t\t\t");
+		for(;config.bullet_array[k].id<=0 && k<config.bullet_max;k++);
+		if (k<config.bullet_max){
+			printf("%d(%g,%g) ",config.bullet_array[k].id,
+					config.bullet_array[k].position.x,
+					config.bullet_array[k].position.y
+					);
+			k++;
+		}
+		printf("\n");
+	}
+	
 		
 }
 
@@ -112,6 +144,7 @@ int main(){
 	z=timePassed(1);
 	printf("time %d",z);
 	
+	//pinfo();
 	sleep(1);
 	printf("\n");
 	}

@@ -81,6 +81,8 @@ struct npc_type{
 	int ignor_type;
 	int prior_type;
 	int bullet_type;
+	int support;
+	int receive;
 	effect effects;  //наносимые эффекты
 }npc_type;
 
@@ -175,6 +177,8 @@ struct config{
 		npc_type* npc_types;
 		struct npc* npc_array;
 	unsigned int bullet_max;
+	unsigned int bullet_types_size;
+		bullet_type* bullet_types;
 		struct bullet* bullet_array;
 	unsigned int global_id;
 	int player_max;

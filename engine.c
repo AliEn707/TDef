@@ -239,7 +239,7 @@ void tickAttackNpc(gnode* grid,npc* n){
 		n->ttarget=0;
 		if (findNearTower(grid,n,config.npc_types[n->type].attack_distanse)!=0){
 			n->status=IN_ATTACK;
-			printf("%d\n",config.npc_types[n->type].attack_distanse);
+//			printf("%d\n",config.npc_types[n->type].attack_distanse);
 			return;
 		}
 		n->ttarget=tmp;

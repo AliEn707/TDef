@@ -55,76 +55,188 @@ void loadTypes(char * filepath){
 	if ((file=fopen(filepath,"r"))==0) 
 		perror("fopen loadTypes");
 	char buf[100];
-	int i;
-	fscanf(file,"%d ",&i);
-	fscanf(file,"%s\n",buf);
-	{
-		tower_type t[1000];
-		memset(t,0,sizeof(t));
-		do{
-			config.tower_types_size=i;
-			fscanf(file,"%d ",&i);
-			if (i==-1)
-				fscanf(file,"%s\n",buf);
-			else{
-				t[i].id=i;
-				fscanf(file,"%d %d %d %d %d %d %d\n",
-						&t[i].health,
-						&t[i].damage,
-						&t[i].energy,
-						&t[i].shield,
-						&t[i].distanse,
-						&t[i].attack_speed,
-						&t[i].cost
-				);
-				fscanf(file," %f %f %f %d %d\n",
-						&t[i].effects.speed,
-						&t[i].effects.shield,
-						&t[i].effects.damage,
-						&t[i].effects.time,
-						&t[i].effects.status
-				);
-			}
-		}while(i!=-1);
-		config.tower_types_size++;
-		if ((config.tower_types=malloc(sizeof(tower_type)*config.tower_types_size))==0)
-			perror("malloc tower_types loadTypes");
-		memcpy(config.tower_types,t,sizeof(tower_type)*config.tower_types_size);
-	}	
-	{
-		npc_type t[1000];
-		memset(t,0,sizeof(t));
-		do{
-			config.npc_types_size=i;
-			fscanf(file,"%d ",&i);
-			if (i==-1)
-				fscanf(file,"%s\n",buf);
-			else{
-				t[i].id=i;
-				fscanf(file,"%d %d %d  %d %d %f %d\n",
-						&t[i].health,
-						&t[i].damage,
-						&t[i].shield,
-						&t[i].see_distanse,
-						&t[i].attack_speed,
-						&t[i].move_speed,
-						&t[i].cost
-				);
-				t[i].move_speed/=TPS;
-				fscanf(file," %f %f %f %d %d\n",
-						&t[i].effects.speed,
-						&t[i].effects.shield,
-						&t[i].effects.damage,
-						&t[i].effects.time,
-						&t[i].effects.status
-				);
-			}
-		}while(i!=-1);
-		config.npc_types_size++;
-		if ((config.npc_types=malloc(sizeof(npc_type)*config.npc_types_size))==0)
-			perror("malloc npc_types loadTypes");
-		memcpy(config.npc_types,t,sizeof(npc_type)*config.npc_types_size);
-	}	
+	int i=1;
+	while(feof(file)==0){
+		memset(buf,0,sizeof(buf));
+		fscanf(file,"%s ",buf);
+//		printf("%s  ||\n",buf);
+		if (strcmp(buf,"TOWER_TYPE")==0){
+			int tmp;
+			fscanf(file,"%d\n",&tmp);
+			if((config.tower_types=malloc(sizeof(tower_type)*(tmp+1)))==0)
+				perror("malloc tower loadTypes");
+			continue;
+		}
+		if (strcmp(buf,"NPC_TYPE")==0){
+			int tmp;
+			fscanf(file,"%d\n",&tmp);
+			if((config.npc_types=malloc(sizeof(npc_type)*(tmp+1)))==0)
+				perror("malloc npc loadTypes");
+			break;
+		}
+		if (strcmp(buf,"//-")==0){
+			fscanf(file,"%s\n",buf);
+			i++;
+			continue;
+		}
+		if (strcmp(buf,"name")==0){
+			fscanf(file,"%s\n",buf);
+			continue;
+		}
+		if (strcmp(buf,"id")==0){
+			fscanf(file,"%d\n",&config.tower_types[i].id);
+			continue;
+		}
+		if (strcmp(buf,"health")==0){
+			fscanf(file,"%d\n",&config.tower_types[i].health);
+			continue;
+		}
+		if (strcmp(buf,"damage")==0){
+			fscanf(file,"%d\n",&config.tower_types[i].damage);
+			continue;
+		}
+		if (strcmp(buf,"energy")==0){
+			fscanf(file,"%d\n",&config.tower_types[i].energy);
+			continue;
+		}
+		if (strcmp(buf,"shield")==0){
+			fscanf(file,"%d\n",&config.tower_types[i].shield);
+			continue;
+		}
+		if (strcmp(buf,"attack_distanse")==0){
+			fscanf(file,"%d\n",&config.tower_types[i].distanse);
+			continue;
+		}
+		if (strcmp(buf,"attack_speed")==0){
+			float tmp;
+			fscanf(file,"%f\n",&tmp);
+			config.tower_types[i].attack_speed=TPS/tmp;
+			continue;
+		}
+		if (strcmp(buf,"cost")==0){
+			fscanf(file,"%d\n",&config.tower_types[i].cost);
+			continue;
+		}
+		if (strcmp(buf,"ignor_type")==0){
+			fscanf(file,"%d\n",&config.tower_types[i].ignor_type);
+			continue;
+		}
+		if (strcmp(buf,"prior_type")==0){
+			fscanf(file,"%d\n",&config.tower_types[i].prior_type);
+			continue;
+		}
+		if (strcmp(buf,"bullet_type")==0){
+			fscanf(file,"%d\n",&config.tower_types[i].bullet_type);
+			continue;
+		}
+		
+	}
+	config.tower_types_size=i;
+	printf("\t\t%d\n",config.tower_types_size);
+	i=1;
+	while(feof(file)==0){
+		memset(buf,0,sizeof(buf));
+		fscanf(file,"%s ",buf);
+//		printf("%s  ||\n",buf);
+		if (strcmp(buf,"BULLET_TYPE")==0){
+			int tmp;
+			fscanf(file,"%d\n",&tmp);
+			if((config.bullet_types=malloc(sizeof(bullet_type)*(tmp+1)))==0)
+				perror("malloc tower loadTypes");
+			break;
+		}
+		if (strcmp(buf,"//-")==0){
+			fscanf(file,"%s\n",buf);
+			i++;
+			continue;
+		}
+		if (strcmp(buf,"name")==0){
+			fscanf(file,"%s\n",buf);
+			continue;
+		}
+		if (strcmp(buf,"id")==0){
+			fscanf(file,"%d\n",&config.npc_types[i].id);
+			continue;
+		}
+		if (strcmp(buf,"health")==0){
+			fscanf(file,"%d\n",&config.npc_types[i].health);
+			continue;
+		}
+		if (strcmp(buf,"damage")==0){
+			fscanf(file,"%d\n",&config.npc_types[i].damage);
+			continue;
+		}
+		if (strcmp(buf,"shield")==0){
+			fscanf(file,"%d\n",&config.npc_types[i].shield);
+			continue;
+		}
+		if (strcmp(buf,"support")==0){
+			fscanf(file,"%d\n",&config.npc_types[i].support);
+			continue;
+		}
+		if (strcmp(buf,"see_distanse")==0){
+			fscanf(file,"%d\n",&config.npc_types[i].see_distanse);
+			continue;
+		}
+		if (strcmp(buf,"attack_distanse")==0){
+			fscanf(file,"%d\n",&config.npc_types[i].attack_distanse);
+			continue;
+		}
+		if (strcmp(buf,"attack_speed")==0){
+			float tmp;
+			fscanf(file,"%f\n",&tmp);
+			config.npc_types[i].attack_speed=TPS/tmp;
+			continue;
+		}
+		if (strcmp(buf,"move_speed")==0){
+			float tmp;
+			fscanf(file,"%f\n",&tmp);
+			config.npc_types[i].move_speed=tmp/TPS;
+			continue;
+		}
+		if (strcmp(buf,"cost")==0){
+			fscanf(file,"%d\n",&config.npc_types[i].cost);
+			continue;
+		}
+		if (strcmp(buf,"receive")==0){
+			fscanf(file,"%d\n",&config.npc_types[i].receive);
+			continue;
+		}
+		if (strcmp(buf,"bullet_type")==0){
+			fscanf(file,"%d\n",&config.npc_types[i].bullet_type);
+			continue;
+		}
+		if (strcmp(buf,"type")==0){
+			fscanf(file,"%d\n",&config.npc_types[i].type);
+			continue;
+		}
+		
+	}
+	config.npc_types_size=i;
+	i=1;
+	while(feof(file)==0){
+		memset(buf,0,sizeof(buf));
+		fscanf(file,"%s ",buf);
+//		printf("%s  ||\n",buf);
+		if (strcmp(buf,"name")==0){
+			fscanf(file,"%s\n",buf);
+			continue;
+		}
+		if (strcmp(buf,"//-")==0){
+			fscanf(file,"%s\n",buf);
+			i++;
+			continue;
+		}
+		if (strcmp(buf,"id")==0){
+			fscanf(file,"%f\n",&config.bullet_types[i].id);
+			continue;
+		}
+		if (strcmp(buf,"speed")==0){
+			fscanf(file,"%f\n",&config.bullet_types[i++].speed);
+			continue;
+		}
+	config.bullet_types_size=i;
+	}
 //	printf("%d %d\n",config.tower_types_size,config.npc_types_size);
 	fclose(file);
 }
