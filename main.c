@@ -23,10 +23,11 @@ void pinfo(){
 		printf("|\t\t\t");
 		for(;config.npc_array[j].id<=0 && j<config.npc_max;j++);
 		if (j<config.npc_max){
-			printf("%d(%g,%g)%d",config.npc_array[j].id,
+			printf("%d(%g,%g)%d %d",config.npc_array[j].id,
 					config.npc_array[j].position.x,
 					config.npc_array[j].position.y,
-					config.npc_array[j].health
+					config.npc_array[j].health,
+					config.npc_array[j].status
 					);
 			j++;
 		}
@@ -136,6 +137,9 @@ int main(){
 	
 	drawGrid(grid);
 	
+	forEachNpc(grid,tickMiscNpc);
+	forEachNpc(grid,tickDiedCheckNpc);
+	forEachNpc(grid,tickCleanNpc);
 	forEachNpc(grid,tickTargetNpc);
 	forEachNpc(grid,tickAttackNpc);
 	forEachNpc(grid,tickMoveNpc);
@@ -144,12 +148,10 @@ int main(){
 	z=timePassed(1);
 	printf("time %d",z);
 	
-	//pinfo();
-	sleep(1);
+	pinfo();
+	usleep(500000);
 	printf("\n");
 	}
-//	pinfo(n);
-//	pinfo(n2);
 	
 	
 //	vec v={1.5,1.3};

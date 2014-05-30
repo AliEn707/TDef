@@ -135,10 +135,113 @@ npc* spawnNpc(gnode* grid,int node_id,int isfriend,int type){
 }
 
 int canSee(gnode* grid,vec* a,vec* b){
+	float x1=a->x;
+	float y1=a->y;
+	float x2=b->x;
+	float y2=b->y;
+	int destination=to2d((int)x2,(int)y2);
+//	printf("%g %g",x2,y2);
+	if (x1!=x2){
+		if (x1>x2){
+			int tmp;
+			tmp=x1;
+			x1=x2;
+			x2=tmp;
+			tmp=y1;
+			y1=y2;
+			y2=tmp;
+		}
+	
+		float K=(y2-y1)/(x2-x1);
+		float B=(y1*(x2-x1)-x1*(y2-y1))/(x2-x1);
+		 
+		for(;x1<x2;x1+=0.3){
+			y1=K*x1+B;
+			if (to2d(((int)x1),((int)y1))!=destination){
+				if (grid[to2d(((int)x1),((int)y1))].walkable<0||
+					grid[to2d(((int)x1),((int)y1))].tower>0){
+					return -1;
+				}
+			}
+		}
+	}else{
+		if (y1>y2){
+			int tmp;
+			tmp=x1;
+			x1=x2;
+			x2=tmp;
+			tmp=y1;
+			y1=y2;
+			y2=tmp;
+		}
+	
+		float K=(x2-x1)/(y2-y1);
+		float B=(x1*(y2-y1)-y1*(x2-x1))/(y2-y1);
+		 
+		for(;y1<y2;y1+=0.3){
+			x1=K*y1+B;
+			if (to2d(((int)x1),((int)y1))!=destination){
+				if (grid[to2d(((int)x1),((int)y1))].walkable<0||
+					grid[to2d(((int)x1),((int)y1))].tower>0){
+					return -1;
+				}
+			}
+		}
+	}
 	return 1;
 }
 
 int canWalkThrough(gnode* grid,vec* a,vec* b){
+	float x1=a->x;
+	float y1=a->y;
+	float x2=b->x;
+	float y2=b->y;
+	int destination=to2d((int)x2,(int)y2);
+	if (x1!=x2){
+		if (x1>x2){
+			int tmp;
+			tmp=x1;
+			x1=x2;
+			x2=tmp;
+			tmp=y1;
+			y1=y2;
+			y2=tmp;
+		}
+		float K=(y2-y1)/(x2-x1);
+		float B=(y1*(x2-x1)-x1*(y2-y1))/(x2-x1);
+		
+		for(;x1<=x2;x1+=0.3){
+			y1=K*x1+B;
+			if (to2d(((int)x1),((int)y1))!=destination){
+				if (grid[to2d(((int)x1),((int)y1))].walkable<=0||
+					grid[to2d(((int)x1),((int)y1))].tower>0){
+					return -1;
+				}
+			}
+		}
+	}else{
+		if (y1>y2){
+			int tmp;
+			tmp=x1;
+			x1=x2;
+			x2=tmp;
+			tmp=y1;
+			y1=y2;
+			y2=tmp;
+		}
+		float K=(x2-x1)/(y2-y1);
+		float B=(x1*(y2-y1)-y1*(x2-x1))/(y2-y1);
+		 
+		for(;y1<=y2;y1+=0.3){
+			x1=K*y1+B;
+			if (to2d(((int)x1),((int)y1))!=destination){
+				if (grid[to2d(((int)x1),((int)y1))].walkable<=0||
+					grid[to2d(((int)x1),((int)y1))].tower>0){
+					return -1;
+				}
+			}
+		}
+	}
 	return 1;
 }
 
@@ -151,15 +254,17 @@ tower* findNearTower(gnode* grid,npc* n,int range){
 	int x=(int)n->position.x;
 	int y=(int)n->position.y;
 	int yid,xid;
+	printf("%d\n",n->id);
 	for(i=0;i<range;i++){
 		for(j=0;j<config.area_size[i];j++)
 			if (((xid=x+config.area_array[i][j].x)>=0 && x+config.area_array[i][j].x<config.gridsize) &&
 					((yid=y+config.area_array[i][j].y)>=0 && y+config.area_array[i][j].y<config.gridsize))
 				if (grid[to2d(xid,yid)].tower!=0)
-					if (canSee(grid,&(vec){x+0.5,y+0.5},&(vec){xid+0.5,yid+0.5})) //can see check
+					if (canSee(grid,&(vec){n->position.x,n->position.y},&(vec){xid+0.5,yid+0.5})>0) //can see check
 						if(config.players[grid[to2d(xid,yid)].tower->owner].isfriend!=n->isfriend)
-							if(canWalkThrough(grid,&(vec){x+0.5,y+0.5},&(vec){xid+0.5,yid+0.5})|| rand()%100<30){//can walk check or rand<30%
+							if(canWalkThrough(grid,&(vec){n->position.x,n->position.y},&(vec){xid+0.5,yid+0.5})>0 || rand()%100<30){//can walk check or rand<30%
 								n->ttarget=grid[to2d(xid,yid)].tower;
+//								printf("? %d\n",to2d(xid,yid));
 								if(rand()%100<40)
 									return n->ttarget;
 							}
@@ -216,6 +321,7 @@ void tickAttackNpc(gnode* grid,npc* n){
 		//-attacking
 		//else set IN_MOVE
 		//???????
+//		printf("\t%d %d\n",n->attack_count,config.npc_types[n->type].attack_speed);
 		if (n->ttarget!=0)
 			if (n->attack_count>=config.npc_types[n->type].attack_speed){
 				n->attack_count=0;
