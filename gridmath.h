@@ -10,5 +10,5 @@ float gsqrt(float a);
 
 float glength(vec* v1,vec* v2);
 
-void getDir(vec* v1,vec* v2, vec* out);
+float getDir(vec* v1,vec* v2, vec* out);
 

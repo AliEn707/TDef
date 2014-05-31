@@ -65,7 +65,7 @@ npc* newNpc(){
 
 
 npc* addNpc(gnode* node,npc* n){
-	npc **root=n->isfriend==1?&node->fnpcs:&node->enpcs;
+	npc **root=&node->npcs[n->isfriend];
 	if (*root==0){
 		*root=n;
 		return n;
@@ -83,7 +83,7 @@ npc* addNpc(gnode* node,npc* n){
 npc*  getNpc(gnode* grid,npc* n){
 	npc* tmp;
 	gnode * node=&grid[getGridId(n->position)];
-	npc **root=n->isfriend?&node->fnpcs:&node->enpcs;
+	npc **root=&node->npcs[n->isfriend];
 	if (*root!=0){
 		tmp=*root;
 		if (*root==n){
@@ -140,7 +140,7 @@ int canSee(gnode* grid,vec* a,vec* b){
 	float x2=b->x;
 	float y2=b->y;
 	int destination=to2d((int)x2,(int)y2);
-//	printf("%g %g",x2,y2);
+//	printf("%g %g %g %g\n",x1,y1,x2,y2);
 	if (x1!=x2){
 		if (x1>x2){
 			int tmp;
@@ -157,9 +157,11 @@ int canSee(gnode* grid,vec* a,vec* b){
 		 
 		for(;x1<x2;x1+=0.3){
 			y1=K*x1+B;
+//			printf("1} %d\n",to2d(((int)x1),((int)y1)));
 			if (to2d(((int)x1),((int)y1))!=destination){
 				if (grid[to2d(((int)x1),((int)y1))].walkable<0||
 					grid[to2d(((int)x1),((int)y1))].tower>0){
+					printf("!\n");
 					return -1;
 				}
 			}
@@ -180,11 +182,11 @@ int canSee(gnode* grid,vec* a,vec* b){
 		 
 		for(;y1<y2;y1+=0.3){
 			x1=K*y1+B;
+//			printf("2} %d\n",to2d(((int)x1),((int)y1)));
 			if (to2d(((int)x1),((int)y1))!=destination){
 				if (grid[to2d(((int)x1),((int)y1))].walkable<0||
-					grid[to2d(((int)x1),((int)y1))].tower>0){
+					grid[to2d(((int)x1),((int)y1))].tower>0)
 					return -1;
-				}
 			}
 		}
 	}
@@ -212,12 +214,9 @@ int canWalkThrough(gnode* grid,vec* a,vec* b){
 		
 		for(;x1<=x2;x1+=0.3){
 			y1=K*x1+B;
-			if (to2d(((int)x1),((int)y1))!=destination){
-				if (grid[to2d(((int)x1),((int)y1))].walkable<=0||
-					grid[to2d(((int)x1),((int)y1))].tower>0){
-					return -1;
-				}
-			}
+			if (grid[to2d(((int)x1),((int)y1))].walkable<=0||
+				grid[to2d(((int)x1),((int)y1))].tower>0)
+				return -1;
 		}
 	}else{
 		if (y1>y2){
@@ -234,12 +233,9 @@ int canWalkThrough(gnode* grid,vec* a,vec* b){
 		 
 		for(;y1<=y2;y1+=0.3){
 			x1=K*y1+B;
-			if (to2d(((int)x1),((int)y1))!=destination){
-				if (grid[to2d(((int)x1),((int)y1))].walkable<=0||
-					grid[to2d(((int)x1),((int)y1))].tower>0){
-					return -1;
-				}
-			}
+			if (grid[to2d(((int)x1),((int)y1))].walkable<=0||
+				grid[to2d(((int)x1),((int)y1))].tower>0)
+				return -1;
 		}
 	}
 	return 1;
@@ -264,7 +260,7 @@ tower* findNearTower(gnode* grid,npc* n,int range){
 						if(config.players[grid[to2d(xid,yid)].tower->owner].isfriend!=n->isfriend)
 							if(canWalkThrough(grid,&(vec){n->position.x,n->position.y},&(vec){xid+0.5,yid+0.5})>0 || rand()%100<30){//can walk check or rand<30%
 								n->ttarget=grid[to2d(xid,yid)].tower;
-//								printf("? %d\n",to2d(xid,yid));
+								printf("? %d\n",to2d(xid,yid));
 								if(rand()%100<40)
 									return n->ttarget;
 							}
@@ -321,7 +317,7 @@ void tickAttackNpc(gnode* grid,npc* n){
 		//-attacking
 		//else set IN_MOVE
 		//???????
-//		printf("\t%d %d\n",n->attack_count,config.npc_types[n->type].attack_speed);
+		printf("\t%d %d\n",n->attack_count,config.npc_types[n->type].attack_speed);
 		if (n->ttarget!=0)
 			if (n->attack_count>=config.npc_types[n->type].attack_speed){
 				n->attack_count=0;
@@ -336,6 +332,9 @@ void tickAttackNpc(gnode* grid,npc* n){
 				b->destination.y=getGridy(n->ttarget->position);
 				b->type=config.npc_types[n->type].bullet_type;
 				b->damage=config.npc_types[n->type].damage;
+				b->support=config.npc_types[n->type].support;
+				b->isfriend=n->isfriend;
+				b->target=TOWER;
 //				memcpy(&b->effects,&config.npc_types[n->type].effects,sizeof(effects));
 			}
 	}else{
@@ -469,11 +468,7 @@ tower* diedCheckTower(tower* n){
 
 
 void setTowerBase(tower* t){
-	if (t->type==BASE){
-		t->health=config.players[t->owner].base_health;
-//		t->energy=config.players[t->owner].base_energy;
-	}
-	else{
+	{
 		t->health=config.tower_types[t->type].health;
 		t->energy=config.tower_types[t->type].energy;
 	}
@@ -550,11 +545,51 @@ void tickMiscBullet(gnode * grid,bullet * b){
 }
 
 void tickCleanBullet(gnode * grid,bullet * b){
-	
+	if (b->detonate>0)
+		memset(b,0,sizeof(bullet));
 }
 
 void tickProcessBullet(gnode * grid,bullet * b){
-	
+	if (b->detonate==0){
+		vec dir={0,0};
+//		printf("!!%g %g\n",b->position.x,b->position.y);
+		float length=getDir(&b->position,&b->destination,&dir);
+		if (config.bullet_types[b->type].move_type!=SHOT){
+			b->position.x+=dir.x*config.bullet_types[b->type].speed;
+			b->position.y+=dir.y*config.bullet_types[b->type].speed;
+		}else{
+			b->position.x=b->destination.x;
+			b->position.y=b->destination.y;
+		}
+		if (eqInD(b->position.x,b->destination.x,0.05)&&
+			eqInD(b->position.y,b->destination.y,0.05)){
+			int i;
+			if (b->target==NPC){
+				npc* tmp;
+				for(tmp=grid[to2d((int)b->position.x,(int)b->position.y)].npcs[b->isfriend];
+					tmp!=0;tmp=tmp->next)
+					if (tmp->isfriend!=b->isfriend)
+						if (eqInD(tmp->position.x,b->position.x,0.05)&&
+							eqInD(tmp->position.y,b->position.y,0.05)){
+							tmp->health-=b->damage;
+							if (config.bullet_types[b->type].attack_type==SINGLE)
+								break;
+						}
+			}else{
+				tower * tmp;
+				if ((tmp=grid[to2d((int)b->position.x,(int)b->position.y)].tower)>0)
+					if(config.players[tmp->owner].isfriend!=b->isfriend){
+						if(tmp->type==BASE)
+							config.players[tmp->owner].base_health-=b->damage;
+						else
+							tmp->health-=b->damage;
+						printf("%d %d \n",tmp->type==BASE,config.players[tmp->owner].base_health);
+						
+					}
+			}
+			b->detonate++;
+		}
+	}
 }
 
 

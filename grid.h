@@ -14,6 +14,19 @@
 #define BASE 1
 
 
+//bullet damage types
+#define SINGLE 1
+#define MULTIPLE 2
+#define AREA 3
+#define AREA_FF 4
+
+//bullet move types
+#define SHOT 1
+
+//bullet target types
+#define NPC 1
+#define TOWER 2
+
 //npc statuses
 #define IN_ATTACK 1
 #define IN_MOVE 2
@@ -90,6 +103,9 @@ typedef
 struct bullet_type{
 	int id;
 	float speed;
+	int attack_type;
+	int move_type;
+	int area;
 }bullet_type;
 
 typedef
@@ -134,7 +150,11 @@ struct bullet{
 	vec position;
 	vec destination;
 	vec source;
-	int type;
+	char isfriend;
+	char support;
+	char type;
+	char detonate;
+	char target;
 	int damage;
 	effect effects;
 }bullet;
@@ -150,8 +170,7 @@ struct gnode{
 	int next;
 	char walkable; //-1 no see, 0 no walk, 1 walk
 	tower * tower;
-	npc * enpcs;
-	npc * fnpcs;
+	npc * npcs[8];
 	char buildable; //<=0 no build, >0 build 
 	
 } gnode;
@@ -159,7 +178,7 @@ struct gnode{
 typedef
 struct player{
 	int id;
-	int isfriend;
+	int isfriend; //player number [0-7]
 	int base_health;
 } player;
 

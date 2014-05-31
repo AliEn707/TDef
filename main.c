@@ -16,7 +16,9 @@ void pinfo(){
 		if (i<config.tower_max){
 			printf("%d(%d)%d ",config.tower_array[i].id,
 					config.tower_array[i].position,
-					config.tower_array[i].health
+					config.tower_array[i].type!=BASE?
+						config.tower_array[i].health:
+						config.players[config.tower_array[i].owner].base_health
 					);
 			i++;
 		}
@@ -56,7 +58,7 @@ void drawGrid(gnode* grid){
 						grid[to2d(i,j)].tower->type==1?
 							'B':
 						'T':
-						grid[to2d(i,j)].enpcs==0?
+						grid[to2d(i,j)].npcs[0]==0?
 							grid[to2d(i,j)].walkable<1?
 								'X':
 							'O':
@@ -85,17 +87,17 @@ int main(){
 	npc* n=spawnNpc(grid,4,0,1);
 	npc* n2=spawnNpc(grid,5,0,2);
 	spawnNpc(grid,6,0,3);
-	setupPlayer(0,1,0);
-	setupPlayer(1,0,0);
+	setupPlayer(0,1,2000);
+	setupPlayer(1,0,1800);
 	spawnTower(grid,75,0,1);
-	spawnTower(grid,22,0,2);
+	spawnTower(grid,22,1,2);
 	
 	npc* n3=spawnNpc(grid,42,0,2);
 	
 	
 	
 	printf("%d\n",timePassed(0));
-	printf("%p %p\n",grid[3].enpcs,grid[3].fnpcs);
+	printf("%p %p\n",grid[3].npcs[0],grid[3].npcs[0]);
 	
 	
 	{vec a={1,2},b={2,3},c;
@@ -139,10 +141,14 @@ int main(){
 	
 	forEachNpc(grid,tickMiscNpc);
 	forEachNpc(grid,tickDiedCheckNpc);
+		
 	forEachNpc(grid,tickCleanNpc);
+	forEachBullet(grid,tickCleanBullet);
+		
 	forEachNpc(grid,tickTargetNpc);
 	forEachNpc(grid,tickAttackNpc);
 	forEachNpc(grid,tickMoveNpc);
+	forEachBullet(grid,tickProcessBullet);
 	
 	int z;
 	z=timePassed(1);

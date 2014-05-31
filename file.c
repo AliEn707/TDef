@@ -235,8 +235,17 @@ void loadTypes(char * filepath){
 			fscanf(file,"%f\n",&config.bullet_types[i++].speed);
 			continue;
 		}
-	config.bullet_types_size=i;
+		if (strcmp(buf,"attack_type")==0){
+			fscanf(file,"%d\n",&config.bullet_types[i++].attack_type);
+			continue;
+		}
+		if (strcmp(buf,"move_type")==0){
+			fscanf(file,"%d\n",&config.bullet_types[i++].move_type);
+			continue;
+		}
+		
 	}
+	config.bullet_types_size=i;
 //	printf("%d %d\n",config.tower_types_size,config.npc_types_size);
 	fclose(file);
 }

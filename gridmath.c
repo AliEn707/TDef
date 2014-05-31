@@ -48,11 +48,12 @@ float glength(vec* v1,vec* v2){
 	return gsqrt(sqr(v1->x-v2->x)+sqr(v1->y-v2->y));
 }
 
-void getDir(vec* v1,vec* v2, vec* out){
+float getDir(vec* v1,vec* v2, vec* out){
 	float length=glength(v1,v2);
 //	printf("%g\n",length);
 	out->x=(v2->x-v1->x)/length;
 	out->y=(v2->y-v1->y)/length;
+	return length;
 }
 //test
 /*
