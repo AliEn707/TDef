@@ -130,6 +130,7 @@ struct npc{
 	int bit_mask;
 	vec position;
 	vec destination;
+	vec direction;
 	int id;
 	int type;
 	int health;
@@ -149,6 +150,7 @@ struct bullet{
 	int id;
 	vec position;
 	vec destination;
+	vec direction;
 	vec source;
 	char isfriend;
 	char support;

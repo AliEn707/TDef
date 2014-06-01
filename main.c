@@ -88,7 +88,7 @@ int main(){
 	npc* n2=spawnNpc(grid,5,0,2);
 	spawnNpc(grid,6,0,3);
 	setupPlayer(0,1,2000);
-	setupPlayer(1,0,1800);
+	setupPlayer(1,1,1800);
 	spawnTower(grid,75,0,1);
 	spawnTower(grid,22,1,2);
 	

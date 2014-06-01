@@ -296,17 +296,23 @@ int findEnemyBase(int isfriend){
 
 void tickTargetNpc(gnode* grid,npc* n){
 	if (n->status!=IN_ATTACK){
-		if(n->ttarget==0)
-			if (findNearTower(grid,n,config.npc_types[n->type].see_distanse)!=0)
+		if(n->ttarget==0){
+			if (findNearTower(grid,n,config.npc_types[n->type].see_distanse)!=0){
+				memcpy(&n->destination,&n->position,sizeof(vec));
+				n->path_count=NPC_PATH;
 				return;
-		//if near no Towers
-		int id;
-		if((id=findEnemyBase((int)n->isfriend))<0){
-			perror("findEnemyBase tickTargetNpc");
-			return;
+			}
+			//if near no Towers
+			int id;
+			if((id=findEnemyBase((int)n->isfriend))<0){
+				perror("findEnemyBase tickTargetNpc");
+				return;
+			}
+			if ((n->ttarget=grid[id].tower)==0)
+				perror("ttarget tickTargetNpc");
+			memcpy(&n->destination,&n->position,sizeof(vec));
+			n->path_count=NPC_PATH;
 		}
-		if ((n->ttarget=grid[id].tower)==0)
-			perror("ttarget tickTargetNpc");
 	}
 }
 
@@ -335,6 +341,7 @@ void tickAttackNpc(gnode* grid,npc* n){
 				b->support=config.npc_types[n->type].support;
 				b->isfriend=n->isfriend;
 				b->target=TOWER;
+				getDir(&b->position,&b->destination,&b->direction);
 //				memcpy(&b->effects,&config.npc_types[n->type].effects,sizeof(effects));
 			}
 	}else{
@@ -344,6 +351,8 @@ void tickAttackNpc(gnode* grid,npc* n){
 		n->ttarget=0;
 		if (findNearTower(grid,n,config.npc_types[n->type].attack_distanse)!=0){
 			n->status=IN_ATTACK;
+			//memcpy(&n->destination,&n->position,sizeof(vec));
+			n->path_count=NPC_PATH;
 //			printf("%d\n",config.npc_types[n->type].attack_distanse);
 			return;
 		}
@@ -406,13 +415,14 @@ void tickMoveNpc(gnode* grid,npc* n){
 				node_id=n->path[n->path_count++];
 				n->destination.x=getGridx(node_id);
 				n->destination.y=getGridy(node_id);
+				getDir(&n->position,&n->destination,&n->direction);
 			}
 			
-			vec dir={0,0};
-			getDir(&n->position,&n->destination,&dir);
+			//vec dir={0,0};
+			//getDir(&n->position,&n->destination,&dir);
 			
-			vec pos={n->position.x+dir.x*config.npc_types[n->type].move_speed,
-					n->position.y+dir.y*config.npc_types[n->type].move_speed};
+			vec pos={n->position.x+n->direction.x*config.npc_types[n->type].move_speed,
+					n->position.y+n->direction.y*config.npc_types[n->type].move_speed};
 			//check node change 
 			int a,b;
 			if ((a=getGridId(n->position))!=(b=getGridId(pos))){
@@ -551,12 +561,12 @@ void tickCleanBullet(gnode * grid,bullet * b){
 
 void tickProcessBullet(gnode * grid,bullet * b){
 	if (b->detonate==0){
-		vec dir={0,0};
+		//vec dir={0,0};
 //		printf("!!%g %g\n",b->position.x,b->position.y);
-		float length=getDir(&b->position,&b->destination,&dir);
+		//float length=getDir(&b->position,&b->destination,&dir);
 		if (config.bullet_types[b->type].move_type!=SHOT){
-			b->position.x+=dir.x*config.bullet_types[b->type].speed;
-			b->position.y+=dir.y*config.bullet_types[b->type].speed;
+			b->position.x+=b->direction.x*config.bullet_types[b->type].speed;
+			b->position.y+=b->direction.y*config.bullet_types[b->type].speed;
 		}else{
 			b->position.x=b->destination.x;
 			b->position.y=b->destination.y;
