@@ -1,7 +1,10 @@
-#include "grid.h"
-#include "gridmath.h"
-#include "engine.h"
-#include "file.h"
+#include "../grid.h"
+#include "../gridmath.h"
+#include "../engine.h"
+#include "../engine_npc.h"
+#include "../engine_tower.h"
+#include "../engine_bullet.h"
+#include "../file.h"
 //Test main file
 
 void pinfo(){
@@ -55,7 +58,7 @@ void drawGrid(gnode* grid){
 //			printf("{%d}[%d]%d ",grid[to2d(i,j)].buildable,grid[to2d(i,j)].id,grid[to2d(i,j)].next);
 			printf("%c ",
 					grid[to2d(i,j)].tower!=0?
-						grid[to2d(i,j)].tower->type==1?
+						grid[to2d(i,j)].tower->type==BASE?
 							'B':
 						'T':
 						grid[to2d(i,j)].npcs[0]==0?
@@ -76,9 +79,9 @@ int main(){
 //	memset(grid,0,sizeof(grid));
 	
 	initGridMath();
-	loadConfig("test.cfg");
-	grid=loadMap("test.mp");
-	loadTypes("types.cfg");
+	loadConfig("../test.cfg");
+	grid=loadMap("../test.mp");
+	loadTypes("../types.cfg");
 	
 	config.player_max=4;
 	initArrays();
@@ -89,7 +92,7 @@ int main(){
 	spawnNpc(grid,6,0,3);
 	setupPlayer(0,1,2000);
 	setupPlayer(1,1,1800);
-	spawnTower(grid,75,0,1);
+	spawnTower(grid,75,0,BASE);
 	spawnTower(grid,22,1,2);
 	
 	npc* n3=spawnNpc(grid,42,0,2);
@@ -140,13 +143,17 @@ int main(){
 	drawGrid(grid);
 	
 	forEachNpc(grid,tickMiscNpc);
+	forEachTower(grid,tickMiscTower);
 	forEachNpc(grid,tickDiedCheckNpc);
+	forEachTower(grid,tickDiedCheckTower);
 		
 	forEachNpc(grid,tickCleanNpc);
+	forEachTower(grid,tickCleanTower);
 	forEachBullet(grid,tickCleanBullet);
 		
 	forEachNpc(grid,tickTargetNpc);
 	forEachNpc(grid,tickAttackNpc);
+	forEachTower(grid,tickAttackTower);
 	forEachNpc(grid,tickMoveNpc);
 	forEachBullet(grid,tickProcessBullet);
 	

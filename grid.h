@@ -11,7 +11,7 @@
 #define NPC_PATH 5
 
 //tower types
-#define BASE 1
+#define BASE 0
 
 
 //bullet damage types
@@ -38,7 +38,7 @@
 //gnode type (buildable component)
 #define NOTHING -1
 //>1 may walk and build
-
+#define MAX_PLAYERS 8
 
 
 typedef 
@@ -76,6 +76,7 @@ struct tower_type{
 	int ignor_type;
 	int prior_type;
 	int bullet_type;
+	int support;
 	effect effects;   //наносимые эффекты
 }tower_type;
 
@@ -148,6 +149,7 @@ struct npc{
 typedef
 struct bullet{
 	int id;
+	int bit_mask;
 	vec position;
 	vec destination;
 	vec direction;
@@ -172,7 +174,7 @@ struct gnode{
 	int next;
 	char walkable; //-1 no see, 0 no walk, 1 walk
 	tower * tower;
-	npc * npcs[8];
+	npc * npcs[MAX_PLAYERS];
 	char buildable; //<=0 no build, >0 build 
 	
 } gnode;
