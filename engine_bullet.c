@@ -38,7 +38,21 @@ void tickProcessBullet(gnode * grid,bullet * b){
 		if (eqInD(b->position.x,b->destination.x,0.05)&&
 			eqInD(b->position.y,b->destination.y,0.05)){
 			int i,j;
-			if (b->target==NPC){
+			int multiple=0;
+			if (b->target==TOWER){
+				tower * tmp;
+				if ((tmp=grid[to2d((int)b->position.x,(int)b->position.y)].tower)>0)
+					if(config.players[tmp->owner].isfriend!=b->isfriend){
+						if(tmp->type==BASE)
+							config.players[tmp->owner].base_health-=b->damage;
+						else
+							tmp->health-=b->damage;
+						multiple++;
+						printf("%d %d \n",tmp->type==BASE,config.players[tmp->owner].base_health);
+						
+					}
+			}
+			if (b->target==NPC){  //add type area
 				npc* tmp;
 				for(j=0;j<MAX_PLAYERS;j++)
 					for(tmp=grid[to2d((int)b->position.x,(int)b->position.y)].npcs[j];
@@ -50,18 +64,8 @@ void tickProcessBullet(gnode * grid,bullet * b){
 									if (config.bullet_types[b->type].attack_type==SINGLE)
 										break;
 								}
-			}else{
-				tower * tmp;
-				if ((tmp=grid[to2d((int)b->position.x,(int)b->position.y)].tower)>0)
-					if(config.players[tmp->owner].isfriend!=b->isfriend){
-						if(tmp->type==BASE)
-							config.players[tmp->owner].base_health-=b->damage;
-						else
-							tmp->health-=b->damage;
-						printf("%d %d \n",tmp->type==BASE,config.players[tmp->owner].base_health);
-						
-					}
 			}
+		
 			b->detonate++;
 		}
 	}
