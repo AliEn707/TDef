@@ -42,7 +42,8 @@ void tickProcessBullet(gnode * grid,bullet * b){
 			eqInD(b->position.y,b->destination.y,delta)){
 			int i,j;
 			int multiple=0;
-			if (b->target==TOWER){
+			//tower search
+			{
 				tower * tmp;
 				if ((tmp=grid[to2d((int)b->position.x,(int)b->position.y)].tower)>0)
 					if(config.players[tmp->owner].isfriend!=b->isfriend){
@@ -52,11 +53,13 @@ void tickProcessBullet(gnode * grid,bullet * b){
 							tmp->health-=b->damage;
 						multiple++;
 					}
-				
-			}
+			}	
+			
 			if (config.bullet_types[b->type].attack_type==SINGLE && multiple>0)
 				goto out;
-			if (b->target==NPC){  
+			
+			//npc search
+			{
 				npc* tmp;
 				for(j=0;j<MAX_PLAYERS;j++)
 					for(tmp=grid[to2d((int)b->position.x,(int)b->position.y)].npcs[j];
@@ -72,13 +75,42 @@ void tickProcessBullet(gnode * grid,bullet * b){
 										multiple>config.bullet_types[b->type].area)
 										goto out;
 								}
-				
 			}
+			
 			//add area damage to Npc
 			//add area damage to towers
-			//if (config.bullet_types[b->type].attack_type==AREA ||
-			// 	config.bullet_types[b->type].attack_type==AREA_FF)
-			
+			if (config.bullet_types[b->type].attack_type==AREA ||
+			 	config.bullet_types[b->type].attack_type==AREA_FF){
+				//add area gamage	
+				int i,j,k;
+				npc* tmp;
+				int x=(int)b->position.x;
+				int y=(int)b->position.y;
+				int xid,yid;
+				for (i=0;i<config.bullet_types[b->type].area;i++)
+					for(j=0;j<config.area_size[i];j++)
+						if (((xid=x+config.area_array[i][j].x)>=0 && x+config.area_array[i][j].x<config.gridsize) &&
+								((yid=y+config.area_array[i][j].y)>=0 && y+config.area_array[i][j].y<config.gridsize)){
+							//tower
+							if (grid[to2d(xid,yid)].tower!=0)
+								if (canSee(grid,&b->position,&(vec){xid+0.5,yid+0.5})>0)
+									if(config.bullet_types[b->type].attack_type==AREA?
+											config.players[grid[to2d(xid,yid)].tower->owner].isfriend!=b->isfriend
+											:1)
+										if (grid[to2d(xid,yid)].tower->type!=BASE)
+											config.players[grid[to2d(xid,yid)].tower->owner].base_health-=b->damage;
+										else
+											grid[to2d(xid,yid)].tower->health-=b->damage;
+							//npc
+							for (k=0;k<MAX_PLAYERS;k++)
+								if (config.bullet_types[b->type].attack_type==AREA?k!=b->isfriend:1)
+									for(tmp=grid[to2d(xid,yid)].npcs[k];
+											tmp!=0;tmp=tmp->next)
+										if (canSee(grid,&b->position,&tmp->position)>0)
+											tmp->health-=b->damage;
+										
+						}
+			}	
 out:
 			b->detonate++;
 		}

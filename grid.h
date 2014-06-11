@@ -23,15 +23,15 @@
 //bullet move types
 #define SHOT 1
 
-//bullet target types
+//bullet target types  !!not used
 #define NPC 1
 #define TOWER 2
 
 //npc statuses
 #define IN_ATTACK 1
 #define IN_MOVE 2
-#define IN_TARGET 3
-#define IN_MOVE_ATTACK 4
+#define IN_TARGET 3  //not used
+#define IN_MOVE_ATTACK 4  //not used
 #define IN_IDLE 0
 
 
@@ -158,7 +158,6 @@ struct bullet{
 	char support;
 	char type;
 	char detonate;
-	char target;
 	int damage;
 	effect effects;
 }bullet;

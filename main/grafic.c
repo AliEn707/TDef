@@ -47,11 +47,13 @@ void pinfo(){
 		printf("|\t\t\t");
 		for(;config.npc_array[j].id<=0 && j<config.npc_max;j++);
 		if (j<config.npc_max){
-			printf("%d(%g,%g)%d %d",config.npc_array[j].id,
+			printf("%d(%g,%g)%d %d %p %p",config.npc_array[j].id,
 					config.npc_array[j].position.x,
 					config.npc_array[j].position.y,
 					config.npc_array[j].health,
-					config.npc_array[j].status
+					config.npc_array[j].status,
+					config.npc_array[j].ttarget,
+					config.npc_array[j].ntarget
 					);
 			j++;
 		}
@@ -206,7 +208,7 @@ int main(int argc, char **argv)
 	timePassed(0);
 	npc* n=spawnNpc(grid,4,0,1);
 	npc* n2=spawnNpc(grid,5,0,2);
-	spawnNpc(grid,6,0,3);
+	spawnNpc(grid,6,1,3);
 	setupPlayer(0,1,2000);
 	setupPlayer(1,1,1800);
 	spawnTower(grid,75,0,BASE);

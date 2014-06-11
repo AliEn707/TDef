@@ -85,18 +85,17 @@ void tickAttackTower(gnode* grid,tower* t){
 		npc* tmp;
 		for (i=0;i<config.tower_types[t->type].distanse;i++)
 			for(j=0;j<config.area_size[i];j++)
-			if (((xid=x+config.area_array[i][j].x)>=0 && x+config.area_array[i][j].x<config.gridsize) &&
-					((yid=y+config.area_array[i][j].y)>=0 && y+config.area_array[i][j].y<config.gridsize))
-				for (k=0;k<MAX_PLAYERS;k++)
-					if (k!=config.players[t->owner].isfriend)
-						for(tmp=grid[to2d(xid,yid)].npcs[k];
-								tmp!=0;tmp=tmp->next)
-							if (canSee(grid,&(vec){x+0.5,y+0.5},&tmp->position)>0){
-								t->target=tmp;
-								if (rand()%100<60)
-									return;
-							}
-								
+				if (((xid=x+config.area_array[i][j].x)>=0 && x+config.area_array[i][j].x<config.gridsize) &&
+						((yid=y+config.area_array[i][j].y)>=0 && y+config.area_array[i][j].y<config.gridsize))
+					for (k=0;k<MAX_PLAYERS;k++)
+						if (k!=config.players[t->owner].isfriend)
+							for(tmp=grid[to2d(xid,yid)].npcs[k];
+									tmp!=0;tmp=tmp->next)
+								if (canSee(grid,&(vec){x+0.5,y+0.5},&tmp->position)>0){
+									t->target=tmp;
+									if (rand()%100<60)
+										return;
+								}
 	}else{
 		printf("\t|%d %d\n",t->attack_count,config.tower_types[t->type].attack_speed);
 		if (t->attack_count>=config.tower_types[t->type].attack_speed){
@@ -115,7 +114,7 @@ void tickAttackTower(gnode* grid,tower* t){
 				b->damage=config.tower_types[t->type].damage;
 				b->support=config.tower_types[t->type].support;
 				b->isfriend=config.players[t->owner].isfriend;
-				b->target=NPC;
+//				b->target=NPC;
 				getDir(&b->position,&b->destination,&b->direction);
 //				memcpy(&b->effects,&config.npc_types[n->type].effects,sizeof(effects));
 			}
