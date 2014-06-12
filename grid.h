@@ -9,6 +9,8 @@
 #define TPS 40
 
 #define NPC_PATH 5
+#define MAX_AREA 33
+
 
 //tower types
 #define BASE 0
@@ -188,8 +190,8 @@ struct player{
 typedef
 struct config{
 	int gridsize;
-	veci* area_array[30];
-	int area_size[30];
+	veci* area_array[MAX_AREA];
+	int area_size[MAX_AREA];
 	unsigned int tower_max;
 	unsigned int tower_types_size;
 		tower_type* tower_types;

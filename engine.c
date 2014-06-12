@@ -52,10 +52,122 @@ void realizeArrays(){
 	free(config.tower_array);
 	free(config.npc_array);
 	free(config.bullet_array);
-	realizeAreaArray();
+	realizeAreaArray();	
+}
+
+//helper 
+
+int canSee(gnode* grid,vec* a,vec* b){
+	float x1=a->x;
+	float y1=a->y;
+	float x2=b->x;
+	float y2=b->y;
+	int destination=to2d((int)x2,(int)y2);
+//	printf("%g %g %g %g\n",x1,y1,x2,y2);
+	if (x1!=x2){
+		if (x1>x2){
+			int tmp;
+			tmp=x1;
+			x1=x2;
+			x2=tmp;
+			tmp=y1;
+			y1=y2;
+			y2=tmp;
+		}
+	
+		float K=(y2-y1)/(x2-x1);
+		float B=(y1*(x2-x1)-x1*(y2-y1))/(x2-x1);
+		 
+		for(;x1<x2;x1+=0.3){
+			y1=K*x1+B;
+//			printf("1} %d\n",to2d(((int)x1),((int)y1)));
+			if (to2d(((int)x1),((int)y1))!=destination){
+				if (grid[to2d(((int)x1),((int)y1))].walkable<0||
+					grid[to2d(((int)x1),((int)y1))].tower>0){
+					printf("!\n");
+					return -1;
+				}
+			}
+		}
+	}else{
+		if (y1>y2){
+			int tmp;
+			tmp=x1;
+			x1=x2;
+			x2=tmp;
+			tmp=y1;
+			y1=y2;
+			y2=tmp;
+		}
+	
+		float K=(x2-x1)/(y2-y1);
+		float B=(x1*(y2-y1)-y1*(x2-x1))/(y2-y1);
+		 
+		for(;y1<y2;y1+=0.3){
+			x1=K*y1+B;
+//			printf("2} %d\n",to2d(((int)x1),((int)y1)));
+			if (to2d(((int)x1),((int)y1))!=destination){
+				if (grid[to2d(((int)x1),((int)y1))].walkable<0||
+					grid[to2d(((int)x1),((int)y1))].tower>0)
+					return -1;
+			}
+		}
+	}
+	return 1;
+}
+
+int canWalkThrough(gnode* grid,vec* a,vec* b){
+	float x1=a->x;
+	float y1=a->y;
+	float x2=b->x;
+	float y2=b->y;
+	int destination=to2d((int)x2,(int)y2);
+	if (x1!=x2){
+		if (x1>x2){
+			int tmp;
+			tmp=x1;
+			x1=x2;
+			x2=tmp;
+			tmp=y1;
+			y1=y2;
+			y2=tmp;
+		}
+		float K=(y2-y1)/(x2-x1);
+		float B=(y1*(x2-x1)-x1*(y2-y1))/(x2-x1);
+		
+		for(;x1<=x2;x1+=0.3){
+			y1=K*x1+B;
+			if (grid[to2d(((int)x1),((int)y1))].walkable<=0||
+				grid[to2d(((int)x1),((int)y1))].tower>0)
+				return -1;
+		}
+	}else{
+		if (y1>y2){
+			int tmp;
+			tmp=x1;
+			x1=x2;
+			x2=tmp;
+			tmp=y1;
+			y1=y2;
+			y2=tmp;
+		}
+		float K=(x2-x1)/(y2-y1);
+		float B=(x1*(y2-y1)-y1*(x2-x1))/(y2-y1);
+		 
+		for(;y1<=y2;y1+=0.3){
+			x1=K*y1+B;
+			if (grid[to2d(((int)x1),((int)y1))].walkable<=0||
+				grid[to2d(((int)x1),((int)y1))].tower>0)
+				return -1;
+		}
+	}
+	return 1;
 }
 
 
+
+
+//player 
 void setupPlayer(int id,int isfriend,int base_health){
 	config.players[id].id=getGlobalId();
 	config.players[id].isfriend=isfriend;

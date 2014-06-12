@@ -206,13 +206,13 @@ int main(int argc, char **argv)
 	config.player_max=4;
 	initArrays();
 	timePassed(0);
-	npc* n=spawnNpc(grid,4,0,1);
-	npc* n2=spawnNpc(grid,5,0,2);
-	spawnNpc(grid,6,1,3);
+	npc* n=spawnNpc(grid,4,1,1);
+	npc* n2=spawnNpc(grid,5,1,2);
+	spawnNpc(grid,6,0,3);
 	setupPlayer(0,1,2000);
-	setupPlayer(1,1,1800);
+	setupPlayer(1,0,1800);
 	spawnTower(grid,75,0,BASE);
-	spawnTower(grid,22,1,2);
+	spawnTower(grid,22,0,2);
 	
 	npc* n3=spawnNpc(grid,42,0,2);
 	////////////////////

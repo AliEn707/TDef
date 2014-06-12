@@ -12,11 +12,11 @@ printf "#define shift %s\n\n",s
 printf "void init%s(){\n",name
 
 #printf "int * tmp[%d];\n",size-1
-size.times do |i|
-	shift=50
+(size+1).times do |i|
+	shift=100
 	m=[]
-	0.step(100,1) do |x|
-		0.step(100,1) do |y|
+	0.step(2*shift,1) do |x|
+		0.step(2*shift,1) do |y|
 			if ((x-shift)**2+(y-shift)**2<+(i+0.5)**2)
 				m<<[x-shift,y-shift]
 			end

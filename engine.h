@@ -5,7 +5,10 @@ void initArrays();
 
 void realizeArrays();
 
+//helper
+int canSee(gnode* grid,vec* a,vec* b);
 
+int canWalkThrough(gnode* grid,vec* a,vec* b);
 
 /*
 must be this

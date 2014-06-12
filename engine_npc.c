@@ -85,114 +85,6 @@ npc* spawnNpc(gnode* grid,int node_id,int isfriend,int type){
 	return n;
 }
 
-int canSee(gnode* grid,vec* a,vec* b){
-	float x1=a->x;
-	float y1=a->y;
-	float x2=b->x;
-	float y2=b->y;
-	int destination=to2d((int)x2,(int)y2);
-//	printf("%g %g %g %g\n",x1,y1,x2,y2);
-	if (x1!=x2){
-		if (x1>x2){
-			int tmp;
-			tmp=x1;
-			x1=x2;
-			x2=tmp;
-			tmp=y1;
-			y1=y2;
-			y2=tmp;
-		}
-	
-		float K=(y2-y1)/(x2-x1);
-		float B=(y1*(x2-x1)-x1*(y2-y1))/(x2-x1);
-		 
-		for(;x1<x2;x1+=0.3){
-			y1=K*x1+B;
-//			printf("1} %d\n",to2d(((int)x1),((int)y1)));
-			if (to2d(((int)x1),((int)y1))!=destination){
-				if (grid[to2d(((int)x1),((int)y1))].walkable<0||
-					grid[to2d(((int)x1),((int)y1))].tower>0){
-					printf("!\n");
-					return -1;
-				}
-			}
-		}
-	}else{
-		if (y1>y2){
-			int tmp;
-			tmp=x1;
-			x1=x2;
-			x2=tmp;
-			tmp=y1;
-			y1=y2;
-			y2=tmp;
-		}
-	
-		float K=(x2-x1)/(y2-y1);
-		float B=(x1*(y2-y1)-y1*(x2-x1))/(y2-y1);
-		 
-		for(;y1<y2;y1+=0.3){
-			x1=K*y1+B;
-//			printf("2} %d\n",to2d(((int)x1),((int)y1)));
-			if (to2d(((int)x1),((int)y1))!=destination){
-				if (grid[to2d(((int)x1),((int)y1))].walkable<0||
-					grid[to2d(((int)x1),((int)y1))].tower>0)
-					return -1;
-			}
-		}
-	}
-	return 1;
-}
-
-int canWalkThrough(gnode* grid,vec* a,vec* b){
-	float x1=a->x;
-	float y1=a->y;
-	float x2=b->x;
-	float y2=b->y;
-	int destination=to2d((int)x2,(int)y2);
-	if (x1!=x2){
-		if (x1>x2){
-			int tmp;
-			tmp=x1;
-			x1=x2;
-			x2=tmp;
-			tmp=y1;
-			y1=y2;
-			y2=tmp;
-		}
-		float K=(y2-y1)/(x2-x1);
-		float B=(y1*(x2-x1)-x1*(y2-y1))/(x2-x1);
-		
-		for(;x1<=x2;x1+=0.3){
-			y1=K*x1+B;
-			if (grid[to2d(((int)x1),((int)y1))].walkable<=0||
-				grid[to2d(((int)x1),((int)y1))].tower>0)
-				return -1;
-		}
-	}else{
-		if (y1>y2){
-			int tmp;
-			tmp=x1;
-			x1=x2;
-			x2=tmp;
-			tmp=y1;
-			y1=y2;
-			y2=tmp;
-		}
-		float K=(x2-x1)/(y2-y1);
-		float B=(x1*(y2-y1)-y1*(x2-x1))/(y2-y1);
-		 
-		for(;y1<=y2;y1+=0.3){
-			x1=K*y1+B;
-			if (grid[to2d(((int)x1),((int)y1))].walkable<=0||
-				grid[to2d(((int)x1),((int)y1))].tower>0)
-				return -1;
-		}
-	}
-	return 1;
-}
-
-
 
 
 tower* findNearTower(gnode* grid,npc* n,int range){
@@ -232,6 +124,7 @@ npc* findNearNpc(gnode* grid,npc* n,int range){
 	npc* tmp;
 //	printf("%d\n",n->id);
 	for(i=0;i<range;i++){
+		printf("!! %d\n",range);
 		for(j=0;j<config.area_size[i];j++)
 			if (((xid=x+config.area_array[i][j].x)>=0 && x+config.area_array[i][j].x<config.gridsize) &&
 					((yid=y+config.area_array[i][j].y)>=0 && y+config.area_array[i][j].y<config.gridsize))
@@ -279,35 +172,33 @@ int findEnemyBase(int isfriend){
 
 
 void tickTargetNpc(gnode* grid,npc* n){
-//	if (n->ntarget==0)
-		if(n->ttarget==0){
+		if(n->ttarget==0 && n->ntarget==0){
 			n->path_count=NPC_PATH;
 			n->status=IN_MOVE;
-/*			if (findNearNpc(grid,n,config.npc_types[n->type].see_distanse)!=0){
-				memcpy(&n->destination,&n->position,sizeof(vec));
-//				return;
-			}
-*/			if (findNearTower(grid,n,config.npc_types[n->type].see_distanse)!=0){
-				memcpy(&n->destination,&n->position,sizeof(vec));
-				return;
-			}
+			if (findNearTower(grid,n,config.npc_types[n->type].see_distanse)!=0)
+				goto out;
+			
 			//if near no Towers
+			if (findNearNpc(grid,n,config.npc_types[n->type].see_distanse)!=0)
+				goto out;
+			
 			int id;
-			if((id=findEnemyBase((int)n->isfriend))<0){
-				//need to correct
-		//			n->status=IN_IDLE;
-	//			perror("findEnemyBase tickTargetNpc");
-				return;
-			}
+			if((id=findEnemyBase((int)n->isfriend))<0)
+				return;  
+			
 			if ((n->ttarget=grid[id].tower)==0)
 				perror("ttarget tickTargetNpc");
+			if (n->ttarget==0 && n->ntarget==0){
+				n->status=IN_IDLE;
+				return;
+			}
+out:
 			memcpy(&n->destination,&n->position,sizeof(vec));
 		}
 }
 
 
 void tickAttackNpc(gnode* grid,npc* n){
-	printf("\t \t%d %d %d\n",n->id,n->status,config.npc_types[n->type].attack_speed);
 	if (n->status==IN_ATTACK){
 		//if target !=0
 		//-attacking
@@ -360,31 +251,27 @@ void tickAttackNpc(gnode* grid,npc* n){
 	}else{
 		//search target in attack distanse
 		//if finded set IN_ATTACK
-/*		if (findNearNpc(grid,n,config.npc_types[n->type].attack_distanse)!=0){
+		npc* ntmp=n->ntarget;
+		n->ntarget=0;
+		if (findNearNpc(grid,n,config.npc_types[n->type].attack_distanse)!=0){
 			n->status=IN_ATTACK;
-//			memcpy(&n->destination,&n->position,sizeof(vec));
-//			printf("%d\n",config.npc_types[n->type].attack_distanse);
 			return;
 		}
-*/		tower* tmp=n->ttarget;
+		n->ntarget=ntmp;
+		tower* ttmp=n->ttarget;
 		n->ttarget=0;
 		if (findNearTower(grid,n,config.npc_types[n->type].attack_distanse)!=0){
 			n->status=IN_ATTACK;
-			//memcpy(&n->destination,&n->position,sizeof(vec));
 			n->path_count=NPC_PATH;
-//			printf("%d\n",config.npc_types[n->type].attack_distanse);
 			return;
 		}
-		n->ttarget=tmp;
+		n->ttarget=ttmp;
 	}
 }
   
 void tickDiedCheckNpc(gnode* grid,npc* n){
 	//need to correct
-	npc* prev=n->ntarget;
 	n->ntarget=diedCheckNpc(n->ntarget);
-	if (prev!=n->ntarget)
-		n->status=IN_MOVE;
 	n->ttarget=diedCheckTower(n->ttarget);
 	
 }
@@ -424,7 +311,7 @@ void tickMoveNpc(gnode* grid,npc* n){
 					n->destination.y=getGridy(node_id);
 					getDir(&n->position,&n->destination,&n->direction);
 				}
-			}/*else 
+			}else 
 				if (n->ntarget!=0)
 					//check path from position
 					if (eqInD(n->position.x,n->destination.x,config.npc_types[n->type].move_speed) &&
@@ -446,7 +333,7 @@ void tickMoveNpc(gnode* grid,npc* n){
 						n->destination.y=getGridy(node_id);
 						getDir(&n->position,&n->destination,&n->direction);
 					}
-*/				
+			
 			//vec dir={0,0};
 			//getDir(&n->position,&n->destination,&dir);
 			
