@@ -15,7 +15,6 @@ set* setInit(){
 }
 
 set* setAdd(set* s,gnode * node){
-	set* tmp=s;
 	for(;s->next!=0;s=s->next);
 	if((s->next=malloc(sizeof(set)))==0) 
 		perror("malloc setAdd");
@@ -201,4 +200,4 @@ int main(){
 	
 	printf("%d\n",a);
 }
-/**/
+*/

@@ -29,10 +29,10 @@ void tickProcessBullet(gnode * grid,bullet * b){
 //		printf("!!%g %g\n",b->position.x,b->position.y);
 		//float length=getDir(&b->position,&b->destination,&dir);
 		float delta;
-		if (config.bullet_types[b->type].move_type!=SHOT){
-			b->position.x+=b->direction.x*config.bullet_types[b->type].speed;
-			b->position.y+=b->direction.y*config.bullet_types[b->type].speed;
-			delta=config.bullet_types[b->type].speed;
+		if (config.bullet_types[(int)b->type].move_type!=SHOT){
+			b->position.x+=b->direction.x*config.bullet_types[(int)b->type].speed;
+			b->position.y+=b->direction.y*config.bullet_types[(int)b->type].speed;
+			delta=config.bullet_types[(int)b->type].speed;
 		}else{
 			b->position.x=b->destination.x;
 			b->position.y=b->destination.y;
@@ -40,7 +40,7 @@ void tickProcessBullet(gnode * grid,bullet * b){
 		}
 		if (eqInD(b->position.x,b->destination.x,delta)&&
 			eqInD(b->position.y,b->destination.y,delta)){
-			int i,j;
+			int j;
 			int multiple=0;
 			//tower search
 			{
@@ -55,7 +55,7 @@ void tickProcessBullet(gnode * grid,bullet * b){
 					}
 			}	
 			
-			if (config.bullet_types[b->type].attack_type==SINGLE && multiple>0)
+			if (config.bullet_types[(int)b->type].attack_type==SINGLE && multiple>0)
 				goto out;
 			
 			//npc search
@@ -69,41 +69,42 @@ void tickProcessBullet(gnode * grid,bullet * b){
 									eqInD(tmp->position.y,b->position.y,0.1)){
 									tmp->health-=b->damage;
 									multiple++;
-									if (config.bullet_types[b->type].attack_type==SINGLE)
+									if (config.bullet_types[(int)b->type].attack_type==SINGLE)
 										goto out;
-									if (config.bullet_types[b->type].attack_type==MULTIPLE && 
-										multiple>config.bullet_types[b->type].area)
+									if (config.bullet_types[(int)b->type].attack_type==MULTIPLE && 
+										multiple>config.bullet_types[(int)b->type].area)
 										goto out;
 								}
 			}
 			
 			//add area damage to Npc
 			//add area damage to towers
-			if (config.bullet_types[b->type].attack_type==AREA ||
-			 	config.bullet_types[b->type].attack_type==AREA_FF){
+			if (config.bullet_types[(int)b->type].attack_type==AREA ||
+			 	config.bullet_types[(int)b->type].attack_type==AREA_FF){
 				//add area gamage	
 				int i,j,k;
 				npc* tmp;
 				int x=(int)b->position.x;
 				int y=(int)b->position.y;
 				int xid,yid;
-				for (i=0;i<config.bullet_types[b->type].area;i++)
+				for (i=0;i<config.bullet_types[(int)b->type].area;i++)
 					for(j=0;j<config.area_size[i];j++)
 						if (((xid=x+config.area_array[i][j].x)>=0 && x+config.area_array[i][j].x<config.gridsize) &&
 								((yid=y+config.area_array[i][j].y)>=0 && y+config.area_array[i][j].y<config.gridsize)){
 							//tower
 							if (grid[to2d(xid,yid)].tower!=0)
 								if (canSee(grid,&b->position,&(vec){xid+0.5,yid+0.5})>0)
-									if(config.bullet_types[b->type].attack_type==AREA?
+									if(config.bullet_types[(int)b->type].attack_type==AREA?
 											config.players[grid[to2d(xid,yid)].tower->owner].isfriend!=b->isfriend
-											:1)
+											:1){
 										if (grid[to2d(xid,yid)].tower->type!=BASE)
 											config.players[grid[to2d(xid,yid)].tower->owner].base_health-=b->damage;
 										else
 											grid[to2d(xid,yid)].tower->health-=b->damage;
+									}
 							//npc
 							for (k=0;k<MAX_PLAYERS;k++)
-								if (config.bullet_types[b->type].attack_type==AREA?k!=b->isfriend:1)
+								if (config.bullet_types[(int)b->type].attack_type==AREA?k!=b->isfriend:1)
 									for(tmp=grid[to2d(xid,yid)].npcs[k];
 											tmp!=0;tmp=tmp->next)
 										if (canSee(grid,&b->position,&tmp->position)>0)

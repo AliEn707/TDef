@@ -10,16 +10,16 @@
 
 int window_w=512, window_h=512;	// Initial Size of the Window	
 
-void drawSquare(float x,float y){
+void drawSquare(float y,float x){
 	glBegin(GL_LINES);
-		glVertex2f(y-0.5,-(x-0.5));
-		glVertex2f(y-0.5,-(x+0.5));
-		glVertex2f(y-0.5,-(x+0.5));
-		glVertex2f(y+0.5,-(x+0.5));
-		glVertex2f(y+0.5,-(x+0.5));
-		glVertex2f(y+0.5,-(x-0.5));
-		glVertex2f(y+0.5,-(x-0.5));
-		glVertex2f(y-0.5,-(x-0.5));
+		glVertex2f(y-0.5,(x-0.5));
+		glVertex2f(y-0.5,(x+0.5));
+		glVertex2f(y-0.5,(x+0.5));
+		glVertex2f(y+0.5,(x+0.5));
+		glVertex2f(y+0.5,(x+0.5));
+		glVertex2f(y+0.5,(x-0.5));
+		glVertex2f(y+0.5,(x-0.5));
+		glVertex2f(y-0.5,(x-0.5));
 		
 	glEnd();
 	//glTranslatef(y,-x,0);
@@ -119,7 +119,7 @@ void tickDraw(gnode*grid,npc* n){
 	//car* Car;
 	//for(Car=getCar(cars->next);Car!=cars;Car=getCar(Car->next))
 	
-		glVertex2f(n->position.y,-n->position.x);
+		glVertex2f(n->position.x,n->position.y);
 		glVertex2f(0,0);
 		
 	
@@ -133,9 +133,18 @@ void render(gnode * grid)
 	glMatrixMode(GL_MODELVIEW);
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 	glLoadIdentity();
-
-//	glRotatef(45,1,0,0);
-//	glRotatef(-30,0,0,1);
+	
+	glBegin(GL_POINTS);
+		glVertex2f(5,-1.4);
+	glEnd();
+	
+	glTranslatef(config.gridsize/2,config.gridsize/2,0);
+	//glRotatef(60,1,0,0);
+	glScalef(1,0.5,1);
+	glRotatef(-45,0,0,1);
+	glTranslatef(-config.gridsize/2,-config.gridsize/2,0);
+	
+	
 
 	//glColor3f(rand()%100/100.0,rand()%100/100.0,rand()%100/100.0);
 	glColor3f(1,1,1);
@@ -166,7 +175,7 @@ void init()
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 //	gluOrtho2D(-config.gridsize/2.0,config.gridsize/2.0,-config.gridsize/2.0,config.gridsize/2.0);
-	glOrtho(0,config.gridsize,-config.gridsize,0,-10,100);
+	glOrtho(0,config.gridsize,0,config.gridsize,-10,100);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
@@ -200,7 +209,7 @@ int main(int argc, char **argv)
 	//////////////////////
 	gnode* grid;
 	initGridMath();
-	loadConfig("../test.cfg");
+//	loadConfig("../test.cfg");
 	grid=loadMap("../test.mp");
 	loadTypes("../types.cfg");
 	config.player_max=4;
@@ -209,8 +218,8 @@ int main(int argc, char **argv)
 	npc* n=spawnNpc(grid,4,1,1);
 	npc* n2=spawnNpc(grid,5,1,2);
 	spawnNpc(grid,6,0,3);
-	setupPlayer(0,1,2000);
-	setupPlayer(1,0,1800);
+	setupPlayer(0,1,2000,0);
+	setupPlayer(1,0,1800,0);
 	spawnTower(grid,75,0,BASE);
 	spawnTower(grid,22,0,2);
 	

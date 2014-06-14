@@ -33,6 +33,6 @@ some user stuff
 
 
 //player
-
+void setupPlayer(int id,int isfriend,int base_health,tower* base);
 
 

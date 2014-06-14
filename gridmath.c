@@ -68,4 +68,4 @@ main(){
 	printf("%g %g",sqrt(45),gsqrt(45));
 	sleep(10);
 }
-/**/
+*/

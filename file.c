@@ -8,44 +8,58 @@ gnode * loadMap(char *filepath){
 	FILE * file;
 	if ((file=fopen(filepath,"r"))==0) 
 		perror("fopen loadMap");
+	char buf[100];
 	int size;
 	fscanf(file,"%d\n",&size);
 	setGridSize(size);
 	if ((grid=malloc(sizeof(gnode)*size*size))==0)
-		perror("malloc loadMap");
+		perror("malloc grid loadMap");
 	memset(grid,0,sizeof(gnode)*size*size);
+	char* walk;
+	char* build;
+	if((walk=malloc((size*size+1)*sizeof(char)))==0)
+		perror("malloc walk loadMap");
+	if((build=malloc((size*size+1)*sizeof(char)))==0)
+		perror("malloc build loadMap");
+	fscanf(file,"%s\n",walk);
+	fscanf(file,"%s\n",build);
 	int i;
 	for(i=0;i<size*size;i++){
-		int c;
-		/////////////////
-		fscanf(file,"%d ",&c);
-		grid[i].walkable=(char)c;
-		fscanf(file,"%d\n",&c);
-		grid[i].buildable=(char)c;
-		/////////////////
 		grid[i].id=i;
+		grid[i].walkable= walk[i]=='1'?(char)1:walk[i]=='0'?(char)0:(char)-1;
+		grid[i].buildable= build[i]=='1'?(char)1:build[i]=='0'?(char)0:(char)-1;
 	}
-	
+	free(walk);
+	free(build);
+	while(feof(file)==0){
+		memset(buf,0,sizeof(buf));
+		fscanf(file,"%s ",buf);
+		printf("%s\n",buf);
+		if (strcmp(buf,"max_npcs")==0){
+			fscanf(file,"%d\n",&config.npc_max);
+			continue;
+		}
+		if (strcmp(buf,"max_towers")==0){
+			fscanf(file,"%d\n",&config.tower_max);
+			printf("%d\n",config.tower_max);
+			continue;
+		}
+		if (strcmp(buf,"max_bullets")==0){
+			fscanf(file,"%d\n",&config.bullet_max);
+			printf("%d\n",config.bullet_max);
+			continue;
+		}
+		
+	}
 	fclose(file);
+	config.global_id=1;
 	return grid;
 }
+
 
 void realizeMap(gnode* grid){
 	free(grid);
 	
-}
-
-void loadConfig(char* filepath){
-	FILE * file;
-//	printf("loading configuration\n");
-	if ((file=fopen(filepath,"r"))==0) 
-		perror("fopen loadConfig");
-	char buf[100];
-	fscanf(file,"%d %s\n",&config.tower_max,buf);
-	fscanf(file,"%d %s\n",&config.npc_max,buf);
-	fscanf(file,"%d %s\n",&config.bullet_max,buf);
-	config.global_id=1;
-	fclose(file);
 }
 
 
@@ -228,19 +242,21 @@ void loadTypes(char * filepath){
 			continue;
 		}
 		if (strcmp(buf,"id")==0){
-			fscanf(file,"%f\n",&config.bullet_types[i].id);
+			fscanf(file,"%d\n",&config.bullet_types[i].id);
 			continue;
 		}
 		if (strcmp(buf,"speed")==0){
-			fscanf(file,"%f\n",&config.bullet_types[i++].speed);
+			float tmp;
+			fscanf(file,"%f\n",&tmp);
+			config.bullet_types[i].speed=tmp/TPS;
 			continue;
 		}
 		if (strcmp(buf,"attack_type")==0){
-			fscanf(file,"%d\n",&config.bullet_types[i++].attack_type);
+			fscanf(file,"%d\n",&config.bullet_types[i].attack_type);
 			continue;
 		}
 		if (strcmp(buf,"move_type")==0){
-			fscanf(file,"%d\n",&config.bullet_types[i++].move_type);
+			fscanf(file,"%d\n",&config.bullet_types[i].move_type);
 			continue;
 		}
 		

@@ -3,7 +3,7 @@
 #include "engine_npc.h"
 #include "engine_tower.h"
 #include "engine_bullet.h"
-
+#include "gridmath.h"
 
 
 tower* newTower(){
@@ -49,9 +49,6 @@ tower* spawnTower(gnode * grid,int node_id,int owner,int type){
 	return t;
 }
 
-int delTower(tower* t){
-	
-}
 
 int removeTower(gnode * grid,tower* t){
 	gnode * node=&grid[t->position];

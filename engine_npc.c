@@ -3,12 +3,14 @@
 #include "engine_npc.h"
 #include "engine_tower.h"
 #include "engine_bullet.h"
+#include "gridmath.h"
 
 npc* newNpc(){
 	int i;
 	for(i=0;i<config.npc_max;i++)
 		if (config.npc_array[i].id==0){
 			config.npc_array[i].id=getGlobalId();
+			config.npc_num++;
 			return &config.npc_array[i];
 		}	
 	return 0;
@@ -16,7 +18,7 @@ npc* newNpc(){
 
 
 npc* addNpc(gnode* node,npc* n){
-	npc **root=&node->npcs[n->isfriend];
+	npc **root=&node->npcs[(int)n->isfriend];
 	if (*root==0){
 		*root=n;
 		return n;
@@ -33,8 +35,8 @@ npc* addNpc(gnode* node,npc* n){
 
 npc*  getNpc(gnode* grid,npc* n){
 	npc* tmp;
-	gnode * node=&grid[getGridId(n->position)];
-	npc **root=&node->npcs[n->isfriend];
+	gnode * node=&grid[(int)getGridId(n->position)];
+	npc **root=&node->npcs[(int)n->isfriend];
 	if (*root!=0){
 		tmp=*root;
 		if (*root==n){
@@ -56,6 +58,7 @@ int delNpc(gnode* grid,npc* n){
 	npc* tmp=getNpc(grid,n);
 	if (tmp!=0){
 		memset(tmp,0,sizeof(npc));
+		config.npc_num--;
 		return 0;
 	}
 	return -1;
@@ -89,7 +92,7 @@ npc* spawnNpc(gnode* grid,int node_id,int isfriend,int type){
 
 tower* findNearTower(gnode* grid,npc* n,int range){
 	/**/
-	int i,j,k;
+	int i,j;
 	int x=(int)n->position.x;
 	int y=(int)n->position.y;
 	int yid,xid;
@@ -292,8 +295,8 @@ void tickMoveNpc(gnode* grid,npc* n){
 		if (n->ttarget!=0 || n->ntarget!=0){
 			if (n->ttarget!=0){
 			//check path from position
-				if (eqInD(n->position.x,n->destination.x,config.npc_types[n->type].move_speed) &&
-							eqInD(n->position.y,n->destination.y,config.npc_types[n->type].move_speed)||
+				if ((eqInD(n->position.x,n->destination.x,config.npc_types[n->type].move_speed) &&
+							eqInD(n->position.y,n->destination.y,config.npc_types[n->type].move_speed))||
 					glength(&n->position,&n->destination)<0.05){
 					if (n->path_count>=NPC_PATH){
 						memset(n->path,-1,sizeof(int)*NPC_PATH);
@@ -314,8 +317,8 @@ void tickMoveNpc(gnode* grid,npc* n){
 			}else 
 				if (n->ntarget!=0)
 					//check path from position
-					if (eqInD(n->position.x,n->destination.x,config.npc_types[n->type].move_speed) &&
-								eqInD(n->position.y,n->destination.y,config.npc_types[n->type].move_speed)||
+					if ((eqInD(n->position.x,n->destination.x,config.npc_types[n->type].move_speed) &&
+								eqInD(n->position.y,n->destination.y,config.npc_types[n->type].move_speed))||
 						glength(&n->position,&n->destination)<0.05){
 						if (n->path_count>=NPC_PATH){
 							memset(n->path,-1,sizeof(int)*NPC_PATH);

@@ -5,15 +5,21 @@
 #include <strings.h>
 #include <time.h>
 #include <sys/time.h>
+#include <unistd.h> 
 
 #define TPS 40
 
 #define NPC_PATH 5
 #define MAX_AREA 33
 
+//player types
+#define PC 0
 
 //tower types
 #define BASE 0
+
+//isfriend types
+#define ENEMY 0
 
 
 //bullet damage types
@@ -185,7 +191,33 @@ struct player{
 	int id;
 	int isfriend; //player number [0-7]
 	int base_health;
+	tower * base;
 } player;
+
+
+typedef
+struct wave_part{
+	int position;
+	int npc_type;
+	int num;
+	int delay;
+	int spawned;
+} wave_part;
+
+typedef
+struct wave{
+	int delay;
+	int parts_num;
+	wave_part * parts;
+} wave;
+
+typedef
+struct wave_spawner{
+	unsigned int wave_num;
+	unsigned int wave_part_num;
+	unsigned int wave_ticks;
+} wave_spawner;
+
 
 typedef
 struct config{
@@ -197,6 +229,7 @@ struct config{
 		tower_type* tower_types;
 		struct tower* tower_array;
 	unsigned int npc_max;
+	unsigned int npc_num;
 	unsigned int npc_types_size;
 		npc_type* npc_types;
 		struct npc* npc_array;
@@ -208,6 +241,9 @@ struct config{
 	int player_max;
 		player* players;
 	struct timeval time;
+	unsigned int waves_size;
+		wave* waves;
+	wave_spawner wave_current;
 } engine_config;
 
 ///////

@@ -2,9 +2,24 @@
 void realizeMap(gnode* grid);
 
 gnode * loadMap(char *filepath);
-
-void loadConfig(char* filepath);
-
+/* map file format
+[size]
+[build string]
+[work string]
+max_npc [max npc]
+max_tower [max tower]
+max_bullets [max bullets]
+bases [bases num]
+[base id] [base position] [base spaw point position]
+....
+pc_base [pc base id]
+points [point num]
+[point id] [point position]
+waves [waves num]
+parts [(types num)*((points num)]
+[point id] [type] [num] [delay]
+...
+*/
 void loadTypes(char* filepath);
 
 void realizeTypes();

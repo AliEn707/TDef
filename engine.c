@@ -3,6 +3,7 @@
 #include "engine_npc.h"
 #include "engine_tower.h"
 #include "engine_bullet.h"
+#include "areaarray.h"
 
 
 int timePassed(int i){
@@ -121,7 +122,7 @@ int canWalkThrough(gnode* grid,vec* a,vec* b){
 	float y1=a->y;
 	float x2=b->x;
 	float y2=b->y;
-	int destination=to2d((int)x2,(int)y2);
+//	int destination=to2d((int)x2,(int)y2);
 	if (x1!=x2){
 		if (x1>x2){
 			int tmp;
@@ -164,12 +165,39 @@ int canWalkThrough(gnode* grid,vec* a,vec* b){
 	return 1;
 }
 
+//scenari
+
+//need to test
+void processWaves(gnode* grid){
+	if (config.waves_size==0)
+		return;
+	if (config.wave_current.wave_num>=config.waves_size)
+		return;
+	config.wave_current.wave_ticks++;
+	#define wave_curr config.waves[config.wave_current.wave_num]
+	if(config.wave_current.wave_ticks>=wave_curr.delay){
+		int over=0;
+		int i;
+		for(i=0;i<wave_curr.parts_num;i++)
+			if(config.wave_current.wave_ticks%wave_curr.parts[i].delay==0)
+				if (wave_curr.parts[i].spawned<wave_curr.parts[i].num){
+					wave_curr.parts[i].spawned++;
+					spawnNpc(grid,wave_curr.parts[i].position,ENEMY,wave_curr.parts[i].npc_type);
+					over++;
+				}
+		if (over==0){
+			config.wave_current.wave_ticks=0;
+			config.wave_current.wave_num++;
+		}
+	}
+}
 
 
 
 //player 
-void setupPlayer(int id,int isfriend,int base_health){
+void setupPlayer(int id,int isfriend,int base_health,tower* base){
 	config.players[id].id=getGlobalId();
 	config.players[id].isfriend=isfriend;
 	config.players[id].base_health=base_health;
+	config.players[id].base=base;
 }
