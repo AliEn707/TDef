@@ -5,11 +5,14 @@ max_npcs 200
 max_towers 100
 max_bullets 500
 bases 1
-0 75 65
-pc_base 0
-points 1
+0 95 1
+pc_base 0 1000
+points 2
 0 15
-waves 1
-parts 2
+1 55
+waves 2
+parts 2 30
 0 1 3 10
 0 2 2 10
+parts 1 30
+0 1 5 20

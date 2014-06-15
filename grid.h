@@ -12,6 +12,8 @@
 #define NPC_PATH 5
 #define MAX_AREA 33
 
+#define PLAYER_MAX 8
+
 //player types
 #define PC 0
 
@@ -47,6 +49,7 @@
 #define NOTHING -1
 //>1 may walk and build
 #define MAX_PLAYERS 8
+
 
 
 typedef 
@@ -197,16 +200,16 @@ struct player{
 
 typedef
 struct wave_part{
-	int position;
+	int point;
 	int npc_type;
 	int num;
-	int delay;
+	unsigned int delay;
 	int spawned;
 } wave_part;
 
 typedef
 struct wave{
-	int delay;
+	unsigned int delay;
 	int parts_num;
 	wave_part * parts;
 } wave;
@@ -217,6 +220,20 @@ struct wave_spawner{
 	unsigned int wave_part_num;
 	unsigned int wave_ticks;
 } wave_spawner;
+
+typedef 
+struct base{
+	int id;
+	int position;
+	int spawn_position;
+} base;
+
+typedef 
+struct point{
+	int id;
+	int position;
+} point;
+
 
 
 typedef
@@ -238,12 +255,16 @@ struct config{
 		bullet_type* bullet_types;
 		struct bullet* bullet_array;
 	unsigned int global_id;
-	int player_max;
-		player* players;
+//	int player_max;
+		player players[PLAYER_MAX];
 	struct timeval time;
 	unsigned int waves_size;
 		wave* waves;
 	wave_spawner wave_current;
+	unsigned int bases_size;
+		base* bases;
+	unsigned int points_size;
+		point* points;
 } engine_config;
 
 ///////

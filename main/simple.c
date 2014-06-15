@@ -80,20 +80,19 @@ int main(){
 	
 	initGridMath();
 //	loadConfig("../test.cfg");
-	grid=loadMap("../test.mp");
 	loadTypes("../types.cfg");
+	grid=loadMap("../test.mp");
 	
-	config.player_max=4;
-	initArrays();
+//	config.player_max=4;
 	timePassed(0);
 	
 	npc* n=spawnNpc(grid,4,0,1);
 	npc* n2=spawnNpc(grid,5,0,2);
 	spawnNpc(grid,6,0,3);
-	setupPlayer(0,1,2000,0);
-	setupPlayer(1,1,1800,0);
-	spawnTower(grid,75,0,BASE);
-	spawnTower(grid,22,1,2);
+	setupPlayer(1,1,2000,0);
+	setupPlayer(2,1,1800,0);
+	spawnTower(grid,75,1,BASE);
+	spawnTower(grid,22,2,2);
 	
 	npc* n3=spawnNpc(grid,42,0,2);
 	

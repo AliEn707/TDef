@@ -41,18 +41,27 @@ void initArrays(){
 	if ((config.bullet_array=malloc(sizeof(bullet)*config.bullet_max))==0)
 		perror("malloc bullet initArrays");
 	memset(config.bullet_array,0,sizeof(bullet)*config.bullet_max);
-	if ((config.players=malloc(sizeof(bullet)*config.player_max))==0)
-		perror("malloc player initArrays");
-	memset(config.players,0,sizeof(bullet)*config.player_max);
+//	if ((config.players=malloc(sizeof(bullet)*config.player_max))==0)
+//		perror("malloc player initArrays");
+//	memset(config.players,0,sizeof(bullet)*config.player_max);
+	memset(config.players,0,sizeof(bullet)*PLAYER_MAX);
 	initAreaArray();
 //	printf("%d %d %d\n",sizeof(tower)*config.tower_max,sizeof(npc)*config.npc_max,sizeof(bullet)*config.bullet_max);
 }
 
 void realizeArrays(){
-	free(config.players);
+//	free(config.players);
 	free(config.tower_array);
 	free(config.npc_array);
 	free(config.bullet_array);
+	free(config.points);
+	free(config.bases);
+	if (config.waves!=0){
+		int i,j;
+		for(i=0;i<config.waves_size;i++)
+			free(config.waves[i].parts);
+		free(config.waves);
+	}
 	realizeAreaArray();	
 }
 
@@ -167,7 +176,7 @@ int canWalkThrough(gnode* grid,vec* a,vec* b){
 
 //scenari
 
-//need to test
+//need more tests
 void processWaves(gnode* grid){
 	if (config.waves_size==0)
 		return;
@@ -176,16 +185,22 @@ void processWaves(gnode* grid){
 	config.wave_current.wave_ticks++;
 	#define wave_curr config.waves[config.wave_current.wave_num]
 	if(config.wave_current.wave_ticks>=wave_curr.delay){
-		int over=0;
+		int check(){
+			int i;
+			for(i=0;i<wave_curr.parts_num;i++){
+				if (wave_curr.parts[i].spawned<wave_curr.parts[i].num)
+					return -1;
+			}
+			return 1;
+		}
 		int i;
 		for(i=0;i<wave_curr.parts_num;i++)
 			if(config.wave_current.wave_ticks%wave_curr.parts[i].delay==0)
 				if (wave_curr.parts[i].spawned<wave_curr.parts[i].num){
 					wave_curr.parts[i].spawned++;
-					spawnNpc(grid,wave_curr.parts[i].position,ENEMY,wave_curr.parts[i].npc_type);
-					over++;
+					spawnNpc(grid,config.points[wave_curr.parts[i].point].position,ENEMY,wave_curr.parts[i].npc_type);
 				}
-		if (over==0){
+		if (check()>0){
 			config.wave_current.wave_ticks=0;
 			config.wave_current.wave_num++;
 		}

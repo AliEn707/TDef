@@ -2,10 +2,15 @@
 #include "file.h"
 #include "gridmath.h"
 
-
+//map file parser
 gnode * loadMap(char *filepath){
 	gnode * grid;
 	FILE * file;
+	
+	config.global_id=1;
+	memset(config.players,0,sizeof(bullet)*PLAYER_MAX);
+	initAreaArray();
+	
 	if ((file=fopen(filepath,"r"))==0) 
 		perror("fopen loadMap");
 	char buf[100];
@@ -31,28 +36,90 @@ gnode * loadMap(char *filepath){
 	}
 	free(walk);
 	free(build);
+	
 	while(feof(file)==0){
 		memset(buf,0,sizeof(buf));
 		fscanf(file,"%s ",buf);
-		printf("%s\n",buf);
+//		printf("%s\n",buf);
 		if (strcmp(buf,"max_npcs")==0){
 			fscanf(file,"%d\n",&config.npc_max);
+			if ((config.npc_array=malloc(sizeof(npc)*config.npc_max))==0)
+				perror("malloc NPC initArrays");
+			memset(config.npc_array,0,sizeof(npc)*config.npc_max);
 			continue;
 		}
 		if (strcmp(buf,"max_towers")==0){
 			fscanf(file,"%d\n",&config.tower_max);
-			printf("%d\n",config.tower_max);
+			if ((config.tower_array=malloc(sizeof(tower)*config.tower_max))==0)
+				perror("malloc tower initArrays");
+			memset(config.tower_array,0,sizeof(tower)*config.tower_max);
 			continue;
 		}
 		if (strcmp(buf,"max_bullets")==0){
 			fscanf(file,"%d\n",&config.bullet_max);
-			printf("%d\n",config.bullet_max);
+			if ((config.bullet_array=malloc(sizeof(bullet)*config.bullet_max))==0)
+				perror("malloc bullet initArrays");
+			memset(config.bullet_array,0,sizeof(bullet)*config.bullet_max);
+			continue;
+		}
+		if (strcmp(buf,"pc_base")==0){
+			//create base of pc player
+			int base;
+			int base_health;
+			fscanf(file,"%d %d\n",&base,&base_health);
+			setupPlayer(PC,ENEMY,base_health,spawnTower(grid,config.bases[base].position,PC,BASE));
+			continue;
+		}
+		if (strcmp(buf,"bases")==0){
+			int i;
+			fscanf(file,"%d\n",&config.bases_size);
+			if ((config.bases=malloc(config.bases_size*sizeof(base)))==0)
+				perror("malloc config.bases loadMap");
+			for(i=0;i<config.bases_size;i++){
+				int j;
+				fscanf(file,"%d ",&j);
+				fscanf(file,"%d %d\n",&config.bases[j].position,&config.bases[j].spawn_position);
+				config.bases[j].id=j;
+			}
+			continue;
+		}
+		if (strcmp(buf,"points")==0){
+			int i;
+			fscanf(file,"%d\n",&config.points_size);
+			if ((config.points=malloc(config.points_size*sizeof(point)))==0)
+				perror("malloc config.points loadMap");
+			for(i=0;i<config.points_size;i++){
+				int j;
+				fscanf(file,"%d ",&j);
+				fscanf(file,"%d\n",&config.points[j].position);
+				config.bases[j].id=j;
+			}
+			continue;
+		}
+		if (strcmp(buf,"waves")==0){
+			int i;
+			fscanf(file,"%d %d\n",&config.waves_size);
+			if((config.waves=malloc(config.waves_size*sizeof(wave)))==0)
+				perror("malloc config.waves loadMap");
+			memset(config.waves,0,config.waves_size*sizeof(wave));
+			for(i=0;i<config.waves_size;i++){
+				int j;
+				fscanf(file,"%s %d %d\n",buf,&config.waves[i].parts_num,&config.waves[i].delay);
+				if((config.waves[i].parts=malloc(config.waves[i].parts_num*sizeof(wave_part)))==0)
+					perror("malloc config.waves[i].parts loadMap");
+				memset(config.waves[i].parts,0,config.waves[i].parts_num*sizeof(wave_part));
+				for(j=0;j<config.waves[i].parts_num;j++){
+					fscanf(file,"%d %d %d %d\n",&config.waves[i].parts[j].point,
+											&config.waves[i].parts[j].npc_type,
+											&config.waves[i].parts[j].num,
+											&config.waves[i].parts[j].delay);
+				}
+			}
 			continue;
 		}
 		
 	}
 	fclose(file);
-	config.global_id=1;
 	return grid;
 }
 

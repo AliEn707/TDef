@@ -109,7 +109,6 @@ void tickProcessBullet(gnode * grid,bullet * b){
 											tmp!=0;tmp=tmp->next)
 										if (canSee(grid,&b->position,&tmp->position)>0)
 											tmp->health-=b->damage;
-										
 						}
 			}	
 out:

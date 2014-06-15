@@ -9,14 +9,14 @@ gnode * loadMap(char *filepath);
 max_npc [max npc]
 max_tower [max tower]
 max_bullets [max bullets]
-bases [bases num]
+bases [bases num] [base health]
 [base id] [base position] [base spaw point position]
 ....
 pc_base [pc base id]
 points [point num]
 [point id] [point position]
 waves [waves num]
-parts [(types num)*((points num)]
+parts [(types num)*((points num)] [delay]
 [point id] [type] [num] [delay]
 ...
 */
