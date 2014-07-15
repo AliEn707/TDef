@@ -92,7 +92,7 @@ gnode * loadMap(char *filepath){
 				int j;
 				fscanf(file,"%d ",&j);
 				fscanf(file,"%d\n",&config.points[j].position);
-				config.bases[j].id=j;
+				config.points[j].id=j;
 			}
 			continue;
 		}
@@ -335,6 +335,7 @@ void loadTypes(char * filepath){
 
 
 void realizeTypes(){
+	free(config.bullet_types);
 	free(config.tower_types);
 	free(config.npc_types);
 	
