@@ -80,6 +80,7 @@ npc* spawnNpc(gnode* grid,int node_id,int isfriend,int type){
 	n->position.x=getGridx(node_id);
 	n->position.y=getGridy(node_id);
 	n->path_count=NPC_PATH;
+	n->bit_mask=0;
 	memcpy(&n->destination,&n->position,sizeof(vec));
 	n->type=type;
 	setNpcBase(n);

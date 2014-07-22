@@ -51,6 +51,19 @@
 #define MAX_PLAYERS 8
 
 
+///////bit mask
+#define setMask(z,x) z->bit_mask|=x
+#define checkMask(z,x) z->bit_mask&x
+
+#define NPC_POSITION 1
+#define NPC_HEALTH 2
+
+#define TOWER_HEALTH 1
+
+#define BULLET_POSITION 1
+#define BULLET_DETONATE 2
+
+
 
 typedef 
 struct vector2i{
@@ -272,18 +285,6 @@ struct config{
 ///////
 #define setGridSize(size) (config.gridsize=size)
 engine_config config;
-
-///////bit mask
-#define setMask(z,x) z->bit_mask|=x
-#define checkMask(z,x) z->bit_mask&x
-
-#define NPC_POSITION 1
-#define NPC_HEALTH 2
-
-#define TOWER_HEALTH 1
-
-#define BULLET_POSITION 1
-#define BULLET_DETONATE 2
 
 ///////
 #define getGridx(id) (1.0*idtox(id)+0.5f)

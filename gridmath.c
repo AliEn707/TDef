@@ -6,7 +6,7 @@
 
 float cos_grid[6284];
 float sin_grid[6284];
-float sqrt_grid[200001];
+float sqrt_grid[20001];
 
 float gcos(float a){
 	int angle=(int)(a*1000);
@@ -25,7 +25,7 @@ float gsin(float a){
 
 float gsqrt(float a){
 	if (a<0) return 0;
-	if (a>200)return sqrt(a);
+	if (a>20)return sqrt(a);
 	return sqrt_grid[(int)(a*1000)];
 }
 
@@ -35,7 +35,7 @@ void initGridMath(){
 		sin_grid[(int)(i*1000)]=sinf(i);
 		cos_grid[(int)(i*1000)]=cosf(i);
 	}
-	for(i=0;i<=200;i+=0.001)
+	for(i=0;i<=20;i+=0.001)
 		sqrt_grid[(int)(i*1000)]=sqrt(i);
 		
 }
