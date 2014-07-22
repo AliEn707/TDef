@@ -246,6 +246,7 @@ void tickAttackNpc(gnode* grid,npc* n){
 				b->damage=config.npc_types[n->type].damage;
 				b->support=config.npc_types[n->type].support;
 				b->isfriend=n->isfriend;
+				b->owner=n->id;
 //				b->target=TOWER;
 				getDir(&b->position,&b->destination,&b->direction);
 //				memcpy(&b->effects,&config.npc_types[n->type].effects,sizeof(effects));
@@ -354,6 +355,7 @@ void tickMoveNpc(gnode* grid,npc* n){
 			
 			//write new position
 			memcpy(&n->position,&pos,sizeof(vec));
+			setMask(n,NPC_POSITION);
 		}
 	}
 }

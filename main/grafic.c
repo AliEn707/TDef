@@ -236,6 +236,8 @@ int main(int argc, char **argv)
 		processWaves(grid);
 		forEachNpc(grid,tickMiscNpc);
 		forEachTower(grid,tickMiscTower);
+		forEachBullet(grid,tickMiscBullet);
+		
 		forEachNpc(grid,tickDiedCheckNpc);
 		forEachTower(grid,tickDiedCheckTower);
 			

@@ -38,6 +38,7 @@ void tickProcessBullet(gnode * grid,bullet * b){
 			b->position.y=b->destination.y;
 			delta=0.1;
 		}
+		setMask(b,BULLET_POSITION);
 		if (eqInD(b->position.x,b->destination.x,delta)&&
 			eqInD(b->position.y,b->destination.y,delta)){
 			int j;
@@ -47,10 +48,13 @@ void tickProcessBullet(gnode * grid,bullet * b){
 				tower * tmp;
 				if ((tmp=grid[to2d((int)b->position.x,(int)b->position.y)].tower)>0)
 					if(config.players[tmp->owner].isfriend!=b->isfriend){
-						if(tmp->type==BASE)
+						if(tmp->type==BASE){
 							config.players[tmp->owner].base_health-=b->damage;
-						else
+							config.players[tmp->owner].attacked++;
+						}else{
 							tmp->health-=b->damage;
+							setMask(tmp,TOWER_HEALTH);
+						}
 						multiple++;
 					}
 			}	
@@ -68,6 +72,7 @@ void tickProcessBullet(gnode * grid,bullet * b){
 								if (eqInD(tmp->position.x,b->position.x,0.1)&&
 									eqInD(tmp->position.y,b->position.y,0.1)){
 									tmp->health-=b->damage;
+									setMask(tmp,NPC_HEALTH);
 									multiple++;
 									if (config.bullet_types[(int)b->type].attack_type==SINGLE)
 										goto out;
@@ -99,20 +104,25 @@ void tickProcessBullet(gnode * grid,bullet * b){
 											:1){
 										if (grid[to2d(xid,yid)].tower->type!=BASE)
 											config.players[grid[to2d(xid,yid)].tower->owner].base_health-=b->damage;
-										else
+										else{
 											grid[to2d(xid,yid)].tower->health-=b->damage;
+											setMask(grid[to2d(xid,yid)].tower,TOWER_HEALTH);
+										}
 									}
 							//npc
 							for (k=0;k<MAX_PLAYERS;k++)
 								if (config.bullet_types[(int)b->type].attack_type==AREA?k!=b->isfriend:1)
 									for(tmp=grid[to2d(xid,yid)].npcs[k];
 											tmp!=0;tmp=tmp->next)
-										if (canSee(grid,&b->position,&tmp->position)>0)
+										if (canSee(grid,&b->position,&tmp->position)>0){
 											tmp->health-=b->damage;
+											setMask(tmp,NPC_HEALTH);
+										}
 						}
 			}	
 out:
 			b->detonate++;
+			setMask(b,BULLET_DETONATE);
 		}
 	}
 }

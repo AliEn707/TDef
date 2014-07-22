@@ -171,6 +171,7 @@ struct bullet{
 	char detonate;
 	int damage;
 	effect effects;
+	int owner;
 }bullet;
 
 
@@ -192,6 +193,7 @@ struct gnode{
 typedef
 struct player{
 	int id;
+	int attacked;
 	int isfriend; //player number [0-7]
 	int base_health;
 	tower * base;
@@ -270,6 +272,18 @@ struct config{
 ///////
 #define setGridSize(size) (config.gridsize=size)
 engine_config config;
+
+///////bit mask
+#define setMask(z,x) z->bit_mask|=x
+#define checkMask(z,x) z->bit_mask&x
+
+#define NPC_POSITION 1
+#define NPC_HEALTH 2
+
+#define TOWER_HEALTH 1
+
+#define BULLET_POSITION 1
+#define BULLET_DETONATE 2
 
 ///////
 #define getGridx(id) (1.0*idtox(id)+0.5f)
