@@ -17,14 +17,16 @@ tickMiscTower
 tickMiscBullet
 tickDiedCheckNpc
 tickDiedCheckTower
+
 tickCleanNpc
 tickCleanTower
 tickCleanBullet
+
+tickProcessBullet
+tickMoveNpc
 tickTargetNpc
 tickAtackNpc
 tickAtackTower
-tickProcessBullet
-tickMoveNpc
 
 some user stuff
 -remove tower set it to died

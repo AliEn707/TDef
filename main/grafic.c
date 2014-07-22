@@ -243,11 +243,11 @@ int main(int argc, char **argv)
 		forEachTower(grid,tickCleanTower);
 		forEachBullet(grid,tickCleanBullet);
 			
+		forEachBullet(grid,tickProcessBullet);
+		forEachNpc(grid,tickMoveNpc);
 		forEachNpc(grid,tickTargetNpc);
 		forEachNpc(grid,tickAttackNpc);
 		forEachTower(grid,tickAttackTower);
-		forEachNpc(grid,tickMoveNpc);
-		forEachBullet(grid,tickProcessBullet);
 		
 		int z;
 		z=timePassed(1);

@@ -1,17 +1,57 @@
-a: matrix([1,0,tx],[0,1,ty],[0,0,1]);
+a: matrix([1,0,tx1],[0,1,ty1],[0,0,1]);
 b: matrix([sx,0,0],[0,sy,0],[0,0,1]);
-c: matrix([0.707,-0.707,0],[0.707,0.707,0],[0,0,1]);
-d: matrix([1,0,-tx],[0,1,-ty],[0,0,1]);
+c: matrix([0.707,0.707,0],[-0.707,0.707,0],[0,0,1]);
+d: matrix([1,0,tx2],[0,1,ty2],[0,0,1]);
 v: matrix([x],[y],[1]);
 
 
 
+matrix(
+[sx*(0.707*(y+ty2)+0.707*(x+tx2))+tx1],
+[sy*(0.707*(y+ty2)-0.707*(x+tx2))+ty1],
+[1])
+
+
+matrix(
+[-(500*y)/(707*sy)+(500*x)/(707*sx)+(500*sx*ty1-707*sx*sy*tx2-500*sy*tx1)/(707*sx*sy)],
+[(500*y)/(707*sy)+(500*x)/(707*sx)-(707*sx*sy*ty2+500*sx*ty1+500*sy*tx1)/(707*sx*sy)],
+[1])
+
+
+must be
+	glTranslatef((tx),(ty),0);
+	glRotatef(60,1,0,0);
+	//glScalef(1,0.5,1);
+	glRotatef(-45,0,0,1);
+	//glTranslatef(-config.gridsize/2.0,-config.gridsize/2.0,0);
+->
+	tx1=tx
+	ty1=ty
+	tx2=0
+	ty2=0
 
 
 
+//from grid to screen
+//  y
+//0
+//  x
+x=sx*(0.707*(x+tx2)+0.707*(y+ty2))+tx1;
+y=sy*(0.707*(y+ty2)-0.707*(x+tx2))+ty1;
+//from screen to grid
+//sreen 
+//y
+//0 x
+x=-(500*y)/(707*sy)+(500*x)/(707*sx)+(500*sx*ty1-707*sx*sy*tx2-500*sy*tx1)/(707*sx*sy);
+y=(500*y)/(707*sy)+(500*x)/(707*sx)-(707*sx*sy*ty2+500*sx*ty1+500*sy*tx1)/(707*sx*sy);
 
+if tx1=-tx2
+ty1=-ty2
 
-
+////
+m:matrix([sx,0,0,0],[0,sy,sy1,0],[0,-sy1,sy,0],[0,0,0,1]);
+b: matrix([sx,0,0,0],[0,sy,0,0],[0,0,sz,0],[0,0,0,1]);
+v: matrix([x],[y],[z],[1]);
 //odnorod 3d
 a: matrix([1,0,0,xs],[0,1,0,ys],[0,0,1,0],[0,0,0,1]);
 b: matrix([1,0,0,0],[0,0.5,0.866,0],[0,-0.866,0.5,0],[0,0,0,1]);
