@@ -55,10 +55,19 @@
 #define setMask(z,x) z->bit_mask|=x
 #define checkMask(z,x) z->bit_mask&x
 
+#define MSG_INFO 0
+#define MSG_NPC 1
+#define MSG_TOWER 2
+#define MSG_BULLET 3
+#define MSG_PLAYER 4
+
+#define PLAYER_HEALTH 1
+
 #define NPC_POSITION 1
 #define NPC_HEALTH 2
 
 #define TOWER_HEALTH 1
+#define TOWER_TARGET 2
 
 #define BULLET_POSITION 1
 #define BULLET_DETONATE 2
@@ -180,7 +189,7 @@ struct bullet{
 	vec source;
 	char isfriend;
 	char support;
-	char type;
+	int type;
 	char detonate;
 	int damage;
 	effect effects;
@@ -206,7 +215,7 @@ struct gnode{
 typedef
 struct player{
 	int id;
-	int attacked;
+	int bit_mask;
 	int isfriend; //player number [0-7]
 	int base_health;
 	tower * base;
@@ -249,7 +258,10 @@ struct point{
 	int position;
 } point;
 
-
+typedef
+struct netw{
+	
+}netw;
 
 typedef
 struct config{
@@ -270,7 +282,7 @@ struct config{
 		bullet_type* bullet_types;
 		struct bullet* bullet_array;
 	unsigned int global_id;
-//	int player_max;
+	int players_num;
 		player players[PLAYER_MAX];
 	struct timeval time;
 	unsigned int waves_size;

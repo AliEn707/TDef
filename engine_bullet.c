@@ -50,7 +50,7 @@ void tickProcessBullet(gnode * grid,bullet * b){
 					if(config.players[tmp->owner].isfriend!=b->isfriend){
 						if(tmp->type==BASE){
 							config.players[tmp->owner].base_health-=b->damage;
-							config.players[tmp->owner].attacked++;
+							setMask((&config.players[tmp->owner]),PLAYER_HEALTH);
 						}else{
 							tmp->health-=b->damage;
 							setMask(tmp,TOWER_HEALTH);
@@ -102,9 +102,10 @@ void tickProcessBullet(gnode * grid,bullet * b){
 									if(config.bullet_types[(int)b->type].attack_type==AREA?
 											config.players[grid[to2d(xid,yid)].tower->owner].isfriend!=b->isfriend
 											:1){
-										if (grid[to2d(xid,yid)].tower->type!=BASE)
+										if (grid[to2d(xid,yid)].tower->type!=BASE){
 											config.players[grid[to2d(xid,yid)].tower->owner].base_health-=b->damage;
-										else{
+											setMask((&config.players[grid[to2d(xid,yid)].tower->owner]),PLAYER_HEALTH);
+										}else{
 											grid[to2d(xid,yid)].tower->health-=b->damage;
 											setMask(grid[to2d(xid,yid)].tower,TOWER_HEALTH);
 										}

@@ -91,6 +91,7 @@ void tickAttackTower(gnode* grid,tower* t){
 									tmp!=0;tmp=tmp->next)
 								if (canSee(grid,&(vec){x+0.5,y+0.5},&tmp->position)>0){
 									t->target=tmp;
+									setMask(t,TOWER_TARGET);
 									if (rand()%100<60)
 										return;
 								}

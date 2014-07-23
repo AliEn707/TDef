@@ -8,7 +8,7 @@ gnode * loadMap(char *filepath){
 	FILE * file;
 	
 	config.global_id=1;
-	memset(config.players,0,sizeof(bullet)*PLAYER_MAX);
+	memset(config.players,0,sizeof(player)*PLAYER_MAX);
 	initAreaArray();
 	
 	if ((file=fopen(filepath,"r"))==0) 
