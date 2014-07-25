@@ -81,6 +81,7 @@ npc* spawnNpc(gnode* grid,int node_id,int isfriend,int type){
 	n->position.y=getGridy(node_id);
 	n->path_count=NPC_PATH;
 	n->bit_mask=0;
+	setMask(n,NPC_CREATE);
 	memcpy(&n->destination,&n->position,sizeof(vec));
 	n->type=type;
 	setNpcBase(n);
@@ -225,6 +226,8 @@ void tickAttackNpc(gnode* grid,npc* n){
 				b->damage=config.npc_types[n->type].damage;
 				b->support=config.npc_types[n->type].support;
 				b->isfriend=n->isfriend;
+				b->owner=n->id;
+				setMask(b,BULLET_CREATE);
 //				b->target=TOWER;
 				getDir(&b->position,&b->destination,&b->direction);
 //				memcpy(&b->effects,&config.npc_types[n->type].effects,sizeof(effects));
@@ -248,6 +251,7 @@ void tickAttackNpc(gnode* grid,npc* n){
 				b->support=config.npc_types[n->type].support;
 				b->isfriend=n->isfriend;
 				b->owner=n->id;
+				setMask(b,BULLET_CREATE);
 //				b->target=TOWER;
 				getDir(&b->position,&b->destination,&b->direction);
 //				memcpy(&b->effects,&config.npc_types[n->type].effects,sizeof(effects));

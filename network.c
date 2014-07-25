@@ -44,13 +44,13 @@ void tickSendNpc(gnode* grid,npc* n){
 	sendData(type);
 	sendData(n->id);
 	sendData(n->bit_mask);
-	if (!n->bit_mask){
+	if (checkMask(n,NPC_CREATE)){
 		sendData(n->isfriend);
 		sendData(n->type);
 	}
-	if(checkMask(n,NPC_POSITION) || !n->bit_mask)
+	if(checkMask(n,NPC_POSITION) || checkMask(n,NPC_CREATE))
 		sendData(n->position);
-	if(checkMask(n,NPC_HEALTH) || !n->bit_mask)
+	if(checkMask(n,NPC_HEALTH) || checkMask(n,NPC_CREATE))
 		sendData(n->health);
 }
 
@@ -61,18 +61,18 @@ void tickSendTower(gnode* grid,tower* t){
 	sendData(type);
 	sendData(t->id);
 	sendData(t->bit_mask);
-	if(!t->bit_mask){
+	if(checkMask(t,TOWER_CREATE)){
 		sendData(t->type);
 		sendData(t->owner);
 		sendData(t->position);
 	}
-	if(checkMask(t,TOWER_TARGET) || !t->bit_mask){
+	if(checkMask(t,TOWER_TARGET) || checkMask(t,TOWER_CREATE)){
 		int target=-1;
 		if(t->target!=0)
 			target=getGridId(t->target->position);
 		sendData(target);
 	}
-	if(checkMask(t,TOWER_HEALTH) || !t->bit_mask)
+	if(checkMask(t,TOWER_HEALTH) || checkMask(t,TOWER_CREATE))
 		sendData(t->health);
 }
 
@@ -84,11 +84,11 @@ void tickSendBullet(gnode* grid,bullet * b){
 	sendData(type);
 	sendData(b->id);
 	sendData(b->bit_mask);
-	if (!b->bit_mask){
+	if (checkMask(b,BULLET_CREATE)){
 		sendData(b->type);
 		sendData(b->owner);
 	}
-	if(checkMask(b,BULLET_POSITION) || !b->bit_mask)
+	if(checkMask(b,BULLET_POSITION) || checkMask(b,BULLET_CREATE))
 		sendData(b->position);
 	if(checkMask(b,BULLET_DETONATE))
 		sendData(b->detonate);

@@ -45,6 +45,7 @@ tower* spawnTower(gnode * grid,int node_id,int owner,int type){
 	t->position=node_id;
 	t->type=type;
 	t->bit_mask=0;
+	setMask(t,TOWER_CREATE);
 	setTowerBase(t);
 	node->tower=t;
 	return t;
@@ -114,6 +115,7 @@ void tickAttackTower(gnode* grid,tower* t){
 				b->support=config.tower_types[t->type].support;
 				b->isfriend=config.players[t->owner].isfriend;
 				b->owner=t->id;
+				setMask(b,BULLET_CREATE);
 //				b->target=NPC;
 				getDir(&b->position,&b->destination,&b->direction);
 //				memcpy(&b->effects,&config.npc_types[n->type].effects,sizeof(effects));

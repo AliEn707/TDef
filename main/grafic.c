@@ -259,7 +259,7 @@ int main(int argc, char **argv)
 		pinfo();
 		render(grid);
 		syncTPS();
-		usleep(100000);
+		//usleep(100000);
 	}
 	
 	
