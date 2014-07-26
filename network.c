@@ -30,6 +30,8 @@ int startServer(int players, int port){
 			perror("accept startServer");
 		//check connected user
 		
+		//start worker
+		
 		//need to change later
 		return sock;
 	}
