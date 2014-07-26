@@ -6,7 +6,7 @@
 
 float cos_grid[6284];
 float sin_grid[6284];
-float sqrt_grid[20001];
+//float sqrt_grid[20001];
 
 float gcos(float a){
 	int angle=(int)(a*1000);
@@ -23,11 +23,11 @@ float gsin(float a){
 	return sin_grid[angle]*i;
 }
 
-float gsqrt(float a){
-	if (a<0) return 0;
-	if (a>20)return sqrt(a);
-	return sqrt_grid[(int)(a*1000)];
-}
+//float gsqrt(float a){
+//	if (a<0) return 0;
+//	if (a>=20)return sqrt(a);
+//	return sqrt_grid[(int)(a*1000)];
+//}
 
 void initGridMath(){
 	float i;
@@ -35,17 +35,17 @@ void initGridMath(){
 		sin_grid[(int)(i*1000)]=sinf(i);
 		cos_grid[(int)(i*1000)]=cosf(i);
 	}
-	for(i=0;i<=20;i+=0.001)
-		sqrt_grid[(int)(i*1000)]=sqrt(i);
+//	for(i=0;i<=20;i+=0.001)
+//		sqrt_grid[(int)(i*1000)]=sqrt(i);
 		
 }
 
 float glength(vec* v1,vec* v2){
 	///need to fix it
 	char  buf[15];
-	sprintf(buf,"%g\n",sqr(v1->x-v2->x)+sqr(v1->y-v2->y));
+	sprintf(buf,"|%g\n",sqr(v1->x-v2->x)+sqr(v1->y-v2->y));
 	///////////
-	return gsqrt(sqr(v1->x-v2->x)+sqr(v1->y-v2->y));
+	return sqrt(sqr(v1->x-v2->x)+sqr(v1->y-v2->y));
 }
 
 float getDir(vec* v1,vec* v2, vec* out){

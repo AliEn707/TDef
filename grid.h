@@ -7,7 +7,7 @@
 #include <sys/time.h>
 #include <unistd.h> 
 
-#define TPS 10
+#define TPS 8
 
 #define NPC_PATH 5
 #define MAX_AREA 33
@@ -78,13 +78,13 @@
 
 
 typedef 
-struct vector2i{
+struct vector2{
 	float x;
 	float y;
 } vec;
 
 typedef 
-struct vector2{
+struct vector2i{
 	int x;
 	int y;
 } veci;
