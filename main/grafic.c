@@ -139,8 +139,8 @@ void render(gnode * grid)
 	glEnd();
 	
 	glTranslatef(config.gridsize/2,config.gridsize/2,0);
-	//glRotatef(60,1,0,0);
-	glScalef(1,0.5,1);
+	glRotatef(60,1,0,0);
+	//glScalef(1,0.5,1);
 	glRotatef(-45,0,0,1);
 	glTranslatef(-config.gridsize/2,-config.gridsize/2,0);
 	
