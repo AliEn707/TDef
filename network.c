@@ -29,7 +29,7 @@ int startServer(int players, int port){
 		if((sock = accept(listener, NULL, NULL))<0)
 			perror("accept startServer");
 		//check connected user
-		
+		printf("client connected");
 		//start worker
 		
 		//need to change later
@@ -42,6 +42,8 @@ int startServer(int players, int port){
 void tickSendNpc(gnode* grid,npc* n){
 	int sock;
 	sock=*((int*)grid);
+	if (sock==0)
+		return;
 	char type=MSG_NPC;
 	sendData(type);
 	sendData(n->id);
@@ -56,9 +58,12 @@ void tickSendNpc(gnode* grid,npc* n){
 		sendData(n->health);
 }
 
+
 void tickSendTower(gnode* grid,tower* t){
 	int sock;
 	sock=*((int*)grid);
+	if (sock==0)
+		return;
 	char type=MSG_TOWER;
 	sendData(type);
 	sendData(t->id);
@@ -82,6 +87,8 @@ void tickSendTower(gnode* grid,tower* t){
 void tickSendBullet(gnode* grid,bullet * b){
 	int sock;
 	sock=*((int*)grid);
+	if (sock==0)
+		return;
 	char type=MSG_BULLET;
 	sendData(type);
 	sendData(b->id);
@@ -98,7 +105,9 @@ void tickSendBullet(gnode* grid,bullet * b){
 
 void sendPlayers(int sock,int player){
 	int i;
-	for(i=0;i<config.players_num;i++)
+	if (sock==0)
+		return;
+	for(i=0;i<=config.players_num;i++)
 		if(i!=player){
 			if(checkMask((&config.players[i]),PLAYER_HEALTH)){
 				char mes=MSG_PLAYER;
@@ -107,4 +116,9 @@ void sendPlayers(int sock,int player){
 				sendData(config.players[i].base_health);
 			}
 		}
+}
+
+void sendTest(int sock){
+	char mes=MSG_TEST;
+	sendData(mes);
 }

@@ -234,9 +234,6 @@ int main(int argc, char **argv)
 		drawGrid(grid);
 		
 		processWaves(grid);
-		forEachNpc(grid,tickMiscNpc);
-		forEachTower(grid,tickMiscTower);
-		forEachBullet(grid,tickMiscBullet);
 		
 		forEachNpc(grid,tickDiedCheckNpc);
 		forEachTower(grid,tickDiedCheckTower);
@@ -251,8 +248,12 @@ int main(int argc, char **argv)
 		forEachTower(grid,tickAttackTower);
 		forEachBullet(grid,tickProcessBullet);
 		
+		forEachNpc(grid,tickMiscNpc);
+		forEachTower(grid,tickMiscTower);
+		forEachBullet(grid,tickMiscBullet);
+		
 		int z;
-		z=timePassed(1);
+		//z=timePassed(1);
 		printf("time %d",z);
 		
 		

@@ -5,6 +5,7 @@
 #include "../engine_tower.h"
 #include "../engine_bullet.h"
 #include "../file.h"
+#include "../network.h"
 //Test main file
 
 void pinfo(){
@@ -75,101 +76,65 @@ int main(){
 	
 //	gnode grid[100];
 	gnode* grid;
-//	gridsize=10;
-//	memset(grid,0,sizeof(grid));
-	
 	initGridMath();
 //	loadConfig("../test.cfg");
 	loadTypes("../types.cfg");
 	grid=loadMap("../test.mp");
-	
-//	config.player_max=4;
-	timePassed(0);
-	
-	npc* n=spawnNpc(grid,4,0,1);
-	npc* n2=spawnNpc(grid,5,0,2);
+	//config.player_max=4;
+//	timePassed(0);
+	npc* n=spawnNpc(grid,4,1,1);
+	npc* n2=spawnNpc(grid,5,1,2);
 	spawnNpc(grid,6,0,3);
 	setupPlayer(1,1,2000,0);
-	setupPlayer(2,1,1800,0);
+	setupPlayer(2,0,1800,0);
 	spawnTower(grid,75,1,BASE);
-	spawnTower(grid,22,2,2);
+	spawnTower(grid,22,1,2);
 	
 	npc* n3=spawnNpc(grid,42,0,2);
+	////////////////////
+//	atexit(clearAll);
+//	sysInit();
+	//glutMainLoop();	
+	int sock;
+	sock=startServer(1, 3333);
 	
-	
-	
-	printf("%d\n",timePassed(0));
-	printf("%p %p\n",grid[3].npcs[0],grid[3].npcs[0]);
-	
-	
-	{vec a={1,2},b={2,3},c;
-		getDir(&n->position,&n->destination,&c);
-	}
-	
-	int i;
-/*	npc_type* t=config.npc_types;
-	for(i=1;i<3;i++){
-		printf("%d %d %d  %d %d %f %d\n",
-						t[i].health,
-						t[i].damage,
-						t[i].shield,
-						t[i].distanse,
-						t[i].attack_speed,
-						t[i].move_speed,
-						t[i].cost
-				);
-				printf(" %f %f %f %d %d\n",
-						t[i].effects.speed,
-						t[i].effects.shield,
-						t[i].effects.damage,
-						t[i].effects.time,
-						t[i].effects.status
-				);
-	}
-*/	
-/*	for(i=0;i<100;i++){
-		grid[i].buildable=1;
-		grid[i].id=i;
-		if(rand()%100<10)
-			grid[i].buildable=0;
-	}
-*/	int j;
-	int a=aSearch(grid,grid+80,grid+3,0);
-	//for (i=0;i<NPC_PATH;i++)
 	while(1){
-	timePassed(0);
-	
-	drawGrid(grid);
-	
-	forEachNpc(grid,tickMiscNpc);
-	forEachTower(grid,tickMiscTower);
-	forEachNpc(grid,tickDiedCheckNpc);
-	forEachTower(grid,tickDiedCheckTower);
+		timePassed(0);
+		drawGrid(grid);
 		
-	forEachNpc(grid,tickCleanNpc);
-	forEachTower(grid,tickCleanTower);
-	forEachBullet(grid,tickCleanBullet);
+		processWaves(grid);
 		
-	forEachNpc(grid,tickTargetNpc);
-	forEachNpc(grid,tickAttackNpc);
-	forEachTower(grid,tickAttackTower);
-	forEachNpc(grid,tickMoveNpc);
-	forEachBullet(grid,tickProcessBullet);
-	
-	int z;
-	z=timePassed(1);
-	printf("time %d",z);
-	
-	pinfo();
-	usleep(500000);
-	printf("\n");
+		forEachNpc(grid,tickDiedCheckNpc);
+		forEachTower(grid,tickDiedCheckTower);
+			
+		forEachNpc(grid,tickCleanNpc);
+		forEachTower(grid,tickCleanTower);
+		forEachBullet(grid,tickCleanBullet);
+			
+		forEachNpc(grid,tickMoveNpc);
+		forEachNpc(grid,tickTargetNpc);
+		forEachNpc(grid,tickAttackNpc);
+		forEachTower(grid,tickAttackTower);
+		forEachBullet(grid,tickProcessBullet);
+		
+		forEachNpc((gnode*)&sock,tickSendNpc);
+		
+		forEachNpc(grid,tickMiscNpc);
+		forEachTower(grid,tickMiscTower);
+		forEachBullet(grid,tickMiscBullet);
+		
+		int z;
+		//z=timePassed(1);
+		printf("time %d",z);
+		
+		
+		pinfo();
+		syncTPS();
+		//usleep(100000);
 	}
 	
 	
-//	vec v={1.5,1.3};
-//	printf("%d\n",getGridId(v));
-	printf("%d\n",a);
-
+	clearAll(grid);
 	
 	realizeMap(grid);
 	realizeTypes();
