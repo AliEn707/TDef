@@ -52,7 +52,7 @@ void tickSendNpc(gnode* grid,npc* n){
 		sendData(n->isfriend);
 		sendData(n->type);
 	}
-	if(checkMask(n,NPC_POSITION) || checkMask(n,NPC_CREATE))
+//	if(checkMask(n,NPC_POSITION) || checkMask(n,NPC_CREATE))
 		sendData(n->position);
 	if(checkMask(n,NPC_HEALTH) || checkMask(n,NPC_CREATE))
 		sendData(n->health);
