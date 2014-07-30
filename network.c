@@ -96,6 +96,7 @@ void tickSendBullet(gnode* grid,bullet * b){
 	if (checkMask(b,BULLET_CREATE)){
 		sendData(b->type);
 		sendData(b->owner);
+		sendData(b->source);
 	}
 	if(checkMask(b,BULLET_POSITION) || checkMask(b,BULLET_CREATE))
 		sendData(b->position);

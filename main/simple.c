@@ -114,7 +114,9 @@ int main(){
 		forEachNpc(grid,tickMoveNpc);
 		forEachNpc(grid,tickTargetNpc);
 		forEachNpc(grid,tickAttackNpc);
+		
 		forEachTower(grid,tickAttackTower);
+		
 		forEachBullet(grid,tickProcessBullet);
 		
 		forEachNpc((gnode*)&sock,tickSendNpc);
