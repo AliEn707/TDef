@@ -120,6 +120,8 @@ int main(){
 		forEachBullet(grid,tickProcessBullet);
 		
 		forEachNpc((gnode*)&sock,tickSendNpc);
+		forEachTower((gnode*)&sock,tickSendTower);
+		forEachBullet((gnode*)&sock,tickSendBullet);
 		
 		forEachNpc(grid,tickMiscNpc);
 		forEachTower(grid,tickMiscTower);

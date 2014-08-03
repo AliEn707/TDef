@@ -74,7 +74,7 @@ void tickSendTower(gnode* grid,tower* t){
 		sendData(t->position);
 	}
 	if(checkMask(t,TOWER_TARGET) || checkMask(t,TOWER_CREATE)){
-		int target=-1;
+		short target=-1;
 		if(t->target!=0)
 			target=getGridId(t->target->position);
 		sendData(target);
@@ -93,13 +93,14 @@ void tickSendBullet(gnode* grid,bullet * b){
 	sendData(type);
 	sendData(b->id);
 	sendData(b->bit_mask);
+//	if(checkMask(b,BULLET_POSITION) || checkMask(b,BULLET_CREATE))
+	sendData(b->position);
 	if (checkMask(b,BULLET_CREATE)){
 		sendData(b->type);
 		sendData(b->owner);
 		sendData(b->source);
+//		sendData(b->destination);
 	}
-	if(checkMask(b,BULLET_POSITION) || checkMask(b,BULLET_CREATE))
-		sendData(b->position);
 	if(checkMask(b,BULLET_DETONATE))
 		sendData(b->detonate);
 }
