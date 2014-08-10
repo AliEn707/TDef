@@ -33,6 +33,8 @@ void tickProcessBullet(gnode * grid,bullet * b){
 			b->position.x+=b->direction.x*config.bullet_types[(int)b->type].speed;
 			b->position.y+=b->direction.y*config.bullet_types[(int)b->type].speed;
 			delta=config.bullet_types[(int)b->type].speed;
+			if (delta<0.07)
+				delta=0.07;
 		}else{
 			b->position.x=b->destination.x;
 			b->position.y=b->destination.y;
