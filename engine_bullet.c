@@ -14,16 +14,18 @@ bullet* newBullet(){
 	return 0;
 }
 
-void tickMiscBullet(gnode * grid,bullet * b){
+int tickMiscBullet(gnode * grid,bullet * b){
 	b->bit_mask=0;
+	return 0;
 }
 
-void tickCleanBullet(gnode * grid,bullet * b){
+int tickCleanBullet(gnode * grid,bullet * b){
 	if (b->detonate>0)
 		memset(b,0,sizeof(bullet));
+	return 0;
 }
 
-void tickProcessBullet(gnode * grid,bullet * b){
+int tickProcessBullet(gnode * grid,bullet * b){
 	if (b->detonate==0){
 		//vec dir={0,0};
 //		printf("!!%g %g\n",b->position.x,b->position.y);
@@ -33,12 +35,12 @@ void tickProcessBullet(gnode * grid,bullet * b){
 			b->position.x+=b->direction.x*config.bullet_types[(int)b->type].speed;
 			b->position.y+=b->direction.y*config.bullet_types[(int)b->type].speed;
 			delta=config.bullet_types[(int)b->type].speed;
-			if (delta<0.07)
-				delta=0.07;
+			if (delta<0.2)
+				delta=0.2;
 		}else{
 			b->position.x=b->destination.x;
 			b->position.y=b->destination.y;
-			delta=0.1;
+			delta=0.2;
 		}
 		setMask(b,BULLET_POSITION);
 		if (eqInD(b->position.x,b->destination.x,delta)&&
@@ -71,8 +73,8 @@ void tickProcessBullet(gnode * grid,bullet * b){
 					for(tmp=grid[to2d((int)b->position.x,(int)b->position.y)].npcs[j];
 						tmp!=0;tmp=tmp->next)
 							if (tmp->isfriend!=b->isfriend)
-								if (eqInD(tmp->position.x,b->position.x,0.1)&&
-									eqInD(tmp->position.y,b->position.y,0.1)){
+								if (eqInD(tmp->position.x,b->position.x,delta)&&
+									eqInD(tmp->position.y,b->position.y,delta)){
 									tmp->health-=b->damage;
 									setMask(tmp,NPC_HEALTH);
 									multiple++;
@@ -128,14 +130,17 @@ out:
 			setMask(b,BULLET_DETONATE);
 		}
 	}
+	return 0;
 }
 
 
 
-void forEachBullet(gnode* grid, void (process)(gnode*g,bullet*b)){
+int forEachBullet(gnode* grid, int (process)(gnode*g,bullet*b)){
 	int i;
 	for(i=0;i<config.bullet_max;i++)
 		if(config.bullet_array[i].id>0)
-			process(grid,&config.bullet_array[i]);
+			if (process(grid,&config.bullet_array[i])!=0)
+				return -1;
+	return 0;
 }
 

@@ -114,7 +114,7 @@ void drawGridGl(gnode* grid){
 
 
 
-void tickDraw(gnode*grid,npc* n){
+int tickDraw(gnode*grid,npc* n){
 	glBegin(GL_POINTS);
 	//car* Car;
 	//for(Car=getCar(cars->next);Car!=cars;Car=getCar(Car->next))
@@ -124,7 +124,8 @@ void tickDraw(gnode*grid,npc* n){
 		
 	
 	glEnd();
-	}
+	return 0;
+}
 
 
 void render(gnode * grid)

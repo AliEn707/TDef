@@ -75,13 +75,22 @@ void drawGrid(gnode* grid){
 int main(){
 	
 //	gnode grid[100];
+	
+	////////////////////
+//	atexit(clearAll);
+//	sysInit();
+	//glutMainLoop();	
+	int sock,listener;
+	listener=startServer(3333);
+	
 	gnode* grid;
+	
 	initGridMath();
-//	loadConfig("../test.cfg");
+	//	loadConfig("../test.cfg");
 	loadTypes("../types.cfg");
 	grid=loadMap("../test.mp");
 	//config.player_max=4;
-//	timePassed(0);
+	//	timePassed(0);
 	npc* n=spawnNpc(grid,4,1,1);
 	npc* n2=spawnNpc(grid,5,1,2);
 	spawnNpc(grid,6,0,3);
@@ -91,16 +100,23 @@ int main(){
 	spawnTower(grid,22,1,2);
 	
 	npc* n3=spawnNpc(grid,42,0,2);
-	////////////////////
-//	atexit(clearAll);
-//	sysInit();
-	//glutMainLoop();	
-	int sock;
-	sock=startServer(1, 3333);
+	printf("wait for client\n");
+	int connected=0;
+	int players=1;
+	while(connected<players){
+		if((sock = accept(listener, NULL, NULL))<0)
+			perror("accept startServer");
+		//check connected user
+		printf("client connected\n");
+		//start worker
+		
+		//need to change later
+		break;
+	}
 	
 	while(1){
 		timePassed(0);
-		drawGrid(grid);
+		//drawGrid(grid);
 		
 		processWaves(grid);
 		
@@ -119,9 +135,12 @@ int main(){
 		
 		forEachBullet(grid,tickProcessBullet);
 		
-		forEachNpc((gnode*)&sock,tickSendNpc);
-		forEachTower((gnode*)&sock,tickSendTower);
-		forEachBullet((gnode*)&sock,tickSendBullet);
+		if (forEachNpc((gnode*)&sock,tickSendNpc)<0)
+			break;
+		if(forEachTower((gnode*)&sock,tickSendTower)<0)
+			break;
+		if(forEachBullet((gnode*)&sock,tickSendBullet)<0)
+			break;
 		
 		forEachNpc(grid,tickMiscNpc);
 		forEachTower(grid,tickMiscTower);
@@ -129,19 +148,20 @@ int main(){
 		
 		int z;
 		//z=timePassed(1);
-		printf("time %d",z);
+		//printf("time %d",z);
 		
 		
-		pinfo();
+		//pinfo();
 		syncTPS();
 		//usleep(100000);
 	}
-	
-	
-	clearAll(grid);
-	
 	realizeMap(grid);
 	realizeTypes();
 	realizeArrays();
+	memset(&config.wave_current,0,sizeof(config.wave_current));
+	
+//	clearAll(grid);
+	
+	
 	return 0;
 }	

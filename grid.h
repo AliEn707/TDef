@@ -288,6 +288,7 @@ struct config{
 	int players_num;
 		player players[PLAYER_MAX];
 	struct timeval time;
+	
 	unsigned int waves_size;
 		wave* waves;
 	wave_spawner wave_current;

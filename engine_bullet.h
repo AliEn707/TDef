@@ -1,9 +1,9 @@
 bullet* newBullet();
 
-void tickMiscBullet(gnode * grid,bullet * b);
+int tickMiscBullet(gnode * grid,bullet * b);
 
-void tickCleanBullet(gnode * grid,bullet * b);
+int tickCleanBullet(gnode * grid,bullet * b);
 
-void tickProcessBullet(gnode * grid,bullet * b);
+int tickProcessBullet(gnode * grid,bullet * b);
 
-void forEachBullet(gnode* grid, void (process)(gnode*g,bullet*b));
+int forEachBullet(gnode* grid, int (process)(gnode*g,bullet*b));

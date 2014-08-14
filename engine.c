@@ -94,7 +94,7 @@ int canSee(gnode* grid,vec* a,vec* b){
 			if (to2d(((int)x1),((int)y1))!=destination){
 				if (grid[to2d(((int)x1),((int)y1))].walkable<0||
 					grid[to2d(((int)x1),((int)y1))].tower>0){
-					printf("!\n");
+//					printf("!\n");
 					return -1;
 				}
 			}

@@ -6,13 +6,13 @@
 #include "file.h"
 #include "gridmath.h"
 
-#define sendData(x) send(sock,&x,sizeof(x),0)
+#define sendData(x) if(send(sock,&x,sizeof(x),0)<0) return -1
 
 
-int startServer(int players, int port){
+int startServer(int port){
 	int sock, listener;
 	struct sockaddr_in addr;
-	int connected=0;
+	
 	if((listener = socket(AF_INET, SOCK_STREAM, 0))<0)
 		perror("socket startServer");
 	
@@ -25,21 +25,11 @@ int startServer(int players, int port){
 	if(listen(listener, 1)<0)
 		perror("listen startServer");
 	
-	while(connected<players){
-		if((sock = accept(listener, NULL, NULL))<0)
-			perror("accept startServer");
-		//check connected user
-		printf("client connected");
-		//start worker
-		
-		//need to change later
-		return sock;
-	}
-	return 0;
+	return listener;
 }
 
 
-void tickSendNpc(gnode* grid,npc* n){
+int tickSendNpc(gnode* grid,npc* n){
 	int sock;
 	sock=*((int*)grid);
 	if (sock==0)
@@ -56,10 +46,11 @@ void tickSendNpc(gnode* grid,npc* n){
 		sendData(n->position);
 	if(checkMask(n,NPC_HEALTH) || checkMask(n,NPC_CREATE))
 		sendData(n->health);
+	return 0;
 }
 
 
-void tickSendTower(gnode* grid,tower* t){
+int tickSendTower(gnode* grid,tower* t){
 	int sock;
 	sock=*((int*)grid);
 	if (sock==0)
@@ -81,10 +72,11 @@ void tickSendTower(gnode* grid,tower* t){
 	}
 	if(checkMask(t,TOWER_HEALTH) || checkMask(t,TOWER_CREATE))
 		sendData(t->health);
+	return 0;
 }
 
 
-void tickSendBullet(gnode* grid,bullet * b){
+int tickSendBullet(gnode* grid,bullet * b){
 	int sock;
 	sock=*((int*)grid);
 	if (sock==0)
@@ -103,9 +95,10 @@ void tickSendBullet(gnode* grid,bullet * b){
 	}
 	if(checkMask(b,BULLET_DETONATE))
 		sendData(b->detonate);
+	return 0;
 }
 
-void sendPlayers(int sock,int player){
+int sendPlayers(int sock,int player){
 	int i;
 	if (sock==0)
 		return;
@@ -120,7 +113,7 @@ void sendPlayers(int sock,int player){
 		}
 }
 
-void sendTest(int sock){
+int sendTest(int sock){
 	char mes=MSG_TEST;
 	sendData(mes);
 }

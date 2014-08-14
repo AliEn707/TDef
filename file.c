@@ -75,6 +75,7 @@ gnode * loadMap(char *filepath){
 			fscanf(file,"%d\n",&config.bases_size);
 			if ((config.bases=malloc(config.bases_size*sizeof(base)))==0)
 				perror("malloc config.bases loadMap");
+			memset(config.bases,0,config.bases_size*sizeof(base));
 			for(i=0;i<config.bases_size;i++){
 				int j;
 				fscanf(file,"%d ",&j);
@@ -88,6 +89,7 @@ gnode * loadMap(char *filepath){
 			fscanf(file,"%d\n",&config.points_size);
 			if ((config.points=malloc(config.points_size*sizeof(point)))==0)
 				perror("malloc config.points loadMap");
+			memset(config.points,0,config.points_size*sizeof(point));
 			for(i=0;i<config.points_size;i++){
 				int j;
 				fscanf(file,"%d ",&j);

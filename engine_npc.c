@@ -129,7 +129,7 @@ npc* findNearNpc(gnode* grid,npc* n,int range){
 	npc* tmp;
 //	printf("%d\n",n->id);
 	for(i=0;i<range;i++){
-		printf("!! %d\n",range);
+//		printf("!! %d\n",range);
 		for(j=0;j<config.area_size[i];j++)
 			if (((xid=x+config.area_array[i][j].x)>=0 && x+config.area_array[i][j].x<config.gridsize) &&
 					((yid=y+config.area_array[i][j].y)>=0 && y+config.area_array[i][j].y<config.gridsize))
@@ -176,7 +176,7 @@ int findEnemyBase(int isfriend){
 }
 
 
-void tickTargetNpc(gnode* grid,npc* n){
+int tickTargetNpc(gnode* grid,npc* n){
 		if(n->ttarget==0 && n->ntarget==0){
 			n->path_count=NPC_PATH;
 			n->status=IN_MOVE;
@@ -189,35 +189,36 @@ void tickTargetNpc(gnode* grid,npc* n){
 			
 			int id;
 			if((id=findEnemyBase((int)n->isfriend))<0)
-				return;  
+				return 0;  
 			
 			if ((n->ttarget=grid[id].tower)==0)
 				perror("ttarget tickTargetNpc");
 			if (n->ttarget==0 && n->ntarget==0){
 				n->status=IN_IDLE;
-				return;
+				return 0;
 			}
 out:
 			memcpy(&n->destination,&n->position,sizeof(vec));
 		}
+	return 0;
 }
 
 
-void tickAttackNpc(gnode* grid,npc* n){
+int tickAttackNpc(gnode* grid,npc* n){
 	if (n->status==IN_ATTACK){
 		//if target !=0
 		//-attacking
 		//else set IN_MOVE
 		//???????
 		
-		printf("\t %d %d %d\n",n->id,n->attack_count,config.npc_types[n->type].attack_speed);
+//		printf("\t %d %d %d\n",n->id,n->attack_count,config.npc_types[n->type].attack_speed);
 		if (n->ntarget!=0)
 			if (n->attack_count>=config.npc_types[n->type].attack_speed){
 				n->attack_count=0;
 				bullet* b;//set params of bullet
 				if ((b=newBullet())==0){
 					perror("newBullet tickAttackBullet");
-					return;
+					return -1;
 				}
 				memcpy(&b->position,&n->position,sizeof(vec));
 				memcpy(&b->source,&n->position,sizeof(vec));
@@ -231,7 +232,7 @@ void tickAttackNpc(gnode* grid,npc* n){
 //				b->target=TOWER;
 				getDir(&b->position,&b->destination,&b->direction);
 //				memcpy(&b->effects,&config.npc_types[n->type].effects,sizeof(effects));
-				return;
+				return 0;
 				
 			}
 		if (n->ttarget!=0)
@@ -240,7 +241,7 @@ void tickAttackNpc(gnode* grid,npc* n){
 				bullet* b;//set params of bullet
 				if ((b=newBullet())==0){
 					perror("newBullet tickAttackBullet");
-					return;
+					return -1;
 				}
 				memcpy(&b->position,&n->position,sizeof(vec));
 				memcpy(&b->source,&n->position,sizeof(vec));
@@ -255,7 +256,7 @@ void tickAttackNpc(gnode* grid,npc* n){
 //				b->target=TOWER;
 				getDir(&b->position,&b->destination,&b->direction);
 //				memcpy(&b->effects,&config.npc_types[n->type].effects,sizeof(effects));
-				return;
+				return 0;
 			}
 	}else{
 		//search target in attack distanse
@@ -264,7 +265,7 @@ void tickAttackNpc(gnode* grid,npc* n){
 		n->ntarget=0;
 		if (findNearNpc(grid,n,config.npc_types[n->type].attack_distanse)!=0){
 			n->status=IN_ATTACK;
-			return;
+			return 0;
 		}
 		n->ntarget=ntmp;
 		tower* ttmp=n->ttarget;
@@ -272,31 +273,33 @@ void tickAttackNpc(gnode* grid,npc* n){
 		if (findNearTower(grid,n,config.npc_types[n->type].attack_distanse)!=0){
 			n->status=IN_ATTACK;
 			n->path_count=NPC_PATH;
-			return;
+			return 0;
 		}
 		n->ttarget=ttmp;
 	}
+	return 0;
 }
   
-void tickDiedCheckNpc(gnode* grid,npc* n){
+int tickDiedCheckNpc(gnode* grid,npc* n){
 	//need to correct
 	n->ntarget=diedCheckNpc(n->ntarget);
 	n->ttarget=diedCheckTower(n->ttarget);
-	
+	return 0;
 }
 
 
 
 
-void tickCleanNpc(gnode* grid,npc* n){
+int tickCleanNpc(gnode* grid,npc* n){
 	if (n->health>0)
-		return;
+		return 0;
 	delNpc(grid,n);
 	memset(n,0,sizeof(npc));
 	//foeachNpc
+	return 0;
 }
 
-void tickMoveNpc(gnode* grid,npc* n){
+int tickMoveNpc(gnode* grid,npc* n){
 	if (n->status==IN_MOVE){
 		if (n->ttarget!=0 || n->ntarget!=0){
 			if (n->ttarget!=0){
@@ -363,18 +366,22 @@ void tickMoveNpc(gnode* grid,npc* n){
 			setMask(n,NPC_POSITION);
 		}
 	}
+	return 0;
 }
 
-void tickMiscNpc(gnode* grid,npc* n){
+int tickMiscNpc(gnode* grid,npc* n){
 	if (n->attack_count<config.npc_types[n->type].attack_speed)
 		n->attack_count++;
 	n->bit_mask=0;
+	return 0;
 }
 
 
-void forEachNpc(gnode* grid, void (process)(gnode*g,npc*n)){//add function
+int forEachNpc(gnode* grid, int (process)(gnode*g,npc*n)){//add function
 	int i;
 	for(i=0;i<config.npc_max;i++)
 		if(config.npc_array[i].id>0)
-			process(grid,&config.npc_array[i]);
+			if (process(grid,&config.npc_array[i])!=0)
+				return -1;
+	return 0;
 }

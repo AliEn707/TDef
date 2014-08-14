@@ -1,6 +1,6 @@
 
-void tickSendNpc(gnode* grid,npc* n);
+int tickSendNpc(gnode* grid,npc* n);
 
-void tickSendTower(gnode* grid,tower* t);
+int tickSendTower(gnode* grid,tower* t);
 
-void tickSendBullet(gnode* grid,bullet * b);
+int tickSendBullet(gnode* grid,bullet * b);

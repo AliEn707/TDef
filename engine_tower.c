@@ -59,22 +59,24 @@ int removeTower(gnode * grid,tower* t){
 	return 0;
 }
 
-void tickMiscTower(gnode* grid,tower* t){
+int tickMiscTower(gnode* grid,tower* t){
 	if (t->attack_count<config.tower_types[t->type].attack_speed)
 		t->attack_count++;
 	t->bit_mask=0;
+	return 0;
 }
 
-void tickDiedCheckTower(gnode* grid,tower* t){
+int tickDiedCheckTower(gnode* grid,tower* t){
 	t->target=diedCheckNpc(t->target);
 	/**/
+	return 0;
 }
 
 
 
-void tickAttackTower(gnode* grid,tower* t){
+int tickAttackTower(gnode* grid,tower* t){
 	if (t->type==BASE)
-		return;
+		return 0;
 	if (t->target==0){
 		//find near npc
 		int x=idtox(t->position);
@@ -94,16 +96,16 @@ void tickAttackTower(gnode* grid,tower* t){
 									t->target=tmp;
 									setMask(t,TOWER_TARGET);
 									if (rand()%100<60)
-										return;
+										return 0;
 								}
 	}else{
-		printf("\t|%d %d\n",t->attack_count,config.tower_types[t->type].attack_speed);
+//		printf("\t|%d %d\n",t->attack_count,config.tower_types[t->type].attack_speed);
 		if (t->attack_count>=config.tower_types[t->type].attack_speed){
 				t->attack_count=0;
 				bullet* b;//set params of bullet
 				if ((b=newBullet())==0){
 					perror("newBullet tickAttackBullet");
-					return;
+					return -1;
 				}
 				vec position={getGridx(t->position),getGridy(t->position)};
 				memcpy(&b->position,&position,sizeof(vec));
@@ -122,9 +124,10 @@ void tickAttackTower(gnode* grid,tower* t){
 			}
 	}
 	/**/
+	return 0;
 }
 
-void tickCleanTower(gnode* grid,tower* t){
+int tickCleanTower(gnode* grid,tower* t){
 	if (t->type==BASE)
 		return;
 	if (t->health>0)
@@ -132,15 +135,18 @@ void tickCleanTower(gnode* grid,tower* t){
 	grid[t->position].tower=0;
 	memset(t,0,sizeof(tower));
 	/**/
+	return 0;
 }
 
 
 
-void forEachTower(gnode* grid, void (process)(gnode*g,tower*t)){//add function
+int forEachTower(gnode* grid, int (process)(gnode*g,tower*t)){//add function
 	int i;
 	for(i=0;i<config.tower_max;i++)
 		if(config.tower_array[i].id>0)
-			process(grid,&config.tower_array[i]);
+			if(process(grid,&config.tower_array[i])<0)
+				return -1;
+	return 0;
 }
 
 
