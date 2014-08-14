@@ -10,9 +10,9 @@ pc_base 0 1000
 points 2
 0 15
 1 55
-waves 2
-parts 2 30
-0 1 3 10
-0 2 2 10
-parts 1 30
-0 1 5 20
+waves 3
+parts 2 40
+0 1 3 18
+0 2 4 18
+parts 1 80
+0 1 5 30
