@@ -73,7 +73,7 @@ void drawGrid(gnode* grid){
 
 
 int main(){
-	
+	srand(time(0));
 //	gnode grid[100];
 	
 	////////////////////
