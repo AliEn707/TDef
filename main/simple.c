@@ -6,6 +6,7 @@
 #include "../engine_bullet.h"
 #include "../file.h"
 #include "../network.h"
+#include "../threads.h"
 //Test main file
 
 void pinfo(){
@@ -80,8 +81,15 @@ int main(){
 //	atexit(clearAll);
 //	sysInit();
 	//glutMainLoop();	
+	struct sembuf sem;
+	memset(&sem,0,sizeof(struct sembuf));
 	int sock,listener;
 	listener=startServer(3333);
+	
+	sem.sem_num=0;
+	sem.sem_op=1;
+	semop(config.sem.send,&sem,1);
+	config.game=1;
 	
 	gnode* grid;
 	
@@ -109,13 +117,14 @@ int main(){
 		//check connected user
 		printf("client connected\n");
 		//start worker
-		
+		startWorker(sock);
 		//need to change later
 		break;
 	}
 	
+	timePassed(0);
+	config.players_num=1;
 	while(1){
-		timePassed(0);
 		//drawGrid(grid);
 		
 		processWaves(grid);
@@ -135,30 +144,56 @@ int main(){
 		
 		forEachBullet(grid,tickProcessBullet);
 		
-		if (forEachNpc((gnode*)&sock,tickSendNpc)<0)
-			break;
-		if(forEachTower((gnode*)&sock,tickSendTower)<0)
-			break;
-		if(forEachBullet((gnode*)&sock,tickSendBullet)<0)
-			break;
+		//set 1
+		sem.sem_num=1;
+		sem.sem_op=config.players_num;
+		semop(config.sem.send,&sem,1);
+		//set 2
+		sem.sem_num=2;
+		sem.sem_op=1;
+		semop(config.sem.send,&sem,1);
+		//drop 0
+		sem.sem_num=0;
+		sem.sem_op=-1;
+		semop(config.sem.send,&sem,1);
 		
-		forEachNpc(grid,tickMiscNpc);
-		forEachTower(grid,tickMiscTower);
-		forEachBullet(grid,tickMiscBullet);
+		syncTPS();
+		if(config.players_num==0)
+			break;
+		//check 1
+		sem.sem_num=1;
+		sem.sem_op=0;
+		semop(config.sem.send,&sem,1);
+		//set 0
+		sem.sem_num=0;
+		sem.sem_op=1;
+		semop(config.sem.send,&sem,1);
+		//drop 2
+		sem.sem_num=2;
+		sem.sem_op=-1;
+		semop(config.sem.send,&sem,1);
 		
-		int z;
+		
+//		int z;
 		//z=timePassed(1);
 		//printf("time %d",z);
 		
 		
 		//pinfo();
-		syncTPS();
+		
 		//usleep(100000);
+		forEachNpc(grid,tickMiscNpc);
+		forEachTower(grid,tickMiscTower);
+		forEachBullet(grid,tickMiscBullet);
 	}
+	printf("closing\n");
+	config.game=0;
 	realizeMap(grid);
 	realizeTypes();
 	realizeArrays();
+	realizeServer();
 	memset(&config.wave_current,0,sizeof(config.wave_current));
+	close(sock);
 	
 //	clearAll(grid);
 	

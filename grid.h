@@ -5,7 +5,11 @@
 #include <strings.h>
 #include <time.h>
 #include <sys/time.h>
+#include <sys/types.h>
+#include <sys/ipc.h>
+#include <sys/sem.h>
 #include <unistd.h> 
+#include <pthread.h>
 
 #define TPS 8
 
@@ -88,6 +92,11 @@ struct vector2i{
 	int x;
 	int y;
 } veci;
+
+typedef 
+struct workerarg{
+	int sock;
+} worker_arg;
 
 
 typedef 
@@ -268,6 +277,7 @@ struct netw{
 
 typedef
 struct config{
+	int game;
 	int gridsize;
 	veci* area_array[MAX_AREA];
 	int area_size[MAX_AREA];
@@ -296,6 +306,10 @@ struct config{
 		base* bases;
 	unsigned int points_size;
 		point* points;
+		
+	struct {
+		int send;
+		} sem;
 } engine_config;
 
 ///////

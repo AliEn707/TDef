@@ -1,4 +1,3 @@
-#include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 
@@ -7,6 +6,9 @@
 #include "gridmath.h"
 
 #define sendData(x) if(send(sock,&x,sizeof(x),0)<0) return -1
+
+#define getSem(x) semget(IPC_PRIVATE, x, 0755 | IPC_CREAT)
+
 
 
 int startServer(int port){
@@ -25,10 +27,16 @@ int startServer(int port){
 	if(listen(listener, 1)<0)
 		perror("listen startServer");
 	
+	config.sem.send=getSem(3);
+	
 	return listener;
 }
 
+int realizeServer(){
+	semctl(config.sem.send,0,IPC_RMID);
+}
 
+	
 int tickSendNpc(gnode* grid,npc* n){
 	int sock;
 	sock=*((int*)grid);
