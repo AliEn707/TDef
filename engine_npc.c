@@ -104,12 +104,12 @@ tower* findNearTower(gnode* grid,npc* n,int range){
 			if (((xid=x+config.area_array[i][j].x)>=0 && x+config.area_array[i][j].x<config.gridsize) &&
 					((yid=y+config.area_array[i][j].y)>=0 && y+config.area_array[i][j].y<config.gridsize))
 				if (grid[to2d(xid,yid)].tower!=0)
-					if (canSee(grid,&(vec){n->position.x,n->position.y},&(vec){xid+0.5,yid+0.5})>0) //can see check
+					if (canSee(grid,&(vec){n->position.x,n->position.y},&(vec){xid+0.5,yid+0.5})>0 && rand()%100<70) //can see check, in 70%
 						if(config.players[grid[to2d(xid,yid)].tower->owner].isfriend!=n->isfriend)
-							if(canWalkThrough(grid,&(vec){n->position.x,n->position.y},&(vec){xid+0.5,yid+0.5})>0 || rand()%100<30){//can walk check or rand<30%
+							if(canWalkThrough(grid,&(vec){n->position.x,n->position.y},&(vec){xid+0.5,yid+0.5})>0){//try this || rand()%100<30){//can walk check or rand<30%
 								n->ttarget=grid[to2d(xid,yid)].tower;
 //								printf("? %d\n",to2d(xid,yid));
-								if(rand()%100<40)
+								if(rand()%100<30)
 									return n->ttarget;
 							}
 		if(n->ttarget!=0)
