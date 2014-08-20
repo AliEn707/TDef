@@ -129,9 +129,9 @@ int tickAttackTower(gnode* grid,tower* t){
 
 int tickCleanTower(gnode* grid,tower* t){
 	if (t->type==BASE)
-		return;
+		return 0;
 	if (t->health>0)
-		return;
+		return 0;
 	grid[t->position].tower=0;
 	memset(t,0,sizeof(tower));
 	/**/

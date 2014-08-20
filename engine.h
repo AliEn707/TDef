@@ -1,6 +1,8 @@
 //wait tto set need tps
 void syncTPS();
 
+int timePassed(int i);
+
 void initArrays();
 
 void realizeArrays();
@@ -37,4 +39,5 @@ some user stuff
 //player
 void setupPlayer(int id,int isfriend,int base_health,tower* base);
 
+void processWaves(gnode* grid);
 

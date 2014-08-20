@@ -1,6 +1,11 @@
 #include "grid.h"
 #include "file.h"
 #include "gridmath.h"
+#include "areaarray.h"
+#include "engine.h"
+#include "engine_tower.h"
+#include "engine_npc.h"
+#include "engine_bullet.h"
 
 //map file parser
 gnode * loadMap(char *filepath){
@@ -100,7 +105,7 @@ gnode * loadMap(char *filepath){
 		}
 		if (strcmp(buf,"waves")==0){
 			int i;
-			fscanf(file,"%d %d\n",&config.waves_size);
+			fscanf(file,"%d \n",&config.waves_size);
 			if((config.waves=malloc(config.waves_size*sizeof(wave)))==0)
 				perror("malloc config.waves loadMap");
 			memset(config.waves,0,config.waves_size*sizeof(wave));

@@ -57,7 +57,7 @@ void realizeArrays(){
 	free(config.points);
 	free(config.bases);
 	if (config.waves!=0){
-		int i,j;
+		int i;
 		for(i=0;i<config.waves_size;i++)
 			free(config.waves[i].parts);
 		free(config.waves);

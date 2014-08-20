@@ -6,6 +6,10 @@
 #include "file.h"
 #include "gridmath.h"
 #include "network.h"
+#include "engine.h"
+#include "engine_npc.h"
+#include "engine_tower.h"
+#include "engine_bullet.h"
 
 
 #define sendData(x) if(send(sock,&x,sizeof(x),0)<0) return -1

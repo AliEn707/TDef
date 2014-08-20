@@ -1,6 +1,3 @@
-#include <sys/socket.h>
-#include <netinet/in.h>
-
 #include "grid.h"
 #include "file.h"
 #include "gridmath.h"
@@ -12,7 +9,7 @@
 
 
 int startServer(int port){
-	int sock, listener;
+	int listener;
 	struct sockaddr_in addr;
 	
 	if((listener = socket(AF_INET, SOCK_STREAM, 0))<0)
@@ -33,7 +30,7 @@ int startServer(int port){
 }
 
 int realizeServer(){
-	semctl(config.sem.send,0,IPC_RMID);
+	return semctl(config.sem.send,0,IPC_RMID);
 }
 
 	
@@ -41,7 +38,7 @@ int tickSendNpc(gnode* grid,npc* n){
 	int sock;
 	sock=*((int*)grid);
 	if (sock==0)
-		return;
+		return 0;
 	char type=MSG_NPC;
 	sendData(type);
 	sendData(n->id);
@@ -62,7 +59,7 @@ int tickSendTower(gnode* grid,tower* t){
 	int sock;
 	sock=*((int*)grid);
 	if (sock==0)
-		return;
+		return 0;
 	char type=MSG_TOWER;
 	sendData(type);
 	sendData(t->id);
@@ -88,7 +85,7 @@ int tickSendBullet(gnode* grid,bullet * b){
 	int sock;
 	sock=*((int*)grid);
 	if (sock==0)
-		return;
+		return 0;
 	char type=MSG_BULLET;
 	sendData(type);
 	sendData(b->id);
@@ -109,7 +106,7 @@ int tickSendBullet(gnode* grid,bullet * b){
 int sendPlayers(int sock,int player){
 	int i;
 	if (sock==0)
-		return;
+		return 0;
 	for(i=0;i<=config.players_num;i++)
 		if(i!=player){
 			if(checkMask((&config.players[i]),PLAYER_HEALTH)){
@@ -119,9 +116,11 @@ int sendPlayers(int sock,int player){
 				sendData(config.players[i].base_health);
 			}
 		}
+	return 0;
 }
 
 int sendTest(int sock){
 	char mes=MSG_TEST;
 	sendData(mes);
+	return 0;
 }

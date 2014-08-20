@@ -84,7 +84,7 @@ int main(){
 	struct sembuf sem;
 	memset(&sem,0,sizeof(struct sembuf));
 	int sock,listener;
-	listener=startServer(3333);
+	listener=startServer(34140);
 	
 	sem.sem_num=0;
 	sem.sem_op=1;
@@ -99,15 +99,18 @@ int main(){
 	grid=loadMap("../test.mp");
 	//config.player_max=4;
 	//	timePassed(0);
-	npc* n=spawnNpc(grid,4,1,1);
-	npc* n2=spawnNpc(grid,5,1,2);
+	//npc* n=
+	spawnNpc(grid,4,1,1);
+	//npc* n2=
+	spawnNpc(grid,5,1,2);
 	spawnNpc(grid,6,0,3);
 	setupPlayer(1,1,2000,0);
 	setupPlayer(2,0,1800,0);
 	spawnTower(grid,75,1,BASE);
 	spawnTower(grid,22,1,2);
 	
-	npc* n3=spawnNpc(grid,42,0,2);
+	//npc* n3=
+	spawnNpc(grid,42,0,2);
 	printf("wait for client\n");
 	int connected=0;
 	int players=1;
