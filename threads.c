@@ -34,6 +34,7 @@ void * threadWorker(void * arg){
 			break;
 		if(forEachBullet((gnode*)&data->sock,tickSendBullet)<0)
 			break;
+		//while(semctl(config.sem.send,1,GETVAL)!=config.players_num)
 		semOp(1);
 		semOp(2);
 	}

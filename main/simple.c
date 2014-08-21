@@ -82,8 +82,9 @@ int main(){
 //	sysInit();
 	//glutMainLoop();	
 	struct sembuf sem;
-	memset(&sem,0,sizeof(struct sembuf));
+	memset(&sem,0,sizeof(sem));
 	int sock,listener;
+	int err;
 	listener=startServer(34140);
 	
 	sem.sem_num=0;
@@ -149,16 +150,21 @@ int main(){
 		
 		//set 1
 		sem.sem_num=1;
-		sem.sem_op=config.players_num;
-		semop(config.sem.send,&sem,1);
+		sem.sem_op=1;//config.players_num;
+		while(semctl(config.sem.send,1,GETVAL)!=config.players_num)
+			semop(config.sem.send,&sem,1);
 		//set 2
 		sem.sem_num=2;
 		sem.sem_op=1;
-		semop(config.sem.send,&sem,1);
+		while(semctl(config.sem.send,2,GETVAL)<1)
+			semop(config.sem.send,&sem,1);
 		//drop 0
 		sem.sem_num=0;
 		sem.sem_op=-1;
-		semop(config.sem.send,&sem,1);
+		while(semctl(config.sem.send,0,GETVAL)>0)
+			semop(config.sem.send,&sem,1);
+//		if (err<0)
+//			printf("semop err\n");
 		
 		syncTPS();
 		if(config.players_num==0)
@@ -166,15 +172,23 @@ int main(){
 		//check 1
 		sem.sem_num=1;
 		sem.sem_op=0;
-		semop(config.sem.send,&sem,1);
+		err=semop(config.sem.send,&sem,1);
+		if (err<0)
+			printf("semop err\n");
 		//set 0
 		sem.sem_num=0;
 		sem.sem_op=1;
-		semop(config.sem.send,&sem,1);
+		while(semctl(config.sem.send,0,GETVAL)<1)
+			semop(config.sem.send,&sem,1);
+//		if (err<0)
+//			printf("semop err\n");
 		//drop 2
 		sem.sem_num=2;
 		sem.sem_op=-1;
-		semop(config.sem.send,&sem,1);
+		while(semctl(config.sem.send,2,GETVAL)>0)
+			semop(config.sem.send,&sem,1);
+//		if (err<0)
+//			printf("semop err\n");
 		
 		
 //		int z;
