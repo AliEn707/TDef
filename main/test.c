@@ -75,7 +75,6 @@ void drawGrid(gnode* grid){
 
 int main(){
 	srand(time(0));
-	memset(&config,0,sizeof(config));
 //	gnode grid[100];
 	
 	////////////////////
@@ -84,12 +83,14 @@ int main(){
 	//glutMainLoop();	
 	struct sembuf sem;
 	memset(&sem,0,sizeof(sem));
-	struct sembuf sem_pl;
-	memset(&sem,0,sizeof(sem_pl));
-	
-	int listener;
+	int sock,listener;
 	int err;
 	listener=startServer(34140);
+	
+	sem.sem_num=0;
+	sem.sem_op=1;
+	semop(config.sem.send,&sem,1);
+	config.game=1;
 	
 	gnode* grid;
 	
@@ -104,19 +105,29 @@ int main(){
 	//npc* n2=
 	spawnNpc(grid,5,1,2);
 	spawnNpc(grid,6,0,3);
-//	setupPlayer(2,0,1800,0);
+	setupPlayer(1,1,2000,0);
+	setupPlayer(2,0,1800,0);
 	spawnTower(grid,75,1,BASE);
 	spawnTower(grid,22,1,2);
 	
 	//npc* n3=
 	spawnNpc(grid,42,0,2);
+	printf("wait for client\n");
+	int connected=0;
+	int players=1;
+	while(connected<players){
+		if((sock = accept(listener, NULL, NULL))<0)
+			perror("accept startServer");
+		//check connected user
+		printf("client connected\n");
+		//start worker
+		startWorker(sock);
+		//need to change later
+		break;
+	}
 	
-	while(config.players_num==0)
-		sleep(0);
-	
-	printf("start game\n");
 	timePassed(0);
-	
+	config.players_num=1;
 	while(1){
 		//drawGrid(grid);
 		
@@ -140,16 +151,8 @@ int main(){
 		//set 1
 		sem.sem_num=1;
 		sem.sem_op=1;//config.players_num;
-		
-		sem_pl.sem_num=0;
-		sem_pl.sem_op=-1;
-		semop(config.sem.player,&sem_pl,1);
 		while(semctl(config.sem.send,1,GETVAL)!=config.players_num)
 			semop(config.sem.send,&sem,1);
-		
-		sem_pl.sem_num=0;
-		sem_pl.sem_op=1;
-		semop(config.sem.player,&sem_pl,1);
 		//set 2
 		sem.sem_num=2;
 		sem.sem_op=1;
@@ -201,13 +204,13 @@ int main(){
 		forEachBullet(grid,tickMiscBullet);
 	}
 	printf("closing\n");
-	config.game.run=0;
+	config.game=0;
 	realizeMap(grid);
 	realizeTypes();
 	realizeArrays();
 	realizeServer();
-//	memset(&config.wave_current,0,sizeof(config.wave_current));
-	close(listener);
+	memset(&config.wave_current,0,sizeof(config.wave_current));
+	close(sock);
 	
 //	clearAll(grid);
 	

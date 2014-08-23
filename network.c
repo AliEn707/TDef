@@ -1,6 +1,7 @@
 #include "grid.h"
 #include "file.h"
 #include "gridmath.h"
+#include "threads.h"
 
 #define sendData(x) if(send(sock,&x,sizeof(x),0)<0) return -1
 
@@ -11,6 +12,8 @@
 int startServer(int port){
 	int listener;
 	struct sockaddr_in addr;
+	struct sembuf sem;
+	memset(&sem,0,sizeof(sem));
 	
 	if((listener = socket(AF_INET, SOCK_STREAM, 0))<0)
 		perror("socket startServer");
@@ -24,13 +27,36 @@ int startServer(int port){
 	if(listen(listener, 1)<0)
 		perror("listen startServer");
 	
-	config.sem.send=getSem(3);
+	if ((config.sem.send=getSem(3))<0)
+		perror("get semsend startServer");
+	sem.sem_num=0;
+	sem.sem_op=1;
+	semop(config.sem.send,&sem,1);
+	
+	if ((config.sem.player=getSem(1))<0)
+		perror("get semsend startServer");
+	sem.sem_num=0;
+	sem.sem_op=1;
+	semop(config.sem.player,&sem,1);
+	
+	config.game.run=1;
+	if (startListener(listener)<=0)
+		perror("startListener");
 	
 	return listener;
 }
 
 int realizeServer(){
-	return semctl(config.sem.send,0,IPC_RMID);
+	int o=0;
+	if (semctl(config.sem.send,0,IPC_RMID)<0){
+		perror("semctl send realizeServer");
+		o++;
+	}
+	if (semctl(config.sem.player,0,IPC_RMID)<0){
+		perror("semctl player realizeServer");
+		o++;
+	}
+	return o;
 }
 
 	

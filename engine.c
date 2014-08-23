@@ -219,5 +219,6 @@ void setupPlayer(int id,int isfriend,int base_health,tower* base){
 	config.players[id].isfriend=isfriend;
 	config.players[id].base_health=base_health;
 	config.players[id].base=base;
-	config.players_num++;
+	if (id!=0)
+		config.players_num++;
 }

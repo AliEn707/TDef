@@ -279,7 +279,6 @@ struct netw{
 
 typedef
 struct config{
-	int game;
 	int gridsize;
 	veci* area_array[MAX_AREA];
 	int area_size[MAX_AREA];
@@ -296,6 +295,7 @@ struct config{
 	unsigned int bullet_types_size;
 		bullet_type* bullet_types;
 		struct bullet* bullet_array;
+	
 	unsigned int global_id;
 	int players_num;
 		player players[PLAYER_MAX];
@@ -311,7 +311,13 @@ struct config{
 		
 	struct {
 		int send;
+		int player;
 		} sem;
+		
+	struct {
+		short run;
+		int players;
+		} game;
 } engine_config;
 
 ///////
