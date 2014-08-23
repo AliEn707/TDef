@@ -18,7 +18,7 @@ npc* newNpc(){
 
 
 npc* addNpc(gnode* node,npc* n){
-	npc **root=&node->npcs[(int)n->isfriend];
+	npc **root=&node->npcs[(int)n->group];
 	if (*root==0){
 		*root=n;
 		return n;
@@ -36,7 +36,7 @@ npc* addNpc(gnode* node,npc* n){
 npc*  getNpc(gnode* grid,npc* n){
 	npc* tmp;
 	gnode * node=&grid[(int)getGridId(n->position)];
-	npc **root=&node->npcs[(int)n->isfriend];
+	npc **root=&node->npcs[(int)n->group];
 	if (*root!=0){
 		tmp=*root;
 		if (*root==n){
@@ -71,11 +71,11 @@ void setNpcBase(npc* n){
 }
 
 
-npc* spawnNpc(gnode* grid,int node_id,int isfriend,int type){
+npc* spawnNpc(gnode* grid,int node_id,int group,int type){
 	npc* n;
 	if((n=newNpc())==0)
 		perror("newNpc spawnNpc");
-	n->isfriend=isfriend;
+	n->group=group;
 	n->status=IN_MOVE;
 	n->position.x=getGridx(node_id);
 	n->position.y=getGridy(node_id);
@@ -105,7 +105,7 @@ tower* findNearTower(gnode* grid,npc* n,int range){
 					((yid=y+config.area_array[i][j].y)>=0 && y+config.area_array[i][j].y<config.gridsize))
 				if (grid[to2d(xid,yid)].tower!=0)
 					if (canSee(grid,&(vec){n->position.x,n->position.y},&(vec){xid+0.5,yid+0.5})>0 && rand()%100<70) //can see check, in 70%
-						if(config.players[grid[to2d(xid,yid)].tower->owner].isfriend!=n->isfriend)
+						if(config.players[grid[to2d(xid,yid)].tower->owner].group!=n->group)
 							if(canWalkThrough(grid,&(vec){n->position.x,n->position.y},&(vec){xid+0.5,yid+0.5})>0){//try this || rand()%100<30){//can walk check or rand<30%
 								n->ttarget=grid[to2d(xid,yid)].tower;
 //								printf("? %d\n",to2d(xid,yid));
@@ -134,7 +134,7 @@ npc* findNearNpc(gnode* grid,npc* n,int range){
 			if (((xid=x+config.area_array[i][j].x)>=0 && x+config.area_array[i][j].x<config.gridsize) &&
 					((yid=y+config.area_array[i][j].y)>=0 && y+config.area_array[i][j].y<config.gridsize))
 				for (k=0;k<MAX_PLAYERS;k++)
-						if (k!=n->isfriend)
+						if (k!=n->group)
 							for(tmp=grid[to2d(xid,yid)].npcs[k];
 									tmp!=0;tmp=tmp->next)
 								if (canSee(grid,&n->position,&tmp->position)>0){
@@ -159,14 +159,14 @@ npc* diedCheckNpc(npc* n){
 }
 
 
-int findEnemyBase(int isfriend){
+int findEnemyBase(int group){
 	#define t config.tower_array
 	int i;
 	int id=-1;
 	for(i=0;i<config.tower_max;i++)
 		if (t[i].id>0)
 			if (t[i].type==BASE)
-				if (config.players[t[i].owner].isfriend!=isfriend){//add friend check
+				if (config.players[t[i].owner].group!=group){//add friend check
 					id=t[i].position;
 					if (rand()%100<40)
 						return id;
@@ -188,7 +188,7 @@ int tickTargetNpc(gnode* grid,npc* n){
 				goto out;
 			
 			int id;
-			if((id=findEnemyBase((int)n->isfriend))<0)
+			if((id=findEnemyBase((int)n->group))<0)
 				return 0;  
 			
 			if ((n->ttarget=grid[id].tower)==0)
@@ -226,7 +226,7 @@ int tickAttackNpc(gnode* grid,npc* n){
 				b->type=config.npc_types[n->type].bullet_type;
 				b->damage=config.npc_types[n->type].damage;
 				b->support=config.npc_types[n->type].support;
-				b->isfriend=n->isfriend;
+				b->group=n->group;
 				b->owner=n->id;
 				setMask(b,BULLET_CREATE);
 //				b->target=TOWER;
@@ -250,7 +250,7 @@ int tickAttackNpc(gnode* grid,npc* n){
 				b->type=config.npc_types[n->type].bullet_type;
 				b->damage=config.npc_types[n->type].damage;
 				b->support=config.npc_types[n->type].support;
-				b->isfriend=n->isfriend;
+				b->group=n->group;
 				b->owner=n->id;
 				setMask(b,BULLET_CREATE);
 //				b->target=TOWER;

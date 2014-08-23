@@ -10,9 +10,9 @@ npc* diedCheckNpc(npc* n);
 
 void setNpcBase(npc* n);
 
-npc* spawnNpc(gnode* grid,int node_id,int isfriend,int type);
+npc* spawnNpc(gnode* grid,int node_id,int group,int type);
 
-int findEnemyBase(int isfriend);
+int findEnemyBase(int group);
 
 int tickMiscNpc(gnode* grid,npc* n);
 

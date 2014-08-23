@@ -89,7 +89,7 @@ int tickAttackTower(gnode* grid,tower* t){
 				if (((xid=x+config.area_array[i][j].x)>=0 && x+config.area_array[i][j].x<config.gridsize) &&
 						((yid=y+config.area_array[i][j].y)>=0 && y+config.area_array[i][j].y<config.gridsize))
 					for (k=0;k<MAX_PLAYERS;k++)
-						if (k!=config.players[t->owner].isfriend)
+						if (k!=config.players[t->owner].group)
 							for(tmp=grid[to2d(xid,yid)].npcs[k];
 									tmp!=0;tmp=tmp->next)
 								if (canSee(grid,&(vec){x+0.5,y+0.5},&tmp->position)>0){
@@ -115,7 +115,7 @@ int tickAttackTower(gnode* grid,tower* t){
 				b->type=config.tower_types[t->type].bullet_type;
 				b->damage=config.tower_types[t->type].damage;
 				b->support=config.tower_types[t->type].support;
-				b->isfriend=config.players[t->owner].isfriend;
+				b->group=config.players[t->owner].group;
 				b->owner=t->id;
 				setMask(b,BULLET_CREATE);
 //				b->target=NPC;

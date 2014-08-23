@@ -70,7 +70,7 @@ int tickSendNpc(gnode* grid,npc* n){
 	sendData(n->id);
 	sendData(n->bit_mask);
 	if (checkMask(n,NPC_CREATE)){
-		sendData(n->isfriend);
+		sendData(n->group);
 		sendData(n->type);
 	}
 //	if(checkMask(n,NPC_POSITION) || checkMask(n,NPC_CREATE))

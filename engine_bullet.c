@@ -51,7 +51,7 @@ int tickProcessBullet(gnode * grid,bullet * b){
 			{
 				tower * tmp;
 				if ((tmp=grid[to2d((int)b->position.x,(int)b->position.y)].tower)>0)
-					if(config.players[tmp->owner].isfriend!=b->isfriend){
+					if(config.players[tmp->owner].group!=b->group){
 						if(tmp->type==BASE){
 							config.players[tmp->owner].base_health-=b->damage;
 							setMask((&config.players[tmp->owner]),PLAYER_HEALTH);
@@ -72,7 +72,7 @@ int tickProcessBullet(gnode * grid,bullet * b){
 				for(j=0;j<MAX_PLAYERS;j++)
 					for(tmp=grid[to2d((int)b->position.x,(int)b->position.y)].npcs[j];
 						tmp!=0;tmp=tmp->next)
-							if (tmp->isfriend!=b->isfriend)
+							if (tmp->group!=b->group)
 								if (eqInD(tmp->position.x,b->position.x,delta)&&
 									eqInD(tmp->position.y,b->position.y,delta)){
 									tmp->health-=b->damage;
@@ -104,7 +104,7 @@ int tickProcessBullet(gnode * grid,bullet * b){
 							if (grid[to2d(xid,yid)].tower!=0)
 								if (canSee(grid,&b->position,&(vec){xid+0.5,yid+0.5})>0)
 									if(config.bullet_types[(int)b->type].attack_type==AREA?
-											config.players[grid[to2d(xid,yid)].tower->owner].isfriend!=b->isfriend
+											config.players[grid[to2d(xid,yid)].tower->owner].group!=b->group
 											:1){
 										if (grid[to2d(xid,yid)].tower->type!=BASE){
 											config.players[grid[to2d(xid,yid)].tower->owner].base_health-=b->damage;
@@ -116,7 +116,7 @@ int tickProcessBullet(gnode * grid,bullet * b){
 									}
 							//npc
 							for (k=0;k<MAX_PLAYERS;k++)
-								if (config.bullet_types[(int)b->type].attack_type==AREA?k!=b->isfriend:1)
+								if (config.bullet_types[(int)b->type].attack_type==AREA?k!=b->group:1)
 									for(tmp=grid[to2d(xid,yid)].npcs[k];
 											tmp!=0;tmp=tmp->next)
 										if (canSee(grid,&b->position,&tmp->position)>0){

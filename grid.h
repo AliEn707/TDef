@@ -26,7 +26,7 @@
 //tower types
 #define BASE 0
 
-//isfriend types
+//group types
 #define ENEMY 0
 
 
@@ -174,7 +174,7 @@ struct tower{
 typedef
 struct npc{
 	char status;
-	char isfriend;
+	char group;
 	int bit_mask;
 	vec position;
 	vec destination;
@@ -201,7 +201,7 @@ struct bullet{
 	vec destination;
 	vec direction;
 	vec source;
-	char isfriend;
+	char group;
 	char support;
 	int type;
 	char detonate;
@@ -230,7 +230,7 @@ typedef
 struct player{
 	int id;
 	int bit_mask;
-	int isfriend; //player number [0-7]
+	int group; //player number [0-7]
 	int base_health;
 	tower * base;
 } player;
