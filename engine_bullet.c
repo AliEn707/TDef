@@ -44,8 +44,9 @@ int tickProcessBullet(gnode * grid,bullet * b){
 		}
 		setMask(b,BULLET_POSITION);
 		if (eqInD(b->position.x,b->destination.x,delta)&&
-			eqInD(b->position.y,b->destination.y,delta)){
-			int j;
+				eqInD(b->position.y,b->destination.y,delta)&&
+				to2d((int)b->position.x,(int)b->position.y)==to2d((int)b->destination.x,(int)b->destination.y)){
+			int i,j;
 			int multiple=0;
 			//tower search
 			{
@@ -69,12 +70,14 @@ int tickProcessBullet(gnode * grid,bullet * b){
 			//npc search
 			{
 				npc* tmp;
-				for(j=0;j<MAX_PLAYERS;j++)
+				for(j=0;j<MAX_GROUPS;j++)
 					for(tmp=grid[to2d((int)b->position.x,(int)b->position.y)].npcs[j];
 						tmp!=0;tmp=tmp->next)
 							if (tmp->group!=b->group)
-								if (eqInD(tmp->position.x,b->position.x,delta)&&
-									eqInD(tmp->position.y,b->position.y,delta)){
+//								if (eqInD(tmp->position.x,b->position.x,delta)&&
+//									eqInD(tmp->position.y,b->position.y,delta))
+								//attack first npc in gnode, need to 
+								{	
 									tmp->health-=b->damage;
 									setMask(tmp,NPC_HEALTH);
 									multiple++;
@@ -91,7 +94,7 @@ int tickProcessBullet(gnode * grid,bullet * b){
 			if (config.bullet_types[(int)b->type].attack_type==AREA ||
 			 	config.bullet_types[(int)b->type].attack_type==AREA_FF){
 				//add area gamage	
-				int i,j,k;
+				int k;
 				npc* tmp;
 				int x=(int)b->position.x;
 				int y=(int)b->position.y;
@@ -115,7 +118,7 @@ int tickProcessBullet(gnode * grid,bullet * b){
 										}
 									}
 							//npc
-							for (k=0;k<MAX_PLAYERS;k++)
+							for (k=0;k<MAX_GROUPS;k++)
 								if (config.bullet_types[(int)b->type].attack_type==AREA?k!=b->group:1)
 									for(tmp=grid[to2d(xid,yid)].npcs[k];
 											tmp!=0;tmp=tmp->next)

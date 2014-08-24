@@ -3,6 +3,10 @@
 #include "gridmath.h"
 #include "threads.h"
 #include "network.h"
+#include "engine.h"
+#include "engine_tower.h"
+#include "engine_npc.h"
+#include "engine_bullet.h"
 
 #define sendData(x) if(send(sock,&x,sizeof(x),0)<0) return -1
 
@@ -11,23 +15,34 @@
 int recvData(int sock, void * buf, int size){
 	int need=size;
 	int get;
-	get=recv(sock,&buf,need,MSG_DONTWAIT);
+	get=recv(sock,buf,need,0);
 	if (get<0)
 		return -1;
 	if (get==need)
 		return get;
-//	printf("get not all\n");
+	printf("get not all\n");
 	while(need>0){
 		need-=get;
 		if((get=recv(sock,buf+(size-need),need,0))<0)
-			return -1;
+			return 0;
 	}
 	return size;
 }
 
 int processMessage(worker_arg * data,char type){
 	if (type==MSG_SPAWN_TOWER){
-		
+		int node_id=0;
+		int t_id=0;
+		if(recvData(data->sock,&node_id,sizeof(node_id))<0){
+			perror("recv Message");
+			return -1;
+		}
+		if (recvData(data->sock,&t_id,sizeof(t_id))<0){
+			perror("recv Message");
+			return -1;
+		}
+//		printf("spawn tower %d on %d\n",node_id,t_id);
+		spawnTower(data->grid,node_id,data->id,t_id);
 		return 0;
 	}
 	if (type==MSG_SPAWN_NPC){
@@ -37,7 +52,7 @@ int processMessage(worker_arg * data,char type){
 	return -1;
 }
 
-int startServer(int port){
+int startServer(int port,gnode * grid){
 	int listener;
 	struct sockaddr_in addr;
 	struct sembuf sem;
@@ -68,7 +83,7 @@ int startServer(int port){
 	semop(config.sem.player,&sem,1);
 	
 	config.game.run=1;
-	if (startListener(listener)<=0)
+	if (startListener(listener,grid)<=0)
 		perror("startListener");
 	
 	return listener;
@@ -108,6 +123,8 @@ int tickSendNpc(gnode* grid,npc* n){
 	}
 //	if(checkMask(bit_mask,NPC_POSITION) || checkMask(bit_mask,NPC_CREATE))
 		sendData(n->position);
+	if(checkMask(bit_mask,NPC_LEVEL) || checkMask(bit_mask,NPC_CREATE))
+		sendData(n->level);
 	if(checkMask(bit_mask,NPC_HEALTH) || checkMask(bit_mask,NPC_CREATE))
 		sendData(n->health);
 	return 0;
@@ -139,6 +156,8 @@ int tickSendTower(gnode* grid,tower* t){
 			target=getGridId(t->target->position);
 		sendData(target);
 	}
+	if(checkMask(bit_mask,TOWER_LEVEL) || checkMask(bit_mask,TOWER_CREATE))
+		sendData(t->level);
 	if(checkMask(bit_mask,TOWER_HEALTH) || checkMask(bit_mask,TOWER_CREATE))
 		sendData(t->health);
 	return 0;

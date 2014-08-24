@@ -1,8 +1,8 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 
-#include "threads.h"
 #include "grid.h"
+#include "threads.h"
 #include "file.h"
 #include "gridmath.h"
 #include "network.h"
@@ -34,7 +34,7 @@ void * threadWorker(void * arg){
 		semOp(0);
 	//	printf("sock %d\n",data->sock);
 		for(i=0;i<10;i++){
-			if (recvData(data->sock,&msg_type,sizeof(msg_type))<0){
+			if (recv(data->sock,&msg_type,sizeof(msg_type),MSG_DONTWAIT)<0){
 				if (errno==EAGAIN){
 					sleep(0);
 					continue;
@@ -43,6 +43,7 @@ void * threadWorker(void * arg){
 					break;
 				}
 			}
+			printf("%d\n",msg_type);
 			processMessage(data,msg_type);
 		}
 		if (forEachNpc((gnode*)data,tickSendNpc)<0)
@@ -66,13 +67,14 @@ void * threadWorker(void * arg){
 	return 0;
 }
 
-pthread_t startWorker(int sock,int id){
+pthread_t startWorker(int sock,int id,gnode *grid){
 	worker_arg *data;
 	if ((data=malloc(sizeof(worker_arg)))==0)
 		perror("malloc startWorker");
 	pthread_t th=0;
 	data->sock=sock;
 	data->id=id;
+	data->grid=grid;
 //	printf("sock %d\n",data->sock);
 	if(pthread_create(&th,0,threadWorker,data)!=0)
 		return 0;
@@ -107,7 +109,7 @@ void * threadListener(void * arg){
 		setupPlayer(1,1,2000,0);
 		semop(config.sem.player,&sem[1],1);
 		//start worker
-		if (startWorker(sock,1)<=0)
+		if (startWorker(sock,1,data->grid)<=0)
 			perror("startWorker");
 		//need to change later
 		//break;
@@ -118,13 +120,14 @@ void * threadListener(void * arg){
 	return 0;
 }
 
-pthread_t startListener(int sock){
+pthread_t startListener(int sock, gnode* grid){
 	worker_arg *data;
 	printf("start listener\n");
 	if ((data=malloc(sizeof(worker_arg)))==0)
 		perror("malloc startListener");
 	pthread_t th=0;
 	data->sock=sock;
+	data->grid=grid;
 //	printf("sock %d\n",data->sock);
 	if(pthread_create(&th,0,threadListener,data)!=0)
 		return 0;

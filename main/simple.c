@@ -89,7 +89,6 @@ int main(){
 	
 	int listener;
 	int err;
-	listener=startServer(34140);
 	
 	gnode* grid;
 	
@@ -97,6 +96,9 @@ int main(){
 	//	loadConfig("../test.cfg");
 	loadTypes("../types.cfg");
 	grid=loadMap("../test.mp");
+	
+	listener=startServer(34140,grid);
+	
 	//config.player_max=4;
 	//	timePassed(0);
 	//npc* n=

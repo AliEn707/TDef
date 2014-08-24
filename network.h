@@ -3,7 +3,7 @@ int recvData(int sock, void * buf, int size);
 
 int processMessage(worker_arg * data,char type);
 
-int startServer(int port);
+int startServer(int port,gnode* grid);
 
 int realizeServer();
 

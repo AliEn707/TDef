@@ -55,7 +55,7 @@
 //gnode type (buildable component)
 #define NOTHING -1
 //>1 may walk and build
-#define MAX_PLAYERS 8
+#define MAX_GROUPS 20
 
 //msg to client
 #define MSG_TEST 0
@@ -73,13 +73,15 @@
 
 #define PLAYER_HEALTH 1
 
-#define NPC_POSITION 1
-#define NPC_HEALTH 2
+#define NPC_HEALTH 1
+#define NPC_POSITION 2
 #define NPC_CREATE 4
+#define NPC_LEVEL 8
 
 #define TOWER_HEALTH 1
 #define TOWER_TARGET 2
 #define TOWER_CREATE 4
+#define TOWER_LEVEL 8
 
 #define BULLET_POSITION 1
 #define BULLET_DETONATE 2
@@ -103,6 +105,7 @@ typedef
 struct workerarg{
 	int sock;
 	int id;
+	struct gnode* grid;
 } worker_arg;
 
 
@@ -172,6 +175,7 @@ struct tower{
 	int energy;
 	int attack_count;
 	int owner;
+	short level;
 	effect effects;  //полученные эффекты
 	struct npc* target;
 }tower;
@@ -188,6 +192,7 @@ struct npc{
 	int type;
 	int health;
 	int shield;
+	short level;
 	effect effects; //полученные эффекты
 	struct npc* ntarget;
 	struct tower* ttarget;
@@ -226,7 +231,7 @@ struct gnode{
 	int next;
 	char walkable; //-1 no see, 0 no walk, 1 walk
 	tower * tower;
-	npc * npcs[MAX_PLAYERS];
+	npc * npcs[MAX_GROUPS];
 	char buildable; //<=0 no build, >0 build 
 	
 } gnode;
@@ -286,6 +291,8 @@ struct netw{
 typedef
 struct config{
 	int gridsize;
+	gnode* grid;
+	
 	veci* area_array[MAX_AREA];
 	int area_size[MAX_AREA];
 	unsigned int tower_max;

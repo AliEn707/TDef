@@ -80,6 +80,7 @@ npc* spawnNpc(gnode* grid,int node_id,int group,int type){
 	n->position.x=getGridx(node_id);
 	n->position.y=getGridy(node_id);
 	n->path_count=NPC_PATH;
+	n->level=0;
 	n->bit_mask=0;
 	setMask(n,NPC_CREATE);
 	memcpy(&n->destination,&n->position,sizeof(vec));
@@ -133,7 +134,7 @@ npc* findNearNpc(gnode* grid,npc* n,int range){
 		for(j=0;j<config.area_size[i];j++)
 			if (((xid=x+config.area_array[i][j].x)>=0 && x+config.area_array[i][j].x<config.gridsize) &&
 					((yid=y+config.area_array[i][j].y)>=0 && y+config.area_array[i][j].y<config.gridsize))
-				for (k=0;k<MAX_PLAYERS;k++)
+				for (k=0;k<MAX_GROUPS;k++)
 						if (k!=n->group)
 							for(tmp=grid[to2d(xid,yid)].npcs[k];
 									tmp!=0;tmp=tmp->next)

@@ -38,6 +38,8 @@ void setTowerBase(tower* t){
 
 tower* spawnTower(gnode * grid,int node_id,int owner,int type){
 	tower* t;
+	if (node_id<0 || node_id>=config.gridsize*config.gridsize)
+		return 0;
 	gnode* node=&grid[node_id];
 	if((t=newTower())==0)
 		perror("newTower spawnTower");
@@ -45,6 +47,7 @@ tower* spawnTower(gnode * grid,int node_id,int owner,int type){
 	t->position=node_id;
 	t->type=type;
 	t->bit_mask=0;
+	t->level=1;
 	setMask(t,TOWER_CREATE);
 	setTowerBase(t);
 	node->tower=t;
@@ -88,7 +91,7 @@ int tickAttackTower(gnode* grid,tower* t){
 			for(j=0;j<config.area_size[i];j++)
 				if (((xid=x+config.area_array[i][j].x)>=0 && x+config.area_array[i][j].x<config.gridsize) &&
 						((yid=y+config.area_array[i][j].y)>=0 && y+config.area_array[i][j].y<config.gridsize))
-					for (k=0;k<MAX_PLAYERS;k++)
+					for (k=0;k<MAX_GROUPS;k++)
 						if (k!=config.players[t->owner].group)
 							for(tmp=grid[to2d(xid,yid)].npcs[k];
 									tmp!=0;tmp=tmp->next)
