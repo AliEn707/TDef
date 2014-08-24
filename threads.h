@@ -1,4 +1,4 @@
 
 pthread_t startListener(int sock);
 
-pthread_t startWorker(int sock);
+pthread_t startWorker(int sock,int id);

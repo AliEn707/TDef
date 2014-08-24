@@ -1,4 +1,8 @@
 
+int recvData(int sock, void * buf, int size);
+
+int processMessage(worker_arg * data,char type);
+
 int startServer(int port);
 
 int realizeServer();

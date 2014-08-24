@@ -42,8 +42,8 @@ void initGridMath(){
 
 float glength(vec* v1,vec* v2){
 	///need to fix it
-	char  buf[15];
-	sprintf(buf,"|%g\n",sqr(v1->x-v2->x)+sqr(v1->y-v2->y));
+	//char  buf[15];
+	//sprintf(buf,"|%g\n",sqr(v1->x-v2->x)+sqr(v1->y-v2->y));
 	///////////
 	return sqrt(sqr(v1->x-v2->x)+sqr(v1->y-v2->y));
 }

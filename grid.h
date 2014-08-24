@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -56,16 +57,19 @@
 //>1 may walk and build
 #define MAX_PLAYERS 8
 
-
-///////bit mask
-#define setMask(z,x) z->bit_mask|=x
-#define checkMask(z,x) z->bit_mask&x
-
+//msg to client
 #define MSG_TEST 0
 #define MSG_NPC 1
 #define MSG_TOWER 2
 #define MSG_BULLET 3
 #define MSG_PLAYER 4
+//msg to server
+#define MSG_SPAWN_TOWER 1
+#define MSG_SPAWN_NPC 2
+
+///////bit mask
+#define setMask(z,x) z->bit_mask|=x
+#define checkMask(z,x) z&x
 
 #define PLAYER_HEALTH 1
 
@@ -98,6 +102,7 @@ struct vector2i{
 typedef 
 struct workerarg{
 	int sock;
+	int id;
 } worker_arg;
 
 
@@ -232,6 +237,7 @@ struct player{
 	int bit_mask;
 	int group; //player number [0-7]
 	int base_health;
+	char first_send;
 	tower * base;
 } player;
 

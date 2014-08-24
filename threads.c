@@ -21,37 +21,59 @@
 void * threadWorker(void * arg){
 	worker_arg *data=arg;
 	struct sembuf sem[3]={{0,0,0},
-					{1,-1,0},
-					{2,0,0}};
-	
+					 {1,-1,0},
+					 {2,0,0}};
+	struct sembuf sem_pl[2]={{0,-1,0},
+					     {0,1,0}};
+	int i;
+	char msg_type;
+	config.players[data->id].first_send=1;
 	//printf("sock %d\n",data->sock);
 	while(config.game.run!=0){
 	//	printf("work\n");
 		semOp(0);
 	//	printf("sock %d\n",data->sock);
-		if (forEachNpc((gnode*)&data->sock,tickSendNpc)<0)
+		for(i=0;i<10;i++){
+			if (recvData(data->sock,&msg_type,sizeof(msg_type))<0){
+				if (errno==EAGAIN){
+					sleep(0);
+					continue;
+				}else{
+					perror("recv threadWorker");
+					break;
+				}
+			}
+			processMessage(data,msg_type);
+		}
+		if (forEachNpc((gnode*)data,tickSendNpc)<0)
 			break;
-		if(forEachTower((gnode*)&data->sock,tickSendTower)<0)
+		if(forEachTower((gnode*)data,tickSendTower)<0)
 			break;
-		if(forEachBullet((gnode*)&data->sock,tickSendBullet)<0)
+		if(forEachBullet((gnode*)data,tickSendBullet)<0)
 			break;
 		//while(semctl(config.sem.send,1,GETVAL)!=config.players_num)
 		semOp(1);
 		semOp(2);
+		if (config.players[data->id].first_send!=0)
+			config.players[data->id].first_send=0;
 	}
+	semOp(1); //drop sem send[1]
+	semop(config.sem.player,&sem_pl[0],1);
 	config.players_num--;
+	semop(config.sem.player,&sem_pl[1],1);
 	printf("close worker\n");
 	free(data);
 	return 0;
 }
 
-pthread_t startWorker(int sock){
+pthread_t startWorker(int sock,int id){
 	worker_arg *data;
 	if ((data=malloc(sizeof(worker_arg)))==0)
 		perror("malloc startWorker");
 	pthread_t th=0;
 	data->sock=sock;
-	printf("sock %d\n",data->sock);
+	data->id=id;
+//	printf("sock %d\n",data->sock);
 	if(pthread_create(&th,0,threadWorker,data)!=0)
 		return 0;
 	return th;
@@ -65,7 +87,7 @@ void * threadListener(void * arg){
 					{0,1,0}};
 	config.players_num=0;
 	//
-	config.game.players=1;
+	config.game.players=2;
 	//printf("sock %d\n",data->sock);
 	while(config.game.run!=0){
 		printf("wait for client\n");
@@ -78,11 +100,14 @@ void * threadListener(void * arg){
 		}
 		//check connected user
 		printf("client connected\n");
-		//start worker
+		//add get player data
+		
+		//setup player
 		semop(config.sem.player,&sem[0],1);
 		setupPlayer(1,1,2000,0);
 		semop(config.sem.player,&sem[1],1);
-		if (startWorker(sock)<=0)
+		//start worker
+		if (startWorker(sock,1)<=0)
 			perror("startWorker");
 		//need to change later
 		//break;
