@@ -88,12 +88,11 @@ int canSee(gnode* grid,vec* a,vec* b){
 		float K=(y2-y1)/(x2-x1);
 		float B=(y1*(x2-x1)-x1*(y2-y1))/(x2-x1);
 		 
-		for(;x1<x2;x1+=0.3){
+		for(;x1<x2;x1+=0.5){
 			y1=K*x1+B;
 //			printf("1} %d\n",to2d(((int)x1),((int)y1)));
 			if (to2d(((int)x1),((int)y1))!=destination){
-				if (grid[to2d(((int)x1),((int)y1))].walkable<0||
-					grid[to2d(((int)x1),((int)y1))].tower>0){
+				if (grid[to2d(((int)x1),((int)y1))].walkable<0){
 //					printf("!\n");
 					return -1;
 				}
@@ -113,12 +112,11 @@ int canSee(gnode* grid,vec* a,vec* b){
 		float K=(x2-x1)/(y2-y1);
 		float B=(x1*(y2-y1)-y1*(x2-x1))/(y2-y1);
 		 
-		for(;y1<y2;y1+=0.3){
+		for(;y1<y2;y1+=0.5){
 			x1=K*y1+B;
 //			printf("2} %d\n",to2d(((int)x1),((int)y1)));
 			if (to2d(((int)x1),((int)y1))!=destination){
-				if (grid[to2d(((int)x1),((int)y1))].walkable<0||
-						grid[to2d(((int)x1),((int)y1))].tower>0)
+				if (grid[to2d(((int)x1),((int)y1))].walkable<0)
 					return -1;
 			}
 		}
@@ -145,7 +143,7 @@ int canWalkThrough(gnode* grid,vec* a,vec* b){
 		float K=(y2-y1)/(x2-x1);
 		float B=(y1*(x2-x1)-x1*(y2-y1))/(x2-x1);
 		
-		for(;x1<=x2;x1+=0.3){
+		for(;x1<=x2;x1+=0.35){
 			y1=K*x1+B;
 			if (to2d(((int)x1),((int)y1))!=destination){
 				if (grid[to2d(((int)x1),((int)y1))].walkable<=0||
@@ -166,7 +164,7 @@ int canWalkThrough(gnode* grid,vec* a,vec* b){
 		float K=(x2-x1)/(y2-y1);
 		float B=(x1*(y2-y1)-y1*(x2-x1))/(y2-y1);
 		 
-		for(;y1<=y2;y1+=0.3){
+		for(;y1<=y2;y1+=0.35){
 			x1=K*y1+B;
 			if (to2d(((int)x1),((int)y1))!=destination){
 				if (grid[to2d(((int)x1),((int)y1))].walkable<=0||

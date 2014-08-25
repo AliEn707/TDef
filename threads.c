@@ -43,7 +43,6 @@ void * threadWorker(void * arg){
 					break;
 				}
 			}
-			printf("%d\n",msg_type);
 			processMessage(data,msg_type);
 		}
 		if (forEachNpc((gnode*)data,tickSendNpc)<0)
