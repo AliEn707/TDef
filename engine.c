@@ -73,6 +73,7 @@ int canSee(gnode* grid,vec* a,vec* b){
 	float x2=b->x;
 	float y2=b->y;
 	int destination=to2d((int)x2,(int)y2);
+	int current;
 //	printf("%g %g %g %g\n",x1,y1,x2,y2);
 	if (x1!=x2){
 		if (x1>x2){
@@ -91,8 +92,8 @@ int canSee(gnode* grid,vec* a,vec* b){
 		for(;x1<x2;x1+=0.5){
 			y1=K*x1+B;
 //			printf("1} %d\n",to2d(((int)x1),((int)y1)));
-			if (to2d(((int)x1),((int)y1))!=destination){
-				if (grid[to2d(((int)x1),((int)y1))].walkable<0){
+			if ((current=to2d(((int)x1),((int)y1)))!=destination){
+				if (grid[current].walkable<0){
 //					printf("!\n");
 					return -1;
 				}
@@ -115,8 +116,8 @@ int canSee(gnode* grid,vec* a,vec* b){
 		for(;y1<y2;y1+=0.5){
 			x1=K*y1+B;
 //			printf("2} %d\n",to2d(((int)x1),((int)y1)));
-			if (to2d(((int)x1),((int)y1))!=destination){
-				if (grid[to2d(((int)x1),((int)y1))].walkable<0)
+			if ((current=to2d(((int)x1),((int)y1)))!=destination){
+				if (grid[current].walkable<0)
 					return -1;
 			}
 		}
