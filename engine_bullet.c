@@ -44,10 +44,12 @@ int tickProcessBullet(gnode * grid,bullet * b){
 		}
 		setMask(b,BULLET_POSITION);
 		if (eqInD(b->position.x,b->destination.x,delta)&&
-				eqInD(b->position.y,b->destination.y,delta)&&
-				to2d((int)b->position.x,(int)b->position.y)==to2d((int)b->destination.x,(int)b->destination.y)){
-			int i,j;
+				eqInD(b->position.y,b->destination.y,delta)){
+			int i,j,k;
 			int multiple=0;
+			int x=(int)b->position.x;
+			int y=(int)b->position.y;
+			int xid,yid;
 			//tower search
 			{
 				tower * tmp;
@@ -74,12 +76,11 @@ int tickProcessBullet(gnode * grid,bullet * b){
 					for(tmp=grid[to2d((int)b->position.x,(int)b->position.y)].npcs[j];
 						tmp!=0;tmp=tmp->next)
 							if (tmp->group!=b->group)
-//								if (eqInD(tmp->position.x,b->position.x,delta)&&
-//									eqInD(tmp->position.y,b->position.y,delta))
-								//attack first npc in gnode, need to 
+								if (eqInD(tmp->position.x,b->position.x,delta)&&
+									eqInD(tmp->position.y,b->position.y,delta))
+								//attack npc near the destination 
 								{	
-									tmp->health-=b->damage;
-									setMask(tmp,NPC_HEALTH);
+									damageNpc(tmp,b);
 									multiple++;
 									if (config.bullet_types[(int)b->type].attack_type==SINGLE)
 										goto out;
@@ -87,6 +88,27 @@ int tickProcessBullet(gnode * grid,bullet * b){
 										multiple>config.bullet_types[(int)b->type].area)
 										goto out;
 								}
+				//if npc not in node, see nodes near
+				i=0;
+				for(j=0;j<config.area_size[i];j++)
+					if (((xid=x+config.area_array[i][j].x)>=0 && x+config.area_array[i][j].x<config.gridsize) &&
+							((yid=y+config.area_array[i][j].y)>=0 && y+config.area_array[i][j].y<config.gridsize))
+						for(k=0;k<MAX_GROUPS;k++)
+							for(tmp=grid[to2d(xid,yid)].npcs[k];
+								tmp!=0;tmp=tmp->next)
+									if (tmp->group!=b->group)
+										if (eqInD(tmp->position.x,b->position.x,delta)&&
+											eqInD(tmp->position.y,b->position.y,delta))
+										//attack first npc in gnode, need to correct
+										{	
+											damageNpc(tmp,b);
+											multiple++;
+											if (config.bullet_types[(int)b->type].attack_type==SINGLE)
+												goto out;
+											if (config.bullet_types[(int)b->type].attack_type==MULTIPLE && 
+												multiple>config.bullet_types[(int)b->type].area)
+												goto out;
+										}
 			}
 			
 			//add area damage to Npc
@@ -94,11 +116,7 @@ int tickProcessBullet(gnode * grid,bullet * b){
 			if (config.bullet_types[(int)b->type].attack_type==AREA ||
 			 	config.bullet_types[(int)b->type].attack_type==AREA_FF){
 				//add area gamage	
-				int k;
 				npc* tmp;
-				int x=(int)b->position.x;
-				int y=(int)b->position.y;
-				int xid,yid;
 				for (i=0;i<config.bullet_types[(int)b->type].area;i++)
 					for(j=0;j<config.area_size[i];j++)
 						if (((xid=x+config.area_array[i][j].x)>=0 && x+config.area_array[i][j].x<config.gridsize) &&
@@ -122,10 +140,8 @@ int tickProcessBullet(gnode * grid,bullet * b){
 								if (config.bullet_types[(int)b->type].attack_type==AREA?k!=b->group:1)
 									for(tmp=grid[to2d(xid,yid)].npcs[k];
 											tmp!=0;tmp=tmp->next)
-										if (canSee(grid,&b->position,&tmp->position)>0){
-											tmp->health-=b->damage;
-											setMask(tmp,NPC_HEALTH);
-										}
+										if (canSee(grid,&b->position,&tmp->position)>0)
+											damageNpc(tmp,b);
 						}
 			}	
 out:

@@ -5,6 +5,12 @@
 #include "engine_bullet.h"
 #include "gridmath.h"
 
+npc* damageNpc(npc* n,bullet* b){
+	n->health-=b->damage;
+	setMask(n,NPC_HEALTH);
+	return n;
+}
+
 npc* newNpc(){
 	int i;
 	for(i=0;i<config.npc_max;i++)

@@ -1,3 +1,6 @@
+
+tower* damageTower(tower* t,bullet* b);
+
 tower* newTower();
 
 tower* diedCheckTower(tower* t);

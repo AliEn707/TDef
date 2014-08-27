@@ -1,3 +1,6 @@
+
+npc* damageNpc(npc* n,bullet* b);
+
 npc* newNpc();
 
 npc* addNpc(gnode* node,npc* n);

@@ -6,6 +6,17 @@
 #include "gridmath.h"
 
 
+tower* damageTower(tower* t,bullet* b){
+	if(t->type==BASE){
+		config.players[t->owner].base_health-=b->damage;
+		setMask((&config.players[t->owner]),PLAYER_HEALTH);
+	}else{
+		t->health-=b->damage;
+		setMask(t,TOWER_HEALTH);
+	}
+	return t;
+}
+
 tower* newTower(){
 	int i;
 	for(i=0;i<config.tower_max;i++)
