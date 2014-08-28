@@ -113,6 +113,14 @@ int tickAttackTower(gnode* grid,tower* t){
 										return 0;
 								}
 	}else{
+		if (t->target->id==0)
+			return 0;
+		if (sqr(t->target->position.x-getGridx(t->position))+
+				sqr(t->target->position.y-getGridy(t->position))>
+				sqr(config.tower_types[t->type].distanse)){
+			t->target=0;
+			return 0;
+		}
 //		printf("\t|%d %d\n",t->attack_count,config.tower_types[t->type].attack_speed);
 		if (t->attack_count>=config.tower_types[t->type].attack_speed){
 				t->attack_count=0;
