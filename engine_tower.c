@@ -115,6 +115,9 @@ int tickAttackTower(gnode* grid,tower* t){
 	}else{
 		if (t->target->id==0)
 			return 0;
+		if(rand()%100<30){
+			t->target=0;
+		}
 		if (sqr(t->target->position.x-getGridx(t->position))+
 				sqr(t->target->position.y-getGridy(t->position))>
 				sqr(config.tower_types[t->type].distanse)){
