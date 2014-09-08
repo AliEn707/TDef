@@ -1,13 +1,13 @@
 //wait tto set need tps
 void syncTPS();
-
+//tick per second limiter
 int timePassed(int i);
-
+//init primary arrays 
 void initArrays();
 
 void realizeArrays();
 
-//helper
+//check node between a and b
 int canSee(gnode* grid,vec* a,vec* b);
 
 int canWalkThrough(gnode* grid,vec* a,vec* b);

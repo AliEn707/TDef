@@ -4,6 +4,7 @@
 #define tmp config.area_array
 #define shift config.gridsize
 
+//need to fast find near gnodes for current range
 void initAreaArray(){
 	veci tmp0[8]={{-1,-1}, {-1,0}, {-1,1}, {0,-1}, {0,1}, {1,-1}, {1,0}, {1,1}};
 	if((tmp[0]=malloc(sizeof(tmp0)))==0)

@@ -5,7 +5,7 @@
 #include "engine_bullet.h"
 #include "areaarray.h"
 
-
+//time passed after previous call of function
 int timePassed(int i){
 	//config.time  struct timeval
 	struct timeval end;
@@ -19,7 +19,7 @@ int timePassed(int i){
 	return out;
 }
 
-
+//tick per second limiter
 void syncTPS(){
 	int z=timePassed(1);
 	int must=1000;

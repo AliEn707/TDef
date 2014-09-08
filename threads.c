@@ -18,6 +18,7 @@
 
 #define semOp(x) semop(config.sem.send,&sem[x],1)
 
+/// worker thread get data from server and change world
 void * threadWorker(void * arg){
 	worker_arg *data=arg;
 	struct sembuf sem[3]={{0,0,0},
@@ -80,6 +81,7 @@ pthread_t startWorker(int sock,int id,gnode *grid){
 	return th;
 }
 
+//listen to new players
 void * threadListener(void * arg){
 	worker_arg *data=arg;
 	int listener=data->sock;
