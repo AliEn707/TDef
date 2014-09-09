@@ -217,18 +217,19 @@ int tickAttackNpc(gnode* grid,npc* n){
 		//-attacking
 		//else set IN_MOVE
 		//???????
-//		if (rand()%100<30){
-//			n->ntarget=0;
-//			n->ttarget=0;
-//		}
+		if (rand()%100<30){
+			n->ntarget=0;
+			n->ttarget=0;
+			return 0;
+		}
 //		printf("\t %d %d %d\n",n->id,n->attack_count,config.npc_types[n->type].attack_speed);
 		if (n->ntarget!=0){
-//			if (sqr(n->ntarget->position.x-n->position.x)+
-//					sqr(n->ntarget->position.y-n->position.y)>
-//					sqr(config.npc_types[n->type].attack_distanse)){
-//				n->ntarget=0;
-//				return 0;
-//			}
+			if (sqr(n->ntarget->position.x-n->position.x)+
+					sqr(n->ntarget->position.y-n->position.y)>
+					sqr(config.npc_types[n->type].attack_distanse)){
+				n->ntarget=0;
+				return 0;
+			}
 			if (n->attack_count>=config.npc_types[n->type].attack_speed){
 				n->attack_count=0;
 				bullet* b;//set params of bullet
@@ -252,12 +253,12 @@ int tickAttackNpc(gnode* grid,npc* n){
 			}
 		}
 		if (n->ttarget!=0){
-//			if (sqr(n->position.x-getGridx(n->ttarget->position))+
-//					sqr(n->position.y-getGridy(n->ttarget->position))>
-//					sqr(config.npc_types[n->type].attack_distanse)){
-//				n->ttarget=0;
-//				return 0;
-//			}
+			if (sqr(n->position.x-getGridx(n->ttarget->position))+
+					sqr(n->position.y-getGridy(n->ttarget->position))>
+					sqr(config.npc_types[n->type].attack_distanse)){
+				n->ttarget=0;
+				return 0;
+			}
 			if (n->attack_count>=config.npc_types[n->type].attack_speed){
 				n->attack_count=0;
 				bullet* b;//set params of bullet
