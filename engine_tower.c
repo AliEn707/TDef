@@ -106,12 +106,13 @@ int tickAttackTower(gnode* grid,tower* t){
 						if (k!=config.players[t->owner].group)
 							for(tmp=grid[to2d(xid,yid)].npcs[k];
 									tmp!=0;tmp=tmp->next)
-								if (canSee(grid,&(vec){x+0.5,y+0.5},&tmp->position)>0){
-									t->target=tmp;
-									setMask(t,TOWER_TARGET);
-									if (rand()%100<60)
-										return 0;
-								}
+								if (canSee(grid,&(vec){x+0.5,y+0.5},&tmp->position)>0)
+									if(sqr(x+0.5-(tmp->position.x))+sqr(y+0.5-(tmp->position.y))<=sqr(config.tower_types[t->type].distanse)){
+										t->target=tmp;
+										setMask(t,TOWER_TARGET);
+										if (rand()%100<60)
+											return 0;
+									}
 	}else{
 		if (t->target->id==0)
 			return 0;
