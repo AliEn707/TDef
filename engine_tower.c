@@ -115,7 +115,7 @@ int tickAttackTower(gnode* grid,tower* t){
 	}else{
 		if (t->target->id==0)
 			return 0;
-		if(rand()%100<30){
+		if(rand()%100<8){
 			t->target=0;
 			return 0;
 		}

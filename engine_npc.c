@@ -217,7 +217,7 @@ int tickAttackNpc(gnode* grid,npc* n){
 		//-attacking
 		//else set IN_MOVE
 		//???????
-		if (rand()%100<30){
+		if (rand()%100<5){
 			n->ntarget=0;
 			n->ttarget=0;
 			return 0;
