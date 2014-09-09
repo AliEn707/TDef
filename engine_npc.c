@@ -226,8 +226,14 @@ int tickAttackNpc(gnode* grid,npc* n){
 		if (n->ntarget!=0){
 			if (sqr(n->ntarget->position.x-n->position.x)+
 					sqr(n->ntarget->position.y-n->position.y)>
-					sqr(config.npc_types[n->type].attack_distanse)){
+					sqr(config.npc_types[n->type].see_distanse)){
 				n->ntarget=0;
+				return 0;
+			}
+			if (sqr(n->ntarget->position.x-n->position.x)+
+					sqr(n->ntarget->position.y-n->position.y)>
+					sqr(config.npc_types[n->type].attack_distanse)){
+				n->status==IN_MOVE;
 				return 0;
 			}
 			if (n->attack_count>=config.npc_types[n->type].attack_speed){
@@ -255,8 +261,14 @@ int tickAttackNpc(gnode* grid,npc* n){
 		if (n->ttarget!=0){
 			if (sqr(n->position.x-getGridx(n->ttarget->position))+
 					sqr(n->position.y-getGridy(n->ttarget->position))>
-					sqr(config.npc_types[n->type].attack_distanse)){
+					sqr(config.npc_types[n->type].see_distanse)){
 				n->ttarget=0;
+				return 0;
+			}
+			if (sqr(n->position.x-getGridx(n->ttarget->position))+
+					sqr(n->position.y-getGridy(n->ttarget->position))>
+					sqr(config.npc_types[n->type].attack_distanse)){
+				n->status==IN_MOVE;
 				return 0;
 			}
 			if (n->attack_count>=config.npc_types[n->type].attack_speed){
