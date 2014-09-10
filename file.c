@@ -11,6 +11,7 @@
 gnode * loadMap(char *filepath){
 	gnode * grid;
 	FILE * file;
+	int err;
 	
 	config.global_id=1;
 	memset(config.players,0,sizeof(player)*PLAYER_MAX);
@@ -20,7 +21,7 @@ gnode * loadMap(char *filepath){
 		perror("fopen loadMap");
 	char buf[100];
 	int size;
-	fscanf(file,"%d\n",&size);
+	err=fscanf(file,"%d\n",&size);
 	setGridSize(size);
 	if ((grid=malloc(sizeof(gnode)*size*size))==0)
 		perror("malloc grid loadMap");
@@ -31,8 +32,8 @@ gnode * loadMap(char *filepath){
 		perror("malloc walk loadMap");
 	if((build=malloc((size*size+1)*sizeof(char)))==0)
 		perror("malloc build loadMap");
-	fscanf(file,"%s\n",walk);
-	fscanf(file,"%s\n",build);
+	err=fscanf(file,"%s\n",walk);
+	err=fscanf(file,"%s\n",build);
 	int i;
 	for(i=0;i<size*size;i++){
 		grid[i].id=i;
@@ -44,24 +45,24 @@ gnode * loadMap(char *filepath){
 	
 	while(feof(file)==0){
 		memset(buf,0,sizeof(buf));
-		fscanf(file,"%s ",buf);
+		err=fscanf(file,"%s ",buf);
 //		printf("%s\n",buf);
 		if (strcmp(buf,"max_npcs")==0){
-			fscanf(file,"%d\n",&config.npc_max);
+			err=fscanf(file,"%d\n",&config.npc_max);
 			if ((config.npc_array=malloc(sizeof(npc)*config.npc_max))==0)
 				perror("malloc NPC initArrays");
 			memset(config.npc_array,0,sizeof(npc)*config.npc_max);
 			continue;
 		}
 		if (strcmp(buf,"max_towers")==0){
-			fscanf(file,"%d\n",&config.tower_max);
+			err=fscanf(file,"%d\n",&config.tower_max);
 			if ((config.tower_array=malloc(sizeof(tower)*config.tower_max))==0)
 				perror("malloc tower initArrays");
 			memset(config.tower_array,0,sizeof(tower)*config.tower_max);
 			continue;
 		}
 		if (strcmp(buf,"max_bullets")==0){
-			fscanf(file,"%d\n",&config.bullet_max);
+			err=fscanf(file,"%d\n",&config.bullet_max);
 			if ((config.bullet_array=malloc(sizeof(bullet)*config.bullet_max))==0)
 				perror("malloc bullet initArrays");
 			memset(config.bullet_array,0,sizeof(bullet)*config.bullet_max);
@@ -71,52 +72,52 @@ gnode * loadMap(char *filepath){
 			//create base of pc player
 			int base;
 			int base_health;
-			fscanf(file,"%d %d\n",&base,&base_health);
+			err=fscanf(file,"%d %d\n",&base,&base_health);
 			setupPlayer(PC,ENEMY,base_health,spawnTower(grid,config.bases[base].position,PC,BASE));
 			continue;
 		}
 		if (strcmp(buf,"bases")==0){
 			int i;
-			fscanf(file,"%d\n",&config.bases_size);
+			err=fscanf(file,"%d\n",&config.bases_size);
 			if ((config.bases=malloc(config.bases_size*sizeof(base)))==0)
 				perror("malloc config.bases loadMap");
 			memset(config.bases,0,config.bases_size*sizeof(base));
 			for(i=0;i<config.bases_size;i++){
 				int j;
-				fscanf(file,"%d ",&j);
-				fscanf(file,"%d %d\n",&config.bases[j].position,&config.bases[j].spawn_position);
+				err=fscanf(file,"%d ",&j);
+				err=fscanf(file,"%d %d\n",&config.bases[j].position,&config.bases[j].spawn_position);
 				config.bases[j].id=j;
 			}
 			continue;
 		}
 		if (strcmp(buf,"points")==0){
 			int i;
-			fscanf(file,"%d\n",&config.points_size);
+			err=fscanf(file,"%d\n",&config.points_size);
 			if ((config.points=malloc(config.points_size*sizeof(point)))==0)
 				perror("malloc config.points loadMap");
 			memset(config.points,0,config.points_size*sizeof(point));
 			for(i=0;i<config.points_size;i++){
 				int j;
-				fscanf(file,"%d ",&j);
-				fscanf(file,"%d\n",&config.points[j].position);
+				err=fscanf(file,"%d ",&j);
+				err=fscanf(file,"%d\n",&config.points[j].position);
 				config.points[j].id=j;
 			}
 			continue;
 		}
 		if (strcmp(buf,"waves")==0){
 			int i;
-			fscanf(file,"%d \n",&config.waves_size);
+			err=fscanf(file,"%d \n",&config.waves_size);
 			if((config.waves=malloc(config.waves_size*sizeof(wave)))==0)
 				perror("malloc config.waves loadMap");
 			memset(config.waves,0,config.waves_size*sizeof(wave));
 			for(i=0;i<config.waves_size;i++){
 				int j;
-				fscanf(file,"%s %d %d\n",buf,&config.waves[i].parts_num,&config.waves[i].delay);
+				err=fscanf(file,"%s %d %d\n",buf,&config.waves[i].parts_num,&config.waves[i].delay);
 				if((config.waves[i].parts=malloc(config.waves[i].parts_num*sizeof(wave_part)))==0)
 					perror("malloc config.waves[i].parts loadMap");
 				memset(config.waves[i].parts,0,config.waves[i].parts_num*sizeof(wave_part));
 				for(j=0;j<config.waves[i].parts_num;j++){
-					fscanf(file,"%d %d %d %d\n",&config.waves[i].parts[j].point,
+					err=fscanf(file,"%d %d %d %d\n",&config.waves[i].parts[j].point,
 											&config.waves[i].parts[j].npc_type,
 											&config.waves[i].parts[j].num,
 											&config.waves[i].parts[j].delay);
@@ -139,6 +140,7 @@ void realizeMap(gnode* grid){
 
 void loadTypes(char * filepath){
 	FILE * file;
+	int err;
 //	printf("loading configuration\n");
 	if ((file=fopen(filepath,"r"))==0) 
 		perror("fopen loadTypes");
@@ -146,75 +148,75 @@ void loadTypes(char * filepath){
 	int i=1;
 	while(feof(file)==0){
 		memset(buf,0,sizeof(buf));
-		fscanf(file,"%s ",buf);
+		err=fscanf(file,"%s ",buf);
 //		printf("%s  ||\n",buf);
 		if (strcmp(buf,"TOWER_TYPE")==0){
 			int tmp;
-			fscanf(file,"%d\n",&tmp);
+			err=fscanf(file,"%d\n",&tmp);
 			if((config.tower_types=malloc(sizeof(tower_type)*(tmp+1)))==0)
 				perror("malloc tower loadTypes");
 			continue;
 		}
 		if (strcmp(buf,"NPC_TYPE")==0){
 			int tmp;
-			fscanf(file,"%d\n",&tmp);
+			err=fscanf(file,"%d\n",&tmp);
 			if((config.npc_types=malloc(sizeof(npc_type)*(tmp+1)))==0)
 				perror("malloc npc loadTypes");
 			break;
 		}
 		if (strcmp(buf,"//-")==0){
-			fscanf(file,"%s\n",buf);
+			err=fscanf(file,"%s\n",buf);
 			i++;
 			continue;
 		}
 		if (strcmp(buf,"name")==0){
-			fscanf(file,"%s\n",buf);
+			err=fscanf(file,"%s\n",buf);
 			continue;
 		}
 		if (strcmp(buf,"id")==0){
-			fscanf(file,"%d\n",&config.tower_types[i].id);
+			err=fscanf(file,"%d\n",&config.tower_types[i].id);
 			continue;
 		}
 		if (strcmp(buf,"health")==0){
-			fscanf(file,"%d\n",&config.tower_types[i].health);
+			err=fscanf(file,"%d\n",&config.tower_types[i].health);
 			continue;
 		}
 		if (strcmp(buf,"damage")==0){
-			fscanf(file,"%d\n",&config.tower_types[i].damage);
+			err=fscanf(file,"%d\n",&config.tower_types[i].damage);
 			continue;
 		}
 		if (strcmp(buf,"energy")==0){
-			fscanf(file,"%d\n",&config.tower_types[i].energy);
+			err=fscanf(file,"%d\n",&config.tower_types[i].energy);
 			continue;
 		}
 		if (strcmp(buf,"shield")==0){
-			fscanf(file,"%d\n",&config.tower_types[i].shield);
+			err=fscanf(file,"%d\n",&config.tower_types[i].shield);
 			continue;
 		}
 		if (strcmp(buf,"attack_distanse")==0){
-			fscanf(file,"%d\n",&config.tower_types[i].distanse);
+			err=fscanf(file,"%d\n",&config.tower_types[i].distanse);
 			continue;
 		}
 		if (strcmp(buf,"attack_speed")==0){
 			float tmp;
-			fscanf(file,"%f\n",&tmp);
+			err=fscanf(file,"%f\n",&tmp);
 			config.tower_types[i].attack_speed=TPS/tmp;
 			continue;
 		}
 		if (strcmp(buf,"cost")==0){
-			fscanf(file,"%d\n",&config.tower_types[i].cost);
+			err=fscanf(file,"%d\n",&config.tower_types[i].cost);
 			continue;
 		}
 		if (strcmp(buf,"ignor_type")==0){
-			fscanf(file,"%d\n",&config.tower_types[i].ignor_type);
+			err=fscanf(file,"%d\n",&config.tower_types[i].ignor_type);
 			continue;
 		}
 		if (strcmp(buf,"prior_type")==0){
-			fscanf(file,"%d\n",&config.tower_types[i].prior_type);
+			err=fscanf(file,"%d\n",&config.tower_types[i].prior_type);
 			continue;
 		}
 		if (strcmp(buf,"bullet_type")==0){
-			fscanf(file,"%d\n",&config.tower_types[i].bullet_type);
+			err=fscanf(file,"%d\n",&config.tower_types[i].bullet_type);
 			continue;
 		}
 		
@@ -224,78 +226,78 @@ void loadTypes(char * filepath){
 	i=1;
 	while(feof(file)==0){
 		memset(buf,0,sizeof(buf));
-		fscanf(file,"%s ",buf);
+		err=fscanf(file,"%s ",buf);
 //		printf("%s  ||\n",buf);
 		if (strcmp(buf,"BULLET_TYPE")==0){
 			int tmp;
-			fscanf(file,"%d\n",&tmp);
+			err=fscanf(file,"%d\n",&tmp);
 			if((config.bullet_types=malloc(sizeof(bullet_type)*(tmp+1)))==0)
 				perror("malloc tower loadTypes");
 			break;
 		}
 		if (strcmp(buf,"//-")==0){
-			fscanf(file,"%s\n",buf);
+			err=fscanf(file,"%s\n",buf);
 			i++;
 			continue;
 		}
 		if (strcmp(buf,"name")==0){
-			fscanf(file,"%s\n",buf);
+			err=fscanf(file,"%s\n",buf);
 			continue;
 		}
 		if (strcmp(buf,"id")==0){
-			fscanf(file,"%d\n",&config.npc_types[i].id);
+			err=fscanf(file,"%d\n",&config.npc_types[i].id);
 			continue;
 		}
 		if (strcmp(buf,"health")==0){
-			fscanf(file,"%d\n",&config.npc_types[i].health);
+			err=fscanf(file,"%d\n",&config.npc_types[i].health);
 			continue;
 		}
 		if (strcmp(buf,"damage")==0){
-			fscanf(file,"%d\n",&config.npc_types[i].damage);
+			err=fscanf(file,"%d\n",&config.npc_types[i].damage);
 			continue;
 		}
 		if (strcmp(buf,"shield")==0){
-			fscanf(file,"%d\n",&config.npc_types[i].shield);
+			err=fscanf(file,"%d\n",&config.npc_types[i].shield);
 			continue;
 		}
 		if (strcmp(buf,"support")==0){
-			fscanf(file,"%d\n",&config.npc_types[i].support);
+			err=fscanf(file,"%d\n",&config.npc_types[i].support);
 			continue;
 		}
 		if (strcmp(buf,"see_distanse")==0){
-			fscanf(file,"%d\n",&config.npc_types[i].see_distanse);
+			err=fscanf(file,"%d\n",&config.npc_types[i].see_distanse);
 			continue;
 		}
 		if (strcmp(buf,"attack_distanse")==0){
-			fscanf(file,"%d\n",&config.npc_types[i].attack_distanse);
+			err=fscanf(file,"%d\n",&config.npc_types[i].attack_distanse);
 			continue;
 		}
 		if (strcmp(buf,"attack_speed")==0){
 			float tmp;
-			fscanf(file,"%f\n",&tmp);
+			err=fscanf(file,"%f\n",&tmp);
 			config.npc_types[i].attack_speed=TPS/tmp;
 			continue;
 		}
 		if (strcmp(buf,"move_speed")==0){
 			float tmp;
-			fscanf(file,"%f\n",&tmp);
+			err=fscanf(file,"%f\n",&tmp);
 			config.npc_types[i].move_speed=tmp/TPS;
 			continue;
 		}
 		if (strcmp(buf,"cost")==0){
-			fscanf(file,"%d\n",&config.npc_types[i].cost);
+			err=fscanf(file,"%d\n",&config.npc_types[i].cost);
 			continue;
 		}
 		if (strcmp(buf,"receive")==0){
-			fscanf(file,"%d\n",&config.npc_types[i].receive);
+			err=fscanf(file,"%d\n",&config.npc_types[i].receive);
 			continue;
 		}
 		if (strcmp(buf,"bullet_type")==0){
-			fscanf(file,"%d\n",&config.npc_types[i].bullet_type);
+			err=fscanf(file,"%d\n",&config.npc_types[i].bullet_type);
 			continue;
 		}
 		if (strcmp(buf,"type")==0){
-			fscanf(file,"%d\n",&config.npc_types[i].type);
+			err=fscanf(file,"%d\n",&config.npc_types[i].type);
 			continue;
 		}
 		
@@ -304,33 +306,33 @@ void loadTypes(char * filepath){
 	i=1;
 	while(feof(file)==0){
 		memset(buf,0,sizeof(buf));
-		fscanf(file,"%s ",buf);
+		err=fscanf(file,"%s ",buf);
 //		printf("%s  ||\n",buf);
 		if (strcmp(buf,"name")==0){
-			fscanf(file,"%s\n",buf);
+			err=fscanf(file,"%s\n",buf);
 			continue;
 		}
 		if (strcmp(buf,"//-")==0){
-			fscanf(file,"%s\n",buf);
+			err=fscanf(file,"%s\n",buf);
 			i++;
 			continue;
 		}
 		if (strcmp(buf,"id")==0){
-			fscanf(file,"%d\n",&config.bullet_types[i].id);
+			err=fscanf(file,"%d\n",&config.bullet_types[i].id);
 			continue;
 		}
 		if (strcmp(buf,"speed")==0){
 			float tmp;
-			fscanf(file,"%f\n",&tmp);
+			err=fscanf(file,"%f\n",&tmp);
 			config.bullet_types[i].speed=tmp/TPS;
 			continue;
 		}
 		if (strcmp(buf,"attack_type")==0){
-			fscanf(file,"%d\n",&config.bullet_types[i].attack_type);
+			err=fscanf(file,"%d\n",&config.bullet_types[i].attack_type);
 			continue;
 		}
 		if (strcmp(buf,"move_type")==0){
-			fscanf(file,"%d\n",&config.bullet_types[i].move_type);
+			err=fscanf(file,"%d\n",&config.bullet_types[i].move_type);
 			continue;
 		}
 		
