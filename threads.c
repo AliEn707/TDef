@@ -92,7 +92,7 @@ void * threadListener(void * arg){
 					{0,1,0}};
 	config.players_num=0;
 	//
-	config.game.players=2;
+	config.game.players=3;
 	//printf("sock %d\n",data->sock);
 	while(config.game.run!=0){
 		printf("wait for client\n");

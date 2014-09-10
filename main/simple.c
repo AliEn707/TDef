@@ -173,13 +173,13 @@ int main(int argc, char* argv[]){
 		
 		//set 1
 		sem.sem_num=1;
-		sem.sem_op=1;//config.players_num;
+		sem.sem_op=config.players_num;
 		
 		sem_pl.sem_num=0;
 		sem_pl.sem_op=-1;
 		semop(config.sem.player,&sem_pl,1);
-		while(semctl(config.sem.send,1,GETVAL)!=config.players_num)
-			semop(config.sem.send,&sem,1);
+//		while(semctl(config.sem.send,1,GETVAL)!=config.players_num)
+		semop(config.sem.send,&sem,1);
 		
 		sem_pl.sem_num=0;
 		sem_pl.sem_op=1;
@@ -187,13 +187,13 @@ int main(int argc, char* argv[]){
 		//set 2
 		sem.sem_num=2;
 		sem.sem_op=1;
-		while(semctl(config.sem.send,2,GETVAL)<1)
-			semop(config.sem.send,&sem,1);
+		//while(semctl(config.sem.send,2,GETVAL)<1)
+		semop(config.sem.send,&sem,1);
 		//drop 0
 		sem.sem_num=0;
 		sem.sem_op=-1;
-		while(semctl(config.sem.send,0,GETVAL)>0)
-			semop(config.sem.send,&sem,1);
+//		while(semctl(config.sem.send,0,GETVAL)>0)
+		semop(config.sem.send,&sem,1);
 //		if (err<0)
 //			printf("semop err\n");
 		
@@ -209,15 +209,15 @@ int main(int argc, char* argv[]){
 		//set 0
 		sem.sem_num=0;
 		sem.sem_op=1;
-		while(semctl(config.sem.send,0,GETVAL)<1)
-			semop(config.sem.send,&sem,1);
+//		while(semctl(config.sem.send,0,GETVAL)<1)
+		semop(config.sem.send,&sem,1);
 //		if (err<0)
 //			printf("semop err\n");
 		//drop 2
 		sem.sem_num=2;
 		sem.sem_op=-1;
-		while(semctl(config.sem.send,2,GETVAL)>0)
-			semop(config.sem.send,&sem,1);
+//		while(semctl(config.sem.send,2,GETVAL)>0)
+		semop(config.sem.send,&sem,1);
 //		if (err<0)
 //			printf("semop err\n");
 		
