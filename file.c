@@ -22,6 +22,8 @@ gnode * loadMap(char *filepath){
 	char buf[100];
 	int size;
 	err=fscanf(file,"%d\n",&size);
+	if (err<=0)
+		perror("fscanf loadMap");
 	setGridSize(size);
 	if ((grid=malloc(sizeof(gnode)*size*size))==0)
 		perror("malloc grid loadMap");
@@ -149,6 +151,8 @@ void loadTypes(char * filepath){
 	while(feof(file)==0){
 		memset(buf,0,sizeof(buf));
 		err=fscanf(file,"%s ",buf);
+		if (err<=0)
+		perror("fscanf loadTypes");
 //		printf("%s  ||\n",buf);
 		if (strcmp(buf,"TOWER_TYPE")==0){
 			int tmp;

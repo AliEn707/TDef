@@ -41,6 +41,7 @@ void * threadWorker(void * arg){
 					continue;
 				}else{
 					perror("recv threadWorker");
+					goto out;
 					break;
 				}
 			}
@@ -58,6 +59,7 @@ void * threadWorker(void * arg){
 		if (config.players[data->id].first_send!=0)
 			config.players[data->id].first_send=0;
 	}
+out:
 	semOp(1); //drop sem send[1]
 	semop(config.sem.player,&sem_pl[0],1);
 	config.players_num--;

@@ -1,3 +1,5 @@
+
+int parseArgv(int argc,char * argv[]);
 //wait tto set need tps
 void syncTPS();
 //tick per second limiter

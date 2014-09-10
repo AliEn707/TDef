@@ -5,6 +5,22 @@
 #include "engine_bullet.h"
 #include "areaarray.h"
 
+
+int parseArgv(int argc,char * argv[]){
+	int i;
+	for(i=0;i<argc;i++){
+		if (strcmp(argv[i],"-port")==0){
+			config.game.port=atoi(argv[++i]);
+			continue;
+		}
+		if (strcmp(argv[i],"-token")==0){
+			config.game.token=atoi(argv[++i]);
+			continue;
+		}
+	}
+	return 0;
+}
+
 //time passed after previous call of function
 int timePassed(int i){
 	//config.time  struct timeval

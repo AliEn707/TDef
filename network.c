@@ -8,7 +8,7 @@
 #include "engine_npc.h"
 #include "engine_bullet.h"
 
-#define sendData(x) if(send(sock,&x,sizeof(x),0)<0) return -1
+#define sendData(x) if(send(sock,&x,sizeof(x),MSG_NOSIGNAL)<=0) return -1
 
 #define getSem(x) semget(IPC_PRIVATE, x, 0755 | IPC_CREAT)
 

@@ -73,7 +73,7 @@ void drawGrid(gnode* grid){
 }
 
 
-int main(){
+int main(int argc, char* argv[]){
 	srand(time(0));
 	memset(&config,0,sizeof(config));
 //	gnode grid[100];
@@ -87,8 +87,40 @@ int main(){
 	struct sembuf sem_pl;
 	memset(&sem,0,sizeof(sem_pl));
 	
+	int f_token,f_sem,f_shmem;
+	int f_port;
+	char * f_mem=0;
 	int listener;
 	int err;
+	FILE * file;
+	if (argc>1){
+		parseArgv(argc,argv);//get game.port, game.token
+		if ((file=fopen("manager.ini","r"))!=0){
+			int servnum, startport;
+			char buffer[101];
+			while (!feof (file)) {
+				if (fgets (buffer,100,file) == NULL ) 
+					break;
+//				sscanf(buffer, "menport %d", &f_port);
+				sscanf(buffer, "servnum  %d", &servnum);
+				sscanf(buffer, "startport  %d", &startport);
+			}
+			fclose (file);
+			f_port=config.game.port-startport;
+			if ((f_token=ftok("manager.ini",100))>0)
+				if ((f_sem=semget(f_token,1,0))>0)
+					if ((f_shmem=shmget(f_token, servnum*sizeof(char), 0777))>0)
+						if ((f_mem=shmat(f_shmem,0,0))!=0){
+							sem.sem_num=0; 
+							sem.sem_op=-1; 
+							semop(f_sem, &sem, 1);
+							f_mem[f_port]=1;
+							sem.sem_num=0; 
+							sem.sem_op=1; 
+							semop(f_sem, &sem, 1);
+						}
+		}
+	}
 	
 	gnode* grid;
 	
@@ -204,12 +236,24 @@ int main(){
 	}
 	printf("closing\n");
 	config.game.run=0;
+	close(listener);
+	if (f_mem!=0){
+		sem.sem_num=0; 
+		sem.sem_op=-1; 
+		semop(f_sem, &sem, 1);
+		f_mem[f_port]=0;
+		sem.sem_num=0; 
+		sem.sem_op=1; 
+		semop(f_sem, &sem, 1);
+		shmdt(f_mem);
+	}
+	
 	realizeMap(grid);
 	realizeTypes();
 	realizeArrays();
 	realizeServer();
 //	memset(&config.wave_current,0,sizeof(config.wave_current));
-	close(listener);
+	
 	
 //	clearAll(grid);
 	
