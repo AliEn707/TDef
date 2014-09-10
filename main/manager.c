@@ -129,14 +129,13 @@ int main() {
 					perror("Failed to fork");
 					exit(1);//TODO: send error report
 				case 0: //child process
-					sprintf(port_arg, "%d", menport);
+					sprintf(port_arg, "%d", flag);
 					sprintf(token_arg, "%d", room_data);
-					execl("/bin/ls", "ls", 0, 0);//TODO
-					//execl("server", "-port", port_arg, "-token", token_arg, 0);												
+					execlp("/bin/ls", "ls", 0, 0);//TODO
+					//execlp("server", "-port", port_arg, "-token", token_arg, 0);												
 			}
 		}
 	}
 	return 0;
 }
-
 
