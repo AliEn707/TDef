@@ -108,21 +108,24 @@ gnode * loadMap(char *filepath){
 		}
 		if (strcmp(buf,"waves")==0){
 			int i;
+			float f;
 			err=fscanf(file,"%d \n",&config.waves_size);
 			if((config.waves=malloc(config.waves_size*sizeof(wave)))==0)
 				perror("malloc config.waves loadMap");
 			memset(config.waves,0,config.waves_size*sizeof(wave));
 			for(i=0;i<config.waves_size;i++){
 				int j;
-				err=fscanf(file,"%s %d %d\n",buf,&config.waves[i].parts_num,&config.waves[i].delay);
+				err=fscanf(file,"%s %d %f\n",buf,&config.waves[i].parts_num,&f);
+				config.waves[i].delay=f*TPS;
 				if((config.waves[i].parts=malloc(config.waves[i].parts_num*sizeof(wave_part)))==0)
 					perror("malloc config.waves[i].parts loadMap");
 				memset(config.waves[i].parts,0,config.waves[i].parts_num*sizeof(wave_part));
 				for(j=0;j<config.waves[i].parts_num;j++){
-					err=fscanf(file,"%d %d %d %d\n",&config.waves[i].parts[j].point,
+					err=fscanf(file,"%d %d %d %f\n",&config.waves[i].parts[j].point,
 											&config.waves[i].parts[j].npc_type,
 											&config.waves[i].parts[j].num,
-											&config.waves[i].parts[j].delay);
+											&f);
+					config.waves[i].parts[j].delay=f*TPS;
 				}
 			}
 			continue;
