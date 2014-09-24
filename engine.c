@@ -230,10 +230,11 @@ void processWaves(gnode* grid){
 
 //player 
 void setupPlayer(int id,int group,int base_health,tower* base){
-	config.players[id].id=getGlobalId();
+	config.players[id].id=id;//getGlobalId();
 	config.players[id].group=group;
 	config.players[id].base_health=base_health;
 	config.players[id].base=base;
+	setTowerBase(base);
 	if (id!=0)
 		config.players_num++;
 }

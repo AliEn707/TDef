@@ -184,7 +184,7 @@ struct tower{
 typedef
 struct npc{
 	char status;
-	char group;
+	int owner;
 	int bit_mask;
 	vec position;
 	vec destination;

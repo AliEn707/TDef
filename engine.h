@@ -39,7 +39,7 @@ some user stuff
 
 
 //player
-void setupPlayer(int id,int isfriend,int base_health,tower* base);
+void setupPlayer(int id,int group,int base_health,tower* base);
 
 void processWaves(gnode* grid);
 

@@ -118,7 +118,7 @@ int tickSendNpc(gnode* grid,npc* n){
 		bit_mask|=NPC_CREATE;
 	sendData(bit_mask);
 	if (checkMask(bit_mask,NPC_CREATE)){
-		sendData(n->group);
+		sendData(n->owner);
 		sendData(n->type);
 	}
 //	if(checkMask(bit_mask,NPC_POSITION) || checkMask(bit_mask,NPC_CREATE))
@@ -156,8 +156,9 @@ int tickSendTower(gnode* grid,tower* t){
 			target=getGridId(t->target->position);
 		sendData(target);
 	}
-	if(checkMask(bit_mask,TOWER_LEVEL) || checkMask(bit_mask,TOWER_CREATE))
+	if(checkMask(bit_mask,TOWER_LEVEL) || checkMask(bit_mask,TOWER_CREATE)){
 		sendData(t->level);
+	}
 	if(checkMask(bit_mask,TOWER_HEALTH) || checkMask(bit_mask,TOWER_CREATE))
 		sendData(t->health);
 	return 0;

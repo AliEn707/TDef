@@ -24,7 +24,7 @@ npc* newNpc(){
 
 
 npc* addNpc(gnode* node,npc* n){
-	npc **root=&node->npcs[(int)n->group];
+	npc **root=&node->npcs[config.players[n->owner].group];
 	if (*root==0){
 		*root=n;
 		return n;
@@ -42,7 +42,7 @@ npc* addNpc(gnode* node,npc* n){
 npc*  getNpc(gnode* grid,npc* n){
 	npc* tmp;
 	gnode * node=&grid[(int)getGridId(n->position)];
-	npc **root=&node->npcs[(int)n->group];
+	npc **root=&node->npcs[config.players[n->owner].group];
 	if (*root!=0){
 		tmp=*root;
 		if (*root==n){
@@ -77,16 +77,17 @@ void setNpcBase(npc* n){
 }
 
 
-npc* spawnNpc(gnode* grid,int node_id,int group,int type){
+npc* spawnNpc(gnode* grid,int node_id,int owner,int type){
 	npc* n;
 	if((n=newNpc())==0)
 		perror("newNpc spawnNpc");
-	n->group=group;
+	n->owner=owner;
 	n->status=IN_MOVE;
 	n->position.x=getGridx(node_id);
 	n->position.y=getGridy(node_id);
 	n->path_count=NPC_PATH;
-	n->level=0;
+	n->level=type;	
+//	n->level=0;	
 	n->bit_mask=0;
 	setMask(n,NPC_CREATE);
 	memcpy(&n->destination,&n->position,sizeof(vec));
@@ -111,7 +112,7 @@ tower* findNearTower(gnode* grid,npc* n,int range){
 			if (((xid=x+config.area_array[i][j].x)>=0 && x+config.area_array[i][j].x<config.gridsize) &&
 					((yid=y+config.area_array[i][j].y)>=0 && y+config.area_array[i][j].y<config.gridsize))
 				if (grid[to2d(xid,yid)].tower!=0)
-					if(config.players[grid[to2d(xid,yid)].tower->owner].group!=n->group)
+					if(config.players[grid[to2d(xid,yid)].tower->owner].group!=config.players[n->owner].group)
 						if (canSee(grid,&(vec){n->position.x,n->position.y},&(vec){xid+0.5,yid+0.5})>0 && rand()%100<80) //can see check, in 70%
 //							if(canWalkThrough(grid,&(vec){n->position.x,n->position.y},&(vec){xid+0.5,yid+0.5})>0){//try this || rand()%100<30){//can walk check or rand<30%
 							if(sqr(n->position.x-(xid+0.5))+sqr(n->position.y-(yid+0.5))<=sqr(range)){//try this || rand()%100<30){//can walk check or rand<30%
@@ -142,7 +143,7 @@ npc* findNearNpc(gnode* grid,npc* n,int range){
 			if (((xid=x+config.area_array[i][j].x)>=0 && x+config.area_array[i][j].x<config.gridsize) &&
 					((yid=y+config.area_array[i][j].y)>=0 && y+config.area_array[i][j].y<config.gridsize))
 				for (k=0;k<MAX_GROUPS;k++)
-						if (k!=n->group)
+						if (k!=config.players[n->owner].group)
 							for(tmp=grid[to2d(xid,yid)].npcs[k];
 									tmp!=0;tmp=tmp->next)
 								if (canWalkThrough(grid,&n->position,&tmp->position)>0)
@@ -197,7 +198,7 @@ int tickTargetNpc(gnode* grid,npc* n){
 				goto out;
 			
 			int id;
-			if((id=findEnemyBase((int)n->group))<0)
+			if((id=findEnemyBase(config.players[n->owner].group))<0)
 				return 0;  
 			
 			if ((n->ttarget=grid[id].tower)==0)
@@ -219,11 +220,11 @@ int tickAttackNpc(gnode* grid,npc* n){
 		//-attacking
 		//else set IN_MOVE
 		//???????
-		if (rand()%100<8){
-			n->ntarget=0;
-			n->ttarget=0;
-			return 0;
-		}
+//		if (rand()%100<8){
+//			n->ntarget=0;
+//			n->ttarget=0;
+//			return 0;
+//		}
 //		printf("\t %d %d %d\n",n->id,n->attack_count,config.npc_types[n->type].attack_speed);
 		if (n->ntarget!=0){
 			if (sqr(n->ntarget->position.x-n->position.x)+
@@ -251,7 +252,7 @@ int tickAttackNpc(gnode* grid,npc* n){
 				b->type=config.npc_types[n->type].bullet_type;
 				b->damage=config.npc_types[n->type].damage;
 				b->support=config.npc_types[n->type].support;
-				b->group=n->group;
+				b->group=config.players[n->owner].group;
 				b->owner=n->id;
 				setMask(b,BULLET_CREATE);
 	//			b->target=TOWER;
@@ -287,7 +288,7 @@ int tickAttackNpc(gnode* grid,npc* n){
 				b->type=config.npc_types[n->type].bullet_type;
 				b->damage=config.npc_types[n->type].damage;
 				b->support=config.npc_types[n->type].support;
-				b->group=n->group;
+				b->group=config.players[n->owner].group;
 				b->owner=n->id;
 				setMask(b,BULLET_CREATE);
 //				b->target=TOWER;

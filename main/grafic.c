@@ -217,7 +217,7 @@ int main(int argc, char **argv)
 //	timePassed(0);
 	npc* n=spawnNpc(grid,4,1,1);
 	npc* n2=spawnNpc(grid,5,1,2);
-	spawnNpc(grid,6,0,3);
+	spawnNpc(grid,6,2,3);
 	setupPlayer(1,1,2000,0);
 	setupPlayer(2,0,1800,0);
 	spawnTower(grid,75,1,BASE);

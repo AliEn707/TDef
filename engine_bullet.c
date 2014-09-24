@@ -75,7 +75,7 @@ int tickProcessBullet(gnode * grid,bullet * b){
 				for(j=0;j<MAX_GROUPS;j++)
 					for(tmp=grid[to2d((int)b->position.x,(int)b->position.y)].npcs[j];
 						tmp!=0;tmp=tmp->next)
-							if (tmp->group!=b->group)
+							if (config.players[tmp->owner].group!=b->group)
 								if (eqInD(tmp->position.x,b->position.x,delta)&&
 									eqInD(tmp->position.y,b->position.y,delta))
 								//attack npc near the destination 
@@ -96,7 +96,7 @@ int tickProcessBullet(gnode * grid,bullet * b){
 						for(k=0;k<MAX_GROUPS;k++)
 							for(tmp=grid[to2d(xid,yid)].npcs[k];
 								tmp!=0;tmp=tmp->next)
-									if (tmp->group!=b->group)
+									if (config.players[tmp->owner].group!=b->group)
 										if (eqInD(tmp->position.x,b->position.x,delta)&&
 											eqInD(tmp->position.y,b->position.y,delta))
 										//attack first npc in gnode, need to correct

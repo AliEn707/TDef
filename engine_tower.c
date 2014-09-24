@@ -7,13 +7,13 @@
 
 
 tower* damageTower(tower* t,bullet* b){
-	if(t->type==BASE){
-		config.players[t->owner].base_health-=b->damage;
-		setMask((&config.players[t->owner]),PLAYER_HEALTH);
-	}else{
+//	if(t->type==BASE){
+//		config.players[t->owner].base_health-=b->damage;
+//		setMask((&config.players[t->owner]),PLAYER_HEALTH);
+//	}else{
 		t->health-=b->damage;
 		setMask(t,TOWER_HEALTH);
-	}
+//	}
 	return t;
 }
 
@@ -40,8 +40,12 @@ tower* diedCheckTower(tower* n){
 
 
 void setTowerBase(tower* t){
-	{
-		t->health=config.tower_types[t->type].health;
+	if (t!=0){
+		if (t->type==BASE){
+			t->health=config.players[t->owner].base_health;
+		}else{
+			t->health=config.tower_types[t->type].health;
+		}
 		t->energy=config.tower_types[t->type].energy;
 	}
 }
