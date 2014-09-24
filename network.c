@@ -42,7 +42,7 @@ int processMessage(worker_arg * data,char type){
 			return -1;
 		}
 //		printf("spawn tower %d on %d\n",node_id,t_id);
-		spawnTower(data->grid,node_id,data->id,t_id);
+		spawnTower(data->grid,node_id,data->id,config.players[data->id].tower_set[t_id].id);
 		return 0;
 	}
 	if (type==MSG_SPAWN_NPC){

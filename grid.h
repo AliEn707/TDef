@@ -21,6 +21,8 @@
 #define MAX_AREA 33
 
 #define PLAYER_MAX 8
+#define TOWER_SET_NUM 9
+#define NPC_SET_NUM 9
 
 //player types
 #define PC 0
@@ -244,6 +246,14 @@ struct player{
 	int group; //player number [0-7]
 	int base_health;
 	char first_send;
+	struct {
+		int id;
+		int num;
+	} tower_set[TOWER_SET_NUM];
+	struct {
+		int id;
+		int num;
+	} npc_set[NPC_SET_NUM];
 	tower * base;
 } player;
 
@@ -253,6 +263,7 @@ struct wave_part{
 	int point;
 	int npc_type;
 	int num;
+	int level;
 	unsigned int delay;
 	int spawned;
 } wave_part;
