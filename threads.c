@@ -108,11 +108,12 @@ void * threadListener(void * arg){
 		//add get player data
 		
 		//setup player
+		int id=1;
 		semop(config.sem.player,&sem[0],1);
-		setupPlayer(1,1,2000,0);
+		setupPlayer(id,1,2000,spawnTower(data->grid,config.bases[0].position,id,BASE));
 		semop(config.sem.player,&sem[1],1);
 		//start worker
-		if (startWorker(sock,1,data->grid)<=0)
+		if (startWorker(sock,id,data->grid)<=0)
 			perror("startWorker");
 		//need to change later
 		//break;

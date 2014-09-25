@@ -62,7 +62,7 @@ tower* spawnTower(gnode * grid,int node_id,int owner,int type){
 	t->position=node_id;
 	t->type=type;
 	t->bit_mask=0;
-	t->level=1;
+	t->level=type;//1;
 	setMask(t,TOWER_CREATE);
 	setTowerBase(t);
 	node->tower=t;

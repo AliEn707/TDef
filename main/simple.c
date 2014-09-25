@@ -139,9 +139,10 @@ int main(int argc, char* argv[]){
 	spawnNpc(grid,5,0,2);
 	spawnNpc(grid,6,0,3);
 //	setupPlayer(2,0,1800,0);
-	spawnTower(grid,75,1,BASE);
-	spawnTower(grid,22,1,2);
+//	spawnTower(grid,75,1,BASE);
+//	spawnTower(grid,22,1,2);
 	int i;
+	//for testing
 	for (i=0;i<5;i++){
 		config.players[1].tower_set[i].id=i;
 		config.players[1].tower_set[i].num=-1;
