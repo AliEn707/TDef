@@ -349,7 +349,9 @@ int tickMoveNpc(gnode* grid,npc* n){
 					if (n->path_count>=NPC_PATH){
 						memset(n->path,-1,sizeof(int)*NPC_PATH);
 						if(aSearch(grid,
-								grid+n->ttarget->position,
+								n->ttarget!=0?
+									(grid+n->ttarget->position):
+									(grid+getGridId(n->ntarget->position)),
 								grid+getGridId(n->position),
 								n->path)<0)
 							perror("aSearch tickMoveNpc");

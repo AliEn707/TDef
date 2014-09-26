@@ -144,7 +144,7 @@ int main(int argc, char* argv[]){
 	int i;
 	//for testing
 	for (i=0;i<5;i++){
-		config.players[1].tower_set[i].id=i;
+		config.players[1].tower_set[i].id=i+1;
 		config.players[1].tower_set[i].num=-1;
 	}
 	//npc* n3=

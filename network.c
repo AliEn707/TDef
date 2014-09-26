@@ -32,7 +32,7 @@ int recvData(int sock, void * buf, int size){
 int processMessage(worker_arg * data,char type){
 	if (type==MSG_SPAWN_TOWER){
 		int node_id=0;
-		int t_id=0;
+		short t_id=0;
 		if(recvData(data->sock,&node_id,sizeof(node_id))<0){
 			perror("recv Message");
 			return -1;
@@ -41,7 +41,7 @@ int processMessage(worker_arg * data,char type){
 			perror("recv Message");
 			return -1;
 		}
-//		printf("spawn tower %d on %d\n",node_id,t_id);
+		printf("spawn tower %hd on %hd\n",node_id,t_id);
 		spawnTower(data->grid,node_id,data->id,config.players[data->id].tower_set[t_id].id);
 		return 0;
 	}
