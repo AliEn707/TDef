@@ -75,7 +75,8 @@ gnode * loadMap(char *filepath){
 			int base;
 			int base_health;
 			err=fscanf(file,"%d %d\n",&base,&base_health);
-			setupPlayer(PC,ENEMY,base_health,spawnTower(grid,config.bases[base].position,PC,BASE));
+			setupPlayer(PC,ENEMY,base_health);
+			setPlayerBase(PC,spawnTower(grid,config.bases[base].position,PC,BASE));
 			continue;
 		}
 		if (strcmp(buf,"bases")==0){

@@ -53,7 +53,10 @@ void setTowerBase(tower* t){
 
 tower* spawnTower(gnode * grid,int node_id,int owner,int type){
 	tower* t;
+//	printf("spawn tower %d on %d by %d\n",type,node_id,owner);
 	if (node_id<0 || node_id>=config.gridsize*config.gridsize)
+		return 0;
+	if (grid[node_id].tower!=0)
 		return 0;
 	gnode* node=&grid[node_id];
 	if((t=newTower())==0)

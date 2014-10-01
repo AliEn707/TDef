@@ -55,13 +55,7 @@ int tickProcessBullet(gnode * grid,bullet * b){
 				tower * tmp;
 				if ((tmp=grid[to2d((int)b->position.x,(int)b->position.y)].tower)>0)
 					if(config.players[tmp->owner].group!=b->group){
-						if(tmp->type==BASE){
-							config.players[tmp->owner].base_health-=b->damage;
-							setMask((&config.players[tmp->owner]),PLAYER_HEALTH);
-						}else{
-							tmp->health-=b->damage;
-							setMask(tmp,TOWER_HEALTH);
-						}
+						damageTower(tmp,b);
 						multiple++;
 					}
 			}	
@@ -127,13 +121,7 @@ int tickProcessBullet(gnode * grid,bullet * b){
 									if(config.bullet_types[(int)b->type].attack_type==AREA?
 											config.players[grid[to2d(xid,yid)].tower->owner].group!=b->group
 											:1){
-										if (grid[to2d(xid,yid)].tower->type!=BASE){
-											config.players[grid[to2d(xid,yid)].tower->owner].base_health-=b->damage;
-											setMask((&config.players[grid[to2d(xid,yid)].tower->owner]),PLAYER_HEALTH);
-										}else{
-											grid[to2d(xid,yid)].tower->health-=b->damage;
-											setMask(grid[to2d(xid,yid)].tower,TOWER_HEALTH);
-										}
+										damageTower(grid[to2d(xid,yid)].tower,b);
 									}
 							//npc
 							for (k=0;k<MAX_GROUPS;k++)

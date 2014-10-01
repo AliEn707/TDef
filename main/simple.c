@@ -93,6 +93,7 @@ int main(int argc, char* argv[]){
 	int listener;
 	int err;
 	FILE * file;
+	
 	if (argc>1){
 		parseArgv(argc,argv);//get game.port, game.token
 		if ((file=fopen("manager.ini","r"))!=0){
@@ -141,11 +142,14 @@ int main(int argc, char* argv[]){
 //	setupPlayer(2,0,1800,0);
 //	spawnTower(grid,75,1,BASE);
 //	spawnTower(grid,22,1,2);
-	int i;
-	//for testing
+	int i,j;
+	//for testing change to get from server
 	for (i=0;i<5;i++){
-		config.players[1].tower_set[i].id=i+1;
-		config.players[1].tower_set[i].num=-1;
+		
+		for (j=0;j<5;j++){
+			config.players[i].tower_set[j].id=i+1;
+			config.players[i].tower_set[j].num=-1;
+		}
 	}
 	//npc* n3=
 	spawnNpc(grid,42,0,2);

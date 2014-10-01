@@ -192,24 +192,41 @@ int tickSendBullet(gnode* grid,bullet * b){
 	return 0;
 }
 
-int sendPlayers(int sock,int player){
+int sendPlayers(int sock,int id){
 	int i;
+	int bit_mask;
+	char mes;
 	if (sock==0)
 		return 0;
-	for(i=0;i<=config.players_num;i++)
-		if(i!=player){
-			if(checkMask(config.players[i].bit_mask,PLAYER_HEALTH)){
-				char mes=MSG_PLAYER;
-				sendData(mes);
-				sendData(i);
-				sendData(config.players[i].base_health);
-			}
-		}
+	for(i=0;i<=config.players_num;i++){
+		bit_mask=config.players[i].bit_mask;
+		if (config.players[id].first_send!=0)
+			bit_mask|=PLAYER_CREATE;
+		mes=MSG_PLAYER;
+		sendData(mes);
+		sendData(i);
+		sendData(bit_mask);
+		if(checkMask(bit_mask,PLAYER_CREATE)){
+			sendData(config.players[i].id);
+			sendData(config.players[i].tower_set);
+			sendData(config.players[i].npc_set);
+			sendData(config.players[i].group);
+		}	
+		if(checkMask(bit_mask,PLAYER_HEALTH) || checkMask(bit_mask,PLAYER_CREATE))
+			sendData(config.players[i].base_health);
+		
+	}
 	return 0;
 }
 
 int sendTest(int sock){
 	char mes=MSG_TEST;
 	sendData(mes);
+	return 0;
+}
+
+int networkAuth(worker_arg *data){
+	int sock=data->sock;
+	sendData(data->id);
 	return 0;
 }

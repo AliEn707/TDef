@@ -22,13 +22,16 @@
 void * threadWorker(void * arg){
 	worker_arg *data=arg;
 	struct sembuf sem[3]={{0,0,0},
-					 {1,-1,0},
-					 {2,0,0}};
+						{1,-1,0},
+						{2,0,0}};
 	struct sembuf sem_pl[2]={{0,-1,0},
-					     {0,1,0}};
+						  {0,1,0}};
 	int i;
 	char msg_type;
 	config.players[data->id].first_send=1;
+	//send start data
+	if (networkAuth(data)!=0)
+		return (void *)-1;
 	//printf("sock %d\n",data->sock);
 	while(config.game.run!=0){
 	//	printf("work\n");
@@ -52,6 +55,8 @@ void * threadWorker(void * arg){
 		if(forEachTower((gnode*)data,tickSendTower)<0)
 			break;
 		if(forEachBullet((gnode*)data,tickSendBullet)<0)
+			break;
+		if (sendPlayers(data->sock,data->id)<0)
 			break;
 		//while(semctl(config.sem.send,1,GETVAL)!=config.players_num)
 		semOp(1);
@@ -89,7 +94,7 @@ void * threadListener(void * arg){
 	int listener=data->sock;
 	int sock;
 	struct sembuf sem[2]={{0,-1,0},
-					{0,1,0}};
+						{0,1,0}};
 	config.players_num=0;
 	//
 	config.game.players=3;
@@ -105,12 +110,17 @@ void * threadListener(void * arg){
 		}
 		//check connected user
 		printf("client connected\n");
+		config.players_num++;
 		//add get player data
 		
-		//setup player
-		int id=1;
+		//setup player change to get from server
+		int id=config.players_num;
 		semop(config.sem.player,&sem[0],1);
-		setupPlayer(id,1,2000,spawnTower(data->grid,config.bases[0].position,id,BASE));
+		/////
+		setupPlayer(id,id/*group*/,2000/*base health*/);
+//		printf("player id %d base %d on %d \n",id,config.players[id].base_id,config.bases[config.players[id].base_id].position);
+		
+		setPlayerBase(id,spawnTower(data->grid,config.bases[config.players[id].base_id].position,id,BASE));
 		semop(config.sem.player,&sem[1],1);
 		//start worker
 		if (startWorker(sock,id,data->grid)<=0)

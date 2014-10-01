@@ -75,6 +75,7 @@
 #define checkMask(z,x) z&x
 
 #define PLAYER_HEALTH 1
+#define PLAYER_CREATE 4
 
 #define NPC_HEALTH 1
 #define NPC_POSITION 2
@@ -244,7 +245,6 @@ struct player{
 	int id;
 	int bit_mask;
 	int group; //player number [0-7]
-	int base_health;
 	char first_send;
 	struct {
 		int id;
@@ -254,7 +254,11 @@ struct player{
 		int id;
 		int num;
 	} npc_set[NPC_SET_NUM];
+	int base_id;
 	tower * base;
+	
+	int base_health;
+	int money;
 } player;
 
 

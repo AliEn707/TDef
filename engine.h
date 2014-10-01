@@ -37,9 +37,11 @@ some user stuff
 
 */
 
+void processWaves(gnode* grid);
+
 
 //player
-void setupPlayer(int id,int group,int base_health,tower* base);
+void setupPlayer(int id,int group,int base_health);
 
-void processWaves(gnode* grid);
+void setPlayerBase(int id,tower* base);
 
