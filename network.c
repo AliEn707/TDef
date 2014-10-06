@@ -227,6 +227,10 @@ int sendTest(int sock){
 
 int networkAuth(worker_arg *data){
 	int sock=data->sock;
+	int tmp;
 	sendData(data->id);
+	//latency check
+	recvData(sock,&tmp,sizeof(tmp));
+	sendData(tmp);
 	return 0;
 }
