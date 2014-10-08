@@ -254,7 +254,7 @@ struct player{
 		int id;
 		int num;
 	} npc_set[NPC_SET_NUM];
-	int base_id;
+	int base_id; //id od base in list
 	tower * base;
 	
 	int base_health;
@@ -290,7 +290,7 @@ typedef
 struct base{
 	int id;
 	int position;
-	int spawn_position;
+	int point_id;
 } base;
 
 typedef 

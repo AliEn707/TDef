@@ -46,7 +46,16 @@ int processMessage(worker_arg * data,char type){
 		return 0;
 	}
 	if (type==MSG_SPAWN_NPC){
-		
+		int n_id=0;
+		if (recvData(data->sock,&n_id,sizeof(n_id))<0){
+			perror("recv Message");
+			return -1;
+		}
+		printf("spawn npc %d on %d\n",config.players[data->id].npc_set[n_id].id,config.points[config.bases[config.players[data->id].base_id].point_id].position);
+		spawnNpc(data->grid,
+				config.points[config.bases[config.players[data->id].base_id].point_id].position,
+				data->id,
+				config.players[data->id].npc_set[n_id].id);
 		return 0;
 	}
 	return -1;

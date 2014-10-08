@@ -88,7 +88,7 @@ gnode * loadMap(char *filepath){
 			for(i=0;i<config.bases_size;i++){
 				int j;
 				err=fscanf(file,"%d ",&j);
-				err=fscanf(file,"%d %d\n",&config.bases[j].position,&config.bases[j].spawn_position);
+				err=fscanf(file,"%d %d\n",&config.bases[j].position,&config.bases[j].point_id);
 				config.bases[j].id=j;
 			}
 			continue;

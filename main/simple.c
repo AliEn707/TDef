@@ -146,9 +146,11 @@ int main(int argc, char* argv[]){
 	//for testing change to get from server
 	for (i=0;i<5;i++){
 		
-		for (j=0;j<5;j++){
-			config.players[i].tower_set[j].id=i+1;
+		for (j=0;j<9;j++){
+			config.players[i].tower_set[j].id=j+1;
 			config.players[i].tower_set[j].num=-1;
+			config.players[i].npc_set[j].id=j+1;
+			config.players[i].npc_set[j].num=-1;
 		}
 	}
 	//npc* n3=
