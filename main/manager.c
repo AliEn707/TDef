@@ -35,7 +35,12 @@ messages and commands must be described in this file or another
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <unistd.h>
+#include <pthread.h>
 //#include <netdb.h>
+
+#define MANAGER "manager.ini"
+
+int stop = 0;
 
 int recvData(int sock, void * buf, int size){
 	int need=size;
@@ -54,10 +59,10 @@ int recvData(int sock, void * buf, int size){
 	return size;
 }
 
-int main() {
+void * manager(void * arg) {
 	FILE * manager_file;
 	char buffer [100];
-	manager_file = fopen ("manager.ini" , "r");
+	manager_file = fopen (MANAGER, "r");
 	int menport  = 7922, servnum  = 0, startport = 0;//default values
 	if (manager_file == NULL) 
 		perror ("Can't read config file manager.ini");
@@ -72,7 +77,7 @@ int main() {
 		fclose (manager_file);
 	}
 	
-	key_t key_token = ftok("manager.ini", 100);//TODO: add correct filename ad path to file "server"
+	key_t key_token = ftok(MANAGER, 100);//TODO: add correct filename ad path to file "server"
 	struct sembuf sem_server;
 	memset(&sem_server, 0, sizeof(sem_server));
 	int sem_id = semget(key_token, 1, IPC_CREAT); //generate semaphore id
@@ -97,7 +102,7 @@ int main() {
 	if (listen(listener, 1)<0)
 		perror("Failed to listen");
 	int sock = 0;
-	while (1) {
+	while (!stop) {
 		if ((sock = accept(listener, NULL, NULL))<0)
 			perror("Failed to accept");
 		char msg_type;//TODO: maybe fix!
@@ -136,6 +141,27 @@ int main() {
 			}
 		}
 	}
+	if (semctl(sem_id, 0, IPC_RMID) == -1)
+		perror("semctl in manager");
+	if (shmdt(ports_info) == -1)
+		perror("shmdt in manager");
+	if (shmctl(shared_id, IPC_RMID, 0) == -1)
+		perror("shmctl in manager");
 	return 0;
+}
+
+// функция для остановки потоков и освобождения ресурсов
+void DestroyWorkThread()
+{
+	stop = 1;
+}
+ 
+// функция которая инициализирует рабочие потоки
+int InitWorkThread()
+{
+	pthread_t th = 0;
+	if (pthread_create(&th, 0, manager, 0) != 0)
+		return 0;
+	return th;
 }
 
