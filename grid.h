@@ -17,7 +17,7 @@
 
 #define TPS 8
 
-#define NPC_PATH 5
+#define NPC_PATH 10
 #define MAX_AREA 33
 
 #define PLAYER_MAX 8

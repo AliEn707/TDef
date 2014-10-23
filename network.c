@@ -8,9 +8,27 @@
 #include "engine_npc.h"
 #include "engine_bullet.h"
 
-#define sendData(x) if(send(sock,&x,sizeof(x),MSG_NOSIGNAL)<=0) return -1
+#define sendData(x) if(_sendData(sock,&x,sizeof(x))<=0) return -1
 
 #define getSem(x) semget(IPC_PRIVATE, x, 0755 | IPC_CREAT)
+
+
+int _sendData(int sock, void * buf, int size){
+	int need=size;
+	int get;
+	get=send(sock,buf,need,MSG_NOSIGNAL);
+	if (get<=0)
+		return get;
+	if (get==need)
+		return get;
+	printf("send not all\n");
+	while(need>0){
+		need-=get;
+		if((get=send(sock,buf+(size-need),need,MSG_NOSIGNAL))<=0)
+			return get;
+	}
+	return size;
+}
 
 int recvData(int sock, void * buf, int size){
 	int need=size;
@@ -30,6 +48,9 @@ int recvData(int sock, void * buf, int size){
 }
 
 int processMessage(worker_arg * data,char type){
+	struct sembuf sem_pl;
+	memset(&sem_pl,0,sizeof(sem_pl));
+	
 	if (type==MSG_SPAWN_TOWER){
 		int node_id=0;
 		short t_id=0;
@@ -41,8 +62,16 @@ int processMessage(worker_arg * data,char type){
 			perror("recv Message");
 			return -1;
 		}
-		printf("spawn tower %hd on %hd\n",node_id,t_id);
+		printf("spawn tower %hd on %hd\n",t_id,node_id);
+		sem_pl.sem_num=0;
+		sem_pl.sem_op=-1;
+		semop(config.sem.player,&sem_pl,1);
+		
 		spawnTower(data->grid,node_id,data->id,config.players[data->id].tower_set[t_id].id);
+		
+		sem_pl.sem_num=0;
+		sem_pl.sem_op=1;
+		semop(config.sem.player,&sem_pl,1);
 		return 0;
 	}
 	if (type==MSG_SPAWN_NPC){
@@ -52,10 +81,19 @@ int processMessage(worker_arg * data,char type){
 			return -1;
 		}
 		printf("spawn npc %d on %d\n",config.players[data->id].npc_set[n_id].id,config.points[config.bases[config.players[data->id].base_id].point_id].position);
+		
+		sem_pl.sem_num=0;
+		sem_pl.sem_op=-1;
+		semop(config.sem.player,&sem_pl,1);
+		
 		spawnNpc(data->grid,
 				config.points[config.bases[config.players[data->id].base_id].point_id].position,
 				data->id,
 				config.players[data->id].npc_set[n_id].id);
+		
+		sem_pl.sem_num=0;
+		sem_pl.sem_op=1;
+		semop(config.sem.player,&sem_pl,1);
 		return 0;
 	}
 	return -1;
@@ -79,15 +117,15 @@ int startServer(int port,gnode * grid){
 	if(listen(listener, 1)<0)
 		perror("listen startServer");
 	
-	if ((config.sem.send=getSem(3))<0)
+	if ((config.sem.send=getSem(4))<0)
 		perror("get semsend startServer");
-	sem.sem_num=0;
+//	sem.sem_num=0;
 	sem.sem_op=1;
 	semop(config.sem.send,&sem,1);
 	
 	if ((config.sem.player=getSem(1))<0)
 		perror("get semsend startServer");
-	sem.sem_num=0;
+//	sem.sem_num=0;
 	sem.sem_op=1;
 	semop(config.sem.player,&sem,1);
 	

@@ -79,8 +79,10 @@ void setNpcBase(npc* n){
 
 npc* spawnNpc(gnode* grid,int node_id,int owner,int type){
 	npc* n;
-	if((n=newNpc())==0)
+	if((n=newNpc())==0){
 		perror("newNpc spawnNpc");
+		return 0;
+	}
 	n->owner=owner;
 	n->status=IN_MOVE;
 	n->position.x=getGridx(node_id);
@@ -302,14 +304,15 @@ int tickAttackNpc(gnode* grid,npc* n){
 		//if finded set IN_ATTACK
 		npc* ntmp=n->ntarget;
 		n->ntarget=0;
-		if (findNearNpc(grid,n,config.npc_types[n->type].attack_distanse)!=0){
+		if (findNearNpc(grid,n,config.npc_types[n->type].see_distanse)!=0){
 			n->status=IN_ATTACK;
+			n->path_count=NPC_PATH;
 			return 0;
 		}
 		n->ntarget=ntmp;
 		tower* ttmp=n->ttarget;
 		n->ttarget=0;
-		if (findNearTower(grid,n,config.npc_types[n->type].attack_distanse)!=0){
+		if (findNearTower(grid,n,config.npc_types[n->type].see_distanse)!=0){
 			n->status=IN_ATTACK;
 			n->path_count=NPC_PATH;
 			return 0;

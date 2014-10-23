@@ -59,8 +59,10 @@ tower* spawnTower(gnode * grid,int node_id,int owner,int type){
 	if (grid[node_id].tower!=0)
 		return 0;
 	gnode* node=&grid[node_id];
-	if((t=newTower())==0)
+	if((t=newTower())==0){
 		perror("newTower spawnTower");
+		return 0;
+	}
 	t->owner=owner;
 	t->position=node_id;
 	t->type=type;

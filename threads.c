@@ -16,14 +16,17 @@
 
 #define getSem(x) semget(IPC_PRIVATE, x, 0666 | IPC_CREAT)
 
-#define semOp(x) semop(config.sem.send,&sem[x],1)
+#define semOp(x) printf("worker %d sem %d=>%d|%d=>%d|%d=>%d before sem %d action %d\n",data->id,0,semctl(config.sem.send,0,GETVAL),1,semctl(config.sem.send,1,GETVAL),2,semctl(config.sem.send,2,GETVAL),sem[x].sem_num,sem[x].sem_op); \
+				semop(config.sem.send,&sem[x],1)
 
 /// worker thread get data from server and change world
 void * threadWorker(void * arg){
 	worker_arg *data=arg;
-	struct sembuf sem[3]={{0,0,0},
+	struct sembuf sem[5]={{0,0,0},
 						{1,-1,0},
-						{2,0,0}};
+						{2,0,0},
+						{3,-1,0},
+						{3,0,0}};
 	struct sembuf sem_pl[2]={{0,-1,0},
 						  {0,1,0}};
 	int i;
@@ -44,12 +47,19 @@ void * threadWorker(void * arg){
 					continue;
 				}else{
 					perror("recv threadWorker");
+					semop(config.sem.send,&sem[3],1);
 					goto out;
 					break;
 				}
 			}
 			processMessage(data,msg_type);
 		}
+		
+		//all threads in one time
+		semOp(3);
+		sleep(0);
+		semOp(4);  //thread 3 stops here
+		
 		if (forEachNpc((gnode*)data,tickSendNpc)<0)
 			break;
 		if(forEachTower((gnode*)data,tickSendTower)<0)
@@ -60,7 +70,8 @@ void * threadWorker(void * arg){
 			break;
 		//while(semctl(config.sem.send,1,GETVAL)!=config.players_num)
 		semOp(1);
-		semOp(2);
+		sleep(0);
+		semOp(2); //thread 4 stops here
 		if (config.players[data->id].first_send!=0)
 			config.players[data->id].first_send=0;
 	}
@@ -93,8 +104,10 @@ void * threadListener(void * arg){
 	worker_arg *data=arg;
 	int listener=data->sock;
 	int sock;
-	struct sembuf sem[2]={{0,-1,0},
-						{0,1,0}};
+	struct sembuf sem[4]={{0,-1,0},
+						{0,1,0},
+						{3,-1,0},
+						{3,1,0}};
 	config.players_num=0;
 	//
 	config.game.players=3;
@@ -102,26 +115,33 @@ void * threadListener(void * arg){
 	while(config.game.run!=0){
 		printf("wait for client\n");
 		
-		if((sock = accept(listener, NULL, NULL))<0)
+		if((sock = accept(listener, NULL, NULL))<0)  //thread 2 stops here
 			perror("accept startServer");
-		if (config.players_num>=config.game.players){
+		
+		if (config.players_num>=config.game.players-1){
 			close(sock);
 			continue;
 		}
 		//check connected user
 		printf("client connected\n");
+		semop(config.sem.player,&sem[0],1);
 		config.players_num++;
 		//add get player data
 		
 		//setup player change to get from server
 		int id=config.players_num;
-		semop(config.sem.player,&sem[0],1);
+		printf("client id set to %d\n",id);
 		/////
+		
 		setupPlayer(id,id/*group*/,2000/*base health*/);
 //		printf("player id %d base %d on %d \n",id,config.players[id].base_id,config.bases[config.players[id].base_id].position);
+		semop(config.sem.player,&sem[1],1);
+		
+		
+		semop(config.sem.send,&sem[2],1);
+		semop(config.sem.send,&sem[3],1);
 		
 		setPlayerBase(id,spawnTower(data->grid,config.bases[config.players[id].base_id].position,id,BASE));
-		semop(config.sem.player,&sem[1],1);
 		//start worker
 		if (startWorker(sock,id,data->grid)<=0)
 			perror("startWorker");

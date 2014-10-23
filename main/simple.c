@@ -9,6 +9,8 @@
 #include "../threads.h"
 //Test main file
 
+#define semInfo() printf("sem %d=>%d|%d=>%d|%d=>%d before sem %d action %d\n",0,semctl(config.sem.send,0,GETVAL),1,semctl(config.sem.send,1,GETVAL),2,semctl(config.sem.send,2,GETVAL),sem.sem_num,sem.sem_op)
+
 void pinfo(){
 	int i=0,
 		j=0,
@@ -74,6 +76,16 @@ void drawGrid(gnode* grid){
 
 
 int main(int argc, char* argv[]){
+	struct sembuf sem;
+	struct sembuf sem_pl;
+	
+	int f_token,f_sem,f_shmem;
+	int f_port;
+	char * f_mem=0;
+	int listener;
+	int err;
+	FILE * file;
+	
 	srand(time(0));
 	memset(&config,0,sizeof(config));
 //	gnode grid[100];
@@ -82,17 +94,9 @@ int main(int argc, char* argv[]){
 //	atexit(clearAll);
 //	sysInit();
 	//glutMainLoop();	
-	struct sembuf sem;
 	memset(&sem,0,sizeof(sem));
-	struct sembuf sem_pl;
-	memset(&sem,0,sizeof(sem_pl));
+	memset(&sem_pl,0,sizeof(sem_pl));
 	
-	int f_token,f_sem,f_shmem;
-	int f_port;
-	char * f_mem=0;
-	int listener;
-	int err;
-	FILE * file;
 	
 	if (argc>1){
 		parseArgv(argc,argv);//get game.port, game.token
@@ -135,10 +139,10 @@ int main(int argc, char* argv[]){
 	//config.player_max=4;
 	//	timePassed(0);
 	//npc* n=
-	spawnNpc(grid,4,0,1);
+//	spawnNpc(grid,4,0,1);
 	//npc* n2=
-	spawnNpc(grid,5,0,2);
-	spawnNpc(grid,6,0,3);
+//	spawnNpc(grid,5,0,2);
+//	spawnNpc(grid,6,0,3);
 //	setupPlayer(2,0,1800,0);
 //	spawnTower(grid,75,1,BASE);
 //	spawnTower(grid,22,1,2);
@@ -154,7 +158,7 @@ int main(int argc, char* argv[]){
 		}
 	}
 	//npc* n3=
-	spawnNpc(grid,42,0,2);
+//	spawnNpc(grid,42,0,2);
 	
 	while(config.players_num==0)
 		sleep(0);
@@ -183,26 +187,37 @@ int main(int argc, char* argv[]){
 		forEachBullet(grid,tickProcessBullet);
 		
 		//set 1
-		sem.sem_num=1;
-		sem.sem_op=config.players_num;
-		
 		sem_pl.sem_num=0;
 		sem_pl.sem_op=-1;
 		semop(config.sem.player,&sem_pl,1);
+		
+		sem.sem_num=1;
+		sem.sem_op=config.players_num;
+		semInfo();
 //		while(semctl(config.sem.send,1,GETVAL)!=config.players_num)
+		semop(config.sem.send,&sem,1);
+		
+		sem.sem_num=3;
+		sem.sem_op=config.players_num;
+		semInfo();
 		semop(config.sem.send,&sem,1);
 		
 		sem_pl.sem_num=0;
 		sem_pl.sem_op=1;
+		usleep(10);
 		semop(config.sem.player,&sem_pl,1);
 		//set 2
 		sem.sem_num=2;
 		sem.sem_op=1;
+		semInfo();
+		usleep(10);
 		//while(semctl(config.sem.send,2,GETVAL)<1)
 		semop(config.sem.send,&sem,1);
 		//drop 0
 		sem.sem_num=0;
 		sem.sem_op=-1;
+		semInfo();
+		usleep(10);
 //		while(semctl(config.sem.send,0,GETVAL)>0)
 		semop(config.sem.send,&sem,1);
 //		if (err<0)
@@ -214,12 +229,15 @@ int main(int argc, char* argv[]){
 		//check 1
 		sem.sem_num=1;
 		sem.sem_op=0;
-		err=semop(config.sem.send,&sem,1);
+		semInfo();
+		err=semop(config.sem.send,&sem,1);  //thread 1 stops here
 		if (err<0)
 			printf("semop err\n");
 		//set 0
 		sem.sem_num=0;
 		sem.sem_op=1;
+		semInfo();
+		usleep(10);
 //		while(semctl(config.sem.send,0,GETVAL)<1)
 		semop(config.sem.send,&sem,1);
 //		if (err<0)
@@ -227,6 +245,7 @@ int main(int argc, char* argv[]){
 		//drop 2
 		sem.sem_num=2;
 		sem.sem_op=-1;
+		semInfo();
 //		while(semctl(config.sem.send,2,GETVAL)>0)
 		semop(config.sem.send,&sem,1);
 //		if (err<0)
