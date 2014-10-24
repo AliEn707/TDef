@@ -24,9 +24,9 @@ void * threadWorker(void * arg){
 	worker_arg *data=arg;
 	struct sembuf sem[5]={{0,0,0},
 						{1,-1,0},
-						{2,0,0},
-						{3,-1,0},
-						{3,0,0}};
+						{1,0,0},
+						{2,-1,0},
+						{2,0,0}};
 	struct sembuf sem_pl[2]={{0,-1,0},
 						  {0,1,0}};
 	int i;
@@ -47,7 +47,7 @@ void * threadWorker(void * arg){
 					continue;
 				}else{
 					perror("recv threadWorker");
-					semop(config.sem.send,&sem[3],1);
+					semOp(3);
 					goto out;
 					break;
 				}

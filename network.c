@@ -117,7 +117,7 @@ int startServer(int port,gnode * grid){
 	if(listen(listener, 1)<0)
 		perror("listen startServer");
 	
-	if ((config.sem.send=getSem(4))<0)
+	if ((config.sem.send=getSem(3))<0)
 		perror("get semsend startServer");
 //	sem.sem_num=0;
 	sem.sem_op=1;

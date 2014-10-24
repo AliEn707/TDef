@@ -9,7 +9,7 @@
 #include "../threads.h"
 //Test main file
 
-#define semInfo() printf("sem %d=>%d|%d=>%d|%d=>%d before sem %d action %d\n",0,semctl(config.sem.send,0,GETVAL),1,semctl(config.sem.send,1,GETVAL),2,semctl(config.sem.send,2,GETVAL),sem.sem_num,sem.sem_op)
+#define semInfo() printf("sem %d=>%d|%d=>%d|%d=>%d before sem %d action %d  %s:%d\n",0,semctl(config.sem.send,0,GETVAL),1,semctl(config.sem.send,1,GETVAL),2,semctl(config.sem.send,2,GETVAL),sem.sem_num,sem.sem_op,__FILE__,__LINE__)
 
 void pinfo(){
 	int i=0,
@@ -79,12 +79,13 @@ int main(int argc, char* argv[]){
 	struct sembuf sem;
 	struct sembuf sem_pl;
 	
-	int f_token,f_sem,f_shmem;
-	int f_port;
+	int f_token,f_sem=0,f_shmem;
+	int f_port=0; //port in shared memmory
 	char * f_mem=0;
 	int listener;
 	int err;
 	FILE * file;
+
 	
 	srand(time(0));
 	memset(&config,0,sizeof(config));
@@ -101,8 +102,9 @@ int main(int argc, char* argv[]){
 	if (argc>1){
 		parseArgv(argc,argv);//get game.port, game.token
 		if ((file=fopen("manager.ini","r"))!=0){
-			int servnum, startport;
 			char buffer[101];
+			int startport; //tmp need to set f_port
+			int servnum; //tmp need to size of shared memory
 			while (!feof (file)) {
 				if (fgets (buffer,100,file) == NULL ) 
 					break;
@@ -125,6 +127,8 @@ int main(int argc, char* argv[]){
 							semop(f_sem, &sem, 1);
 						}
 		}
+		printf("port %d token %d\n",config.game.port,config.game.token);
+		return 0;
 	}
 	
 	gnode* grid;
@@ -192,12 +196,11 @@ int main(int argc, char* argv[]){
 		semop(config.sem.player,&sem_pl,1);
 		
 		sem.sem_num=1;
-		sem.sem_op=config.players_num;
+		sem.sem_op=config.players_num+1;
 		semInfo();
-//		while(semctl(config.sem.send,1,GETVAL)!=config.players_num)
 		semop(config.sem.send,&sem,1);
 		
-		sem.sem_num=3;
+		sem.sem_num=2;
 		sem.sem_op=config.players_num;
 		semInfo();
 		semop(config.sem.send,&sem,1);
@@ -206,26 +209,34 @@ int main(int argc, char* argv[]){
 		sem_pl.sem_op=1;
 		usleep(10);
 		semop(config.sem.player,&sem_pl,1);
-		//set 2
-		sem.sem_num=2;
-		sem.sem_op=1;
-		semInfo();
-		usleep(10);
-		//while(semctl(config.sem.send,2,GETVAL)<1)
-		semop(config.sem.send,&sem,1);
 		//drop 0
 		sem.sem_num=0;
 		sem.sem_op=-1;
 		semInfo();
 		usleep(10);
-//		while(semctl(config.sem.send,0,GETVAL)>0)
 		semop(config.sem.send,&sem,1);
-//		if (err<0)
-//			printf("semop err\n");
 		
 		syncTPS();
 		if(config.players_num==0)
 			break;
+		//check 2
+		sem.sem_num=2;
+		sem.sem_op=0;
+		semInfo();
+		usleep(10);
+		semop(config.sem.send,&sem,1);
+		//set 0
+		sem.sem_num=0;
+		sem.sem_op=1;
+		semInfo();
+		usleep(10);
+		semop(config.sem.send,&sem,1);
+		//drop 1
+		sem.sem_num=1;
+		sem.sem_op=-1;
+		semInfo();
+		usleep(10);
+		semop(config.sem.send,&sem,1);
 		//check 1
 		sem.sem_num=1;
 		sem.sem_op=0;
@@ -233,24 +244,8 @@ int main(int argc, char* argv[]){
 		err=semop(config.sem.send,&sem,1);  //thread 1 stops here
 		if (err<0)
 			printf("semop err\n");
-		//set 0
-		sem.sem_num=0;
-		sem.sem_op=1;
-		semInfo();
-		usleep(10);
-//		while(semctl(config.sem.send,0,GETVAL)<1)
-		semop(config.sem.send,&sem,1);
 //		if (err<0)
 //			printf("semop err\n");
-		//drop 2
-		sem.sem_num=2;
-		sem.sem_op=-1;
-		semInfo();
-//		while(semctl(config.sem.send,2,GETVAL)>0)
-		semop(config.sem.send,&sem,1);
-//		if (err<0)
-//			printf("semop err\n");
-		
 		
 //		int z;
 		//z=timePassed(1);
