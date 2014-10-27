@@ -22,7 +22,7 @@
 /// worker thread get data from server and change world
 void * threadWorker(void * arg){
 	worker_arg *data=arg;
-	struct sembuf sem[5]={{0,0,0},
+	struct sembuf sem[5]={{0,-1,0},
 						{1,-1,0},
 						{1,0,0},
 						{2,-1,0},
@@ -38,7 +38,7 @@ void * threadWorker(void * arg){
 	//printf("sock %d\n",data->sock);
 	while(config.game.run!=0){
 	//	printf("work\n");
-		semOp(0);
+		semOp(3);
 	//	printf("sock %d\n",data->sock);
 		for(i=0;i<10;i++){
 			if (recv(data->sock,&msg_type,sizeof(msg_type),MSG_DONTWAIT)<0){
@@ -72,6 +72,7 @@ void * threadWorker(void * arg){
 		semOp(1);
 		sleep(0);
 		semOp(2); //thread 4 stops here
+		semOp(0);
 		if (config.players[data->id].first_send!=0)
 			config.players[data->id].first_send=0;
 	}

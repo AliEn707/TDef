@@ -120,8 +120,8 @@ int startServer(int port,gnode * grid){
 	if ((config.sem.send=getSem(3))<0)
 		perror("get semsend startServer");
 //	sem.sem_num=0;
-	sem.sem_op=1;
-	semop(config.sem.send,&sem,1);
+//	sem.sem_op=1;
+//	semop(config.sem.send,&sem,1);
 	
 	if ((config.sem.player=getSem(1))<0)
 		perror("get semsend startServer");

@@ -200,8 +200,15 @@ int main(int argc, char* argv[]){
 		semInfo();
 		semop(config.sem.send,&sem,1);
 		
-		sem.sem_num=2;
+		//set 0
+		sem.sem_num=0;
 		sem.sem_op=config.players_num;
+		semInfo();
+		usleep(10);
+		semop(config.sem.send,&sem,1);
+		
+		sem.sem_num=2;
+		sem.sem_op=config.players_num*2;
 		semInfo();
 		semop(config.sem.send,&sem,1);
 		
@@ -209,12 +216,6 @@ int main(int argc, char* argv[]){
 		sem_pl.sem_op=1;
 		usleep(10);
 		semop(config.sem.player,&sem_pl,1);
-		//drop 0
-		sem.sem_num=0;
-		sem.sem_op=-1;
-		semInfo();
-		usleep(10);
-		semop(config.sem.send,&sem,1);
 		
 		syncTPS();
 		if(config.players_num==0)
@@ -222,12 +223,6 @@ int main(int argc, char* argv[]){
 		//check 2
 		sem.sem_num=2;
 		sem.sem_op=0;
-		semInfo();
-		usleep(10);
-		semop(config.sem.send,&sem,1);
-		//set 0
-		sem.sem_num=0;
-		sem.sem_op=1;
 		semInfo();
 		usleep(10);
 		semop(config.sem.send,&sem,1);
@@ -244,6 +239,14 @@ int main(int argc, char* argv[]){
 		err=semop(config.sem.send,&sem,1);  //thread 1 stops here
 		if (err<0)
 			printf("semop err\n");
+		//check 0
+		sem.sem_num=0;
+		sem.sem_op=0;
+		semInfo();
+		err=semop(config.sem.send,&sem,1);  //thread 1 stops here
+		if (err<0)
+			printf("semop err\n");
+		
 //		if (err<0)
 //			printf("semop err\n");
 		

@@ -304,7 +304,7 @@ int tickAttackNpc(gnode* grid,npc* n){
 		//if finded set IN_ATTACK
 		npc* ntmp=n->ntarget;
 		n->ntarget=0;
-		if (findNearNpc(grid,n,config.npc_types[n->type].see_distanse)!=0){
+		if (findNearNpc(grid,n,(rand()%100<60)?config.npc_types[n->type].see_distanse:config.npc_types[n->type].attack_distanse)!=0){
 			n->status=IN_ATTACK;
 			n->path_count=NPC_PATH;
 			return 0;
@@ -312,7 +312,7 @@ int tickAttackNpc(gnode* grid,npc* n){
 		n->ntarget=ntmp;
 		tower* ttmp=n->ttarget;
 		n->ttarget=0;
-		if (findNearTower(grid,n,config.npc_types[n->type].see_distanse)!=0){
+		if (findNearTower(grid,n,(rand()%100<60)?config.npc_types[n->type].see_distanse:config.npc_types[n->type].attack_distanse)!=0){
 			n->status=IN_ATTACK;
 			n->path_count=NPC_PATH;
 			return 0;

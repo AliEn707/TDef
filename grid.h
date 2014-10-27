@@ -365,7 +365,8 @@ engine_config config;
 #define idtox(id)  (id/config.gridsize)
 #define idtoy(id)  (id%config.gridsize)
 
-#define sqr(x)  ((x)*(x))
+#define sqr(x) ({typeof(x) $x=(x); ($x)*($x);})//check this
+
 #define eqInD(a,b,eq) (fabs(a-b)<=eq)
 //////
 #define setVecto0(v) memset(&v,0,sizeof(vec))
