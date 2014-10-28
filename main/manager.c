@@ -102,60 +102,69 @@ void * manager(void * arg) {
 	if (listen(listener, 1)<0)
 		perror("Failed to listen");
 	int sock = 0;
+	fd_set read_fds;
+	struct timeval tv;
+	tv.tv_sec = 0;
+	tv.tv_usec = 100000;
 	while (!stop) {
-		if ((sock = accept(listener, NULL, NULL))<0)
-			perror("Failed to accept");
-		char msg_type;//TODO: maybe fix!
-		if (fcntl(sock, F_SETFD, fcntl(sock, F_GETFD) | FD_CLOEXEC) == -1)
-			perror("Failed to set socket attributes");
-		if (recvData(sock, &msg_type, sizeof(msg_type)) <= 0) {
-			close(sock);
-			continue;
-		}
-		//TODO: check client auth
-		int room_data = 0;
-		if (recvData(sock, &room_data, sizeof(room_data)) <= 0) {
-			close(sock);
-			continue;
-		}
-		sem_server.sem_op = -1;
-		semop(sem_id, &sem_server, 1);
-		int i = 0, flag = -1;
-		for(; i < servnum; i++)
-			if (ports_info[i] == 0) {
-				flag = i;
-				break; 
+		FD_ZERO(&read_fds);
+		FD_SET(listener, &read_fds);
+		if (select (listener + 1, &read_fds, 0, 0, &tv) > 0) {
+			if ((sock = accept(listener, NULL, NULL))<0)
+				perror("Failed to accept");
+			char msg_type;//TODO: maybe fix!
+			if (fcntl(sock, F_SETFD, fcntl(sock, F_GETFD) | FD_CLOEXEC) == -1)
+				perror("Failed to set socket attributes");
+			if (recvData(sock, &msg_type, sizeof(msg_type)) <= 0) {
+				close(sock);
+				continue;
 			}
-		sem_server.sem_op = 1;
-		semop(sem_id, &sem_server, 1);
-		pid_t pid;
-		if (flag != -1) {
-			char port_arg[15], token_arg[15];
-			switch (pid = fork()) { //create child process
-				case -1:
-					perror("Failed to fork");
-					exit(1);//TODO: send error report
-				case 0: //child process
-					sprintf(port_arg, "%d", flag);
-					sprintf(token_arg, "%d", room_data);
-					printf("!!!\n");
-					if (execlp("./server", "./server", "-port", port_arg, "-token", token_arg, 0) < 0) {//if (execlp("/bin/ls", "ls", 0, 0) < 0) {
-						printf("0000\n");
-						close(sock);
-					}
-					break;
-				default:
-					close(sock);											
+			//TODO: check client auth
+			int room_data = 0;
+			if (recvData(sock, &room_data, sizeof(room_data)) <= 0) {
+				close(sock);
+				continue;
+			}
+			sem_server.sem_op = -1;
+			semop(sem_id, &sem_server, 1);
+			int i = 0, flag = -1;
+			for(; i < servnum; i++)
+				if (ports_info[i] == 0) {
+					flag = i;
+					break; 
+				}
+			sem_server.sem_op = 1;
+			semop(sem_id, &sem_server, 1);
+			pid_t pid;
+			if (flag != -1) {
+				char port_arg[15], token_arg[15];
+				switch (pid = fork()) { //create child process
+					case -1:
+						perror("Failed to fork");
+						exit(1);//TODO: send error report
+					case 0: //child process
+						sprintf(port_arg, "%d", flag);
+						sprintf(token_arg, "%d", room_data);
+						printf("!!!\n");
+						if (execlp("./server", "./server", "-port", port_arg, "-token", token_arg, 0) < 0) {//if (execlp("/bin/ls", "ls", 0, 0) < 0) {
+							close(sock);
+						}
+						break;
+					default:
+						close(sock);											
+				}
 			}
 		}
+		waitpid(0, 0, WNOHANG);
 	}
+	waitpid(0, 0, WNOHANG);
 	if (semctl(sem_id, 0, IPC_RMID) == -1)
 		perror("semctl in manager");
 	if (shmdt(ports_info) == -1)
 		perror("shmdt in manager");
 	if (shmctl(shared_id, IPC_RMID, 0) == -1)
 		perror("shmctl in manager");
-	printf("aaa\n");
+	printf("Manager exited\n");
 	return 0;
 }
 
