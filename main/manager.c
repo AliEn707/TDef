@@ -36,7 +36,7 @@ messages and commands must be described in this file or another
 #include <netinet/in.h>
 #include <unistd.h>
 #include <pthread.h>
-//#include <netdb.h>
+#include <fcntl.h>
 
 #define MANAGER "manager.ini"
 
@@ -106,6 +106,8 @@ void * manager(void * arg) {
 		if ((sock = accept(listener, NULL, NULL))<0)
 			perror("Failed to accept");
 		char msg_type;//TODO: maybe fix!
+		if (fcntl(sock, F_SETFD, fcntl(sock, F_GETFD) | FD_CLOEXEC) == -1)
+			perror("Failed to set socket attributes");
 		if (recvData(sock, &msg_type, sizeof(msg_type)) <= 0) {
 			close(sock);
 			continue;
@@ -136,8 +138,14 @@ void * manager(void * arg) {
 				case 0: //child process
 					sprintf(port_arg, "%d", flag);
 					sprintf(token_arg, "%d", room_data);
-					execlp("/bin/ls", "ls", 0, 0);//TODO
-					//execlp("server", "-port", port_arg, "-token", token_arg, 0);												
+					printf("!!!\n");
+					if (execlp("./server", "./server", "-port", port_arg, "-token", token_arg, 0) < 0) {//if (execlp("/bin/ls", "ls", 0, 0) < 0) {
+						printf("0000\n");
+						close(sock);
+					}
+					break;
+				default:
+					close(sock);											
 			}
 		}
 	}
@@ -147,6 +155,7 @@ void * manager(void * arg) {
 		perror("shmdt in manager");
 	if (shmctl(shared_id, IPC_RMID, 0) == -1)
 		perror("shmctl in manager");
+	printf("aaa\n");
 	return 0;
 }
 
