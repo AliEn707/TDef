@@ -16,8 +16,8 @@
 
 #define getSem(x) semget(IPC_PRIVATE, x, 0666 | IPC_CREAT)
 
-#define semOp(x) printf("worker %d sem %d=>%d|%d=>%d|%d=>%d before sem %d action %d\n",data->id,0,semctl(config.sem.send,0,GETVAL),1,semctl(config.sem.send,1,GETVAL),2,semctl(config.sem.send,2,GETVAL),sem[x].sem_num,sem[x].sem_op); \
-				semop(config.sem.send,&sem[x],1)
+// printf("worker %d sem %d=>%d|%d=>%d|%d=>%d before sem %d action %d\n",data->id,0,semctl(config.sem.send,0,GETVAL),1,semctl(config.sem.send,1,GETVAL),2,semctl(config.sem.send,2,GETVAL),sem[x].sem_num,sem[x].sem_op); 
+#define semOp(x)				semop(config.sem.send,&sem[x],1)
 
 /// worker thread get data from server and change world
 void * threadWorker(void * arg){
@@ -78,6 +78,8 @@ void * threadWorker(void * arg){
 	}
 out:
 	semOp(1); //drop sem send[1]
+	semOp(0);
+	semOp(2);
 	semop(config.sem.player,&sem_pl[0],1);
 	config.players_num--;
 	semop(config.sem.player,&sem_pl[1],1);
