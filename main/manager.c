@@ -1,4 +1,4 @@
-/*
+﻿/*
 manager
 must:
 parse manager.ini
@@ -33,6 +33,7 @@ messages and commands must be described in this file or another
 #include <sys/sem.h>
 #include <sys/shm.h>
 #include <sys/socket.h>
+#include <sys/wait.h>
 #include <netinet/in.h>
 #include <unistd.h>
 #include <pthread.h>
@@ -62,8 +63,9 @@ int recvData(int sock, void * buf, int size){
 void * manager(void * arg) {
 	FILE * manager_file;
 	char buffer [100];
-	manager_file = fopen (MANAGER, "r");
+	struct sembuf sem_server={0,0,0};
 	int menport  = 7922, servnum  = 0, startport = 0;//default values
+	manager_file = fopen (MANAGER, "r");
 	if (manager_file == NULL) 
 		perror ("Can't read config file manager.ini");
 	else {
@@ -78,9 +80,8 @@ void * manager(void * arg) {
 	}
 	
 	key_t key_token = ftok(MANAGER, 100);//TODO: add correct filename ad path to file "server"
-	struct sembuf sem_server;
 	memset(&sem_server, 0, sizeof(sem_server));
-	int sem_id = semget(key_token, 1, IPC_CREAT); //generate semaphore id
+	int sem_id = semget(key_token, 1, 0755|IPC_CREAT); //generate semaphore id
 	sem_server.sem_num = 0; //index in sem_set
 	sem_server.sem_op = 1; //add 1 to counter
 	semop(sem_id, &sem_server, 1); //perform operation (sem_server.sem_op=1)
@@ -119,18 +120,23 @@ void * manager(void * arg) {
 				close(sock);
 				continue;
 			}
+//			printf("get msg %d\n",msg_type);
 			//TODO: check client auth
 			int room_data = 0;
 			if (recvData(sock, &room_data, sizeof(room_data)) <= 0) {
 				close(sock);
 				continue;
 			}
+//			printf("get token %d\n",room_data);
 			sem_server.sem_op = -1;
+//			printf("sem %d\n",semctl(sem_id,0,GETVAL));
+//			perror("sem");
 			semop(sem_id, &sem_server, 1);
 			int i = 0, flag = -1;
 			for(; i < servnum; i++)
 				if (ports_info[i] == 0) {
-					flag = i;
+					ports_info[i] = -1;
+					flag = i+startport;
 					break; 
 				}
 			sem_server.sem_op = 1;
@@ -145,8 +151,8 @@ void * manager(void * arg) {
 					case 0: //child process
 						sprintf(port_arg, "%d", flag);
 						sprintf(token_arg, "%d", room_data);
-						printf("!!!\n");
-						if (execlp("./server", "./server", "-port", port_arg, "-token", token_arg, 0) < 0) {//if (execlp("/bin/ls", "ls", 0, 0) < 0) {
+						printf("!!!  port  %d token %d\n",flag,room_data);
+						if (execlp("./server", "./server", "-port", port_arg, "-token", token_arg, NULL) < 0) {//if (execlp("/bin/ls", "ls", 0, 0) < 0) {
 							close(sock);
 						}
 						break;
@@ -175,7 +181,7 @@ void DestroyWorkThread()
 }
  
 // функция которая инициализирует рабочие потоки
-int InitWorkThread()
+pthread_t InitWorkThread()
 {
 	pthread_t th = 0;
 	if (pthread_create(&th, 0, manager, 0) != 0)

@@ -1,3 +1,6 @@
+
+#include <pthread.h>
+
 void * manager(void *);
 void DestroyWorkThread();
-int InitWorkThread();
+pthread_t InitWorkThread();

@@ -7,6 +7,7 @@
 #include "../file.h"
 #include "../network.h"
 #include "../threads.h"
+#include "../public.h"
 //Test main file
 
 #define semInfo() printf("sem %d=>%d|%d=>%d|%d=>%d before sem %d action %d  %s:%d\n",0,semctl(config.sem.send,0,GETVAL),1,semctl(config.sem.send,1,GETVAL),2,semctl(config.sem.send,2,GETVAL),sem.sem_num,sem.sem_op,__FILE__,__LINE__)
@@ -98,7 +99,9 @@ int main(int argc, char* argv[]){
 	memset(&sem,0,sizeof(sem));
 	memset(&sem_pl,0,sizeof(sem_pl));
 	
-	
+	sprintf(config.game.map,"test");
+	config.game.port=34140;
+
 	if (argc>1){
 		parseArgv(argc,argv);//get game.port, game.token
 		if ((file=fopen("manager.ini","r"))!=0){
@@ -128,17 +131,24 @@ int main(int argc, char* argv[]){
 						}
 		}
 		printf("port %d token %d\n",config.game.port,config.game.token);
-		return 0;
+		
+		if (publicGetGame()<0){
+			f_mem[f_port]=0;
+			goto end;
+//			return 0;
+		}
+		
 	}
 	
+	printf("initialising\nmap %s\non port %d\n",config.game.map,config.game.port);
 	gnode* grid;
 	
 	initGridMath();
 	//	loadConfig("../test.cfg");
 	loadTypes("../types.cfg");
-	grid=loadMap("../test.mp");
+	grid=loadMap(config.game.map);
 	
-	listener=startServer(34140,grid);
+	listener=startServer(config.game.port,grid);
 	
 	//config.player_max=4;
 	//	timePassed(0);
@@ -264,7 +274,16 @@ int main(int argc, char* argv[]){
 	}
 	printf("closing\n");
 	config.game.run=0;
-	close(listener);
+	close(listener);	
+	
+	realizeMap(grid);
+	realizeTypes();
+	realizeArrays();
+	realizeServer();
+	
+	//add send result of game and closing
+
+end:	
 	if (f_mem!=0){
 		sem.sem_num=0; 
 		sem.sem_op=-1; 
@@ -276,12 +295,7 @@ int main(int argc, char* argv[]){
 		shmdt(f_mem);
 	}
 	
-	realizeMap(grid);
-	realizeTypes();
-	realizeArrays();
-	realizeServer();
 //	memset(&config.wave_current,0,sizeof(config.wave_current));
-	
 	
 //	clearAll(grid);
 	

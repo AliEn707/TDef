@@ -8,11 +8,12 @@
 #include "engine_bullet.h"
 
 //map file parser
-gnode * loadMap(char *filepath){
+gnode * loadMap(char *path){
 	gnode * grid;
 	FILE * file;
 	int err;
-	
+	char filepath[25];
+	sprintf(filepath,"../%s.mp",path);
 	config.global_id=1;
 	memset(config.players,0,sizeof(player)*PLAYER_MAX);
 	initAreaArray();

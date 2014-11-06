@@ -12,6 +12,8 @@
 #include <sys/shm.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
+#include <netdb.h>
 #include <unistd.h> 
 #include <pthread.h>
 
@@ -344,10 +346,12 @@ struct config{
 		} sem;
 		
 	struct {
+		int sock;
 		int port;
 		int token;
 		short run;
 		int players;
+		char map[20];
 		} game;
 } engine_config;
 
