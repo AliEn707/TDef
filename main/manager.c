@@ -60,11 +60,32 @@ int recvData(int sock, void * buf, int size){
 	return size;
 }
 
+//time passed after previous call of function
+static int timePassed(struct timeval * t){
+	//config.time  struct timeval
+	struct timeval end;
+	gettimeofday(&end, NULL);
+	int out=((end.tv_sec - t->tv_sec)*1000000+
+			end.tv_usec - t->tv_usec);
+	memcpy(t,&end,sizeof(end));
+	return out;
+}
+
+static void syncTPS(int z,int TPS){
+	if((z=(1000000/TPS)-z)>0){
+		usleep(z);
+	}
+}
+
+
 void * manager(void * arg) {
 	FILE * manager_file;
 	char buffer [100];
 	struct sembuf sem_server={0,0,0};
 	int menport  = 7922, servnum  = 0, startport = 0;//default values
+	int TPS=10;  //ticks per sec
+	struct timeval tv={0,0};
+	timePassed(&tv);
 	manager_file = fopen (MANAGER, "r");
 	if (manager_file == NULL) 
 		perror ("Can't read config file manager.ini");
@@ -104,13 +125,13 @@ void * manager(void * arg) {
 		perror("Failed to listen");
 	int sock = 0;
 	fd_set read_fds;
-	struct timeval tv;
-	tv.tv_sec = 0;
-	tv.tv_usec = 100000;
+//	struct timeval tv;
+//	tv.tv_sec = 0;
+//	tv.tv_usec = 100000;
 	while (!stop) {
 		FD_ZERO(&read_fds);
 		FD_SET(listener, &read_fds);
-		if (select (listener + 1, &read_fds, 0, 0, &tv) > 0) {
+		if (select (listener + 1, &read_fds, 0, 0, 0/*&tv*/) > 0) {
 			if ((sock = accept(listener, NULL, NULL))<0)
 				perror("Failed to accept");
 			char msg_type;//TODO: maybe fix!
@@ -161,6 +182,7 @@ void * manager(void * arg) {
 				}
 			}
 		}
+		syncTPS(timePassed(&tv),TPS);
 		waitpid(0, 0, WNOHANG);
 	}
 	waitpid(0, 0, WNOHANG);
