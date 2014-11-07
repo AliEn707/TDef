@@ -22,28 +22,20 @@ int parseArgv(int argc,char * argv[]){
 }
 
 //time passed after previous call of function
-int timePassed(int i){
+int timePassed(struct timeval * t){
 	//config.time  struct timeval
 	struct timeval end;
 	gettimeofday(&end, NULL);
-	int out=((end.tv_sec - config.time.tv_sec)*1000000+
-			end.tv_usec - config.time.tv_usec);
-	if(i>0)
-		if (out>1000000/TPS)
-			perror("time to tick");
-	memcpy(&config.time,&end,sizeof(end));
+	int out=((end.tv_sec - t->tv_sec)*1000000+
+			end.tv_usec - t->tv_usec);
+	memcpy(t,&end,sizeof(end));
 	return out;
 }
 
-//tick per second limiter
-void syncTPS(){
-	int z=timePassed(1);
-	int must=1000;
-	if((z=(1000000/TPS-must)-z)>0){
+void syncTPS(int z,int _TPS){
+	if((z=(1000000/_TPS)-z)>0){
 		usleep(z);
 	}
-	usleep(must);
-	timePassed(0);
 }
 
 

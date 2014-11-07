@@ -107,49 +107,56 @@ void * threadListener(void * arg){
 	worker_arg *data=arg;
 	int listener=data->sock;
 	int sock;
+	fd_set read_fds;
 	struct sembuf sem[4]={{0,-1,0},
 						{0,1,0},
 						{3,-1,0},
 						{3,1,0}};
+	struct timeval tv={0,0};
+	timePassed(&tv);
 	config.players_num=0;
 	//
 	config.game.players=3;
 	//printf("sock %d\n",data->sock);
 	while(config.game.run!=0){
+		FD_ZERO(&read_fds);
+		FD_SET(listener, &read_fds);
 		printf("wait for client\n");
-		
-		if((sock = accept(listener, NULL, NULL))<0)  //thread 2 stops here
-			perror("accept startServer");
-		
-		if (config.players_num>=config.game.players-1){
-			close(sock);
-			continue;
+		if (select (listener + 1, &read_fds, 0, 0, 0) > 0) {
+			if((sock = accept(listener, NULL, NULL))<0)  //thread 2 stops here
+				perror("accept startServer");
+			
+			if (config.players_num>=config.game.players-1){
+				close(sock);
+				continue;
+			}
+			//check connected user
+			printf("client connected\n");
+			semop(config.sem.player,&sem[0],1);
+			config.players_num++;
+			//add get player data
+			
+			//setup player change to get from server
+			int id=config.players_num;
+			printf("client id set to %d\n",id);
+			/////
+			
+			setupPlayer(id,id/*group*/,2000/*base health*/);
+	//		printf("player id %d base %d on %d \n",id,config.players[id].base_id,config.bases[config.players[id].base_id].position);
+			semop(config.sem.player,&sem[1],1);
+			
+			
+			semop(config.sem.send,&sem[2],1);
+			semop(config.sem.send,&sem[3],1);
+			
+			setPlayerBase(id,spawnTower(data->grid,config.bases[config.players[id].base_id].position,id,BASE));
+			//start worker
+			if (startWorker(sock,id,data->grid)<=0)
+				perror("startWorker");
+			//need to change later
+			//break;
 		}
-		//check connected user
-		printf("client connected\n");
-		semop(config.sem.player,&sem[0],1);
-		config.players_num++;
-		//add get player data
-		
-		//setup player change to get from server
-		int id=config.players_num;
-		printf("client id set to %d\n",id);
-		/////
-		
-		setupPlayer(id,id/*group*/,2000/*base health*/);
-//		printf("player id %d base %d on %d \n",id,config.players[id].base_id,config.bases[config.players[id].base_id].position);
-		semop(config.sem.player,&sem[1],1);
-		
-		
-		semop(config.sem.send,&sem[2],1);
-		semop(config.sem.send,&sem[3],1);
-		
-		setPlayerBase(id,spawnTower(data->grid,config.bases[config.players[id].base_id].position,id,BASE));
-		//start worker
-		if (startWorker(sock,id,data->grid)<=0)
-			perror("startWorker");
-		//need to change later
-		//break;
+		syncTPS(timePassed(&tv),TPS);
 	}
 //	close(listener);
 	free(data);

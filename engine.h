@@ -1,9 +1,9 @@
 
 int parseArgv(int argc,char * argv[]);
 //wait tto set need tps
-void syncTPS();
+void syncTPS(int z,int _TPS);
 //tick per second limiter
-int timePassed(int i);
+int timePassed(struct timeval * t);
 //init primary arrays 
 void initArrays();
 

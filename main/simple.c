@@ -77,6 +77,7 @@ void drawGrid(gnode* grid){
 
 
 int main(int argc, char* argv[]){
+	FILE * file;
 	struct sembuf sem;
 	struct sembuf sem_pl;
 	
@@ -85,8 +86,9 @@ int main(int argc, char* argv[]){
 	char * f_mem=0;
 	int listener;
 	int err;
-	FILE * file;
-
+	struct timeval tv={0,0};
+	timePassed(&tv);
+	
 	
 	srand(time(0));
 	memset(&config,0,sizeof(config));
@@ -174,11 +176,11 @@ int main(int argc, char* argv[]){
 	//npc* n3=
 //	spawnNpc(grid,42,0,2);
 	
+	//change in future
 	while(config.players_num==0)
-		sleep(0);
+		usleep(100000);
 	
 	printf("start game\n");
-	timePassed(0);
 	
 	while(1){
 		//drawGrid(grid);
@@ -227,7 +229,7 @@ int main(int argc, char* argv[]){
 		usleep(10);
 		semop(config.sem.player,&sem_pl,1);
 		
-		syncTPS();
+		syncTPS(timePassed(&tv),TPS);
 		if(config.players_num==0)
 			break;
 		//check 2
