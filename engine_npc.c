@@ -217,7 +217,7 @@ out:
 
 
 int tickAttackNpc(gnode* grid,npc* n){
-	if (n->status==IN_ATTACK){
+	if (n->status==IN_ATTACK || (rand()%100<20 && n->attack_count<config.npc_types[n->type].attack_speed)){
 		//if target !=0
 		//-attacking
 		//else set IN_MOVE
@@ -328,9 +328,6 @@ int tickDiedCheckNpc(gnode* grid,npc* n){
 	n->ttarget=diedCheckTower(n->ttarget);
 	return 0;
 }
-
-
-
 
 int tickCleanNpc(gnode* grid,npc* n){
 	if (n->health>0)

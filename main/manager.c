@@ -34,6 +34,7 @@ messages and commands must be described in this file or another
 #include <sys/shm.h>
 #include <sys/socket.h>
 #include <sys/wait.h>
+#include <sys/time.h>
 #include <netinet/in.h>
 #include <unistd.h>
 #include <pthread.h>
@@ -116,6 +117,8 @@ void * manager(void * arg) {
 	struct sockaddr_in addr;
 	if ((listener = socket(AF_INET, SOCK_STREAM, 0)) < 0)
 		perror("Failed to start socket");
+	if (fcntl(listener, F_SETFD, fcntl(listener, F_GETFD) | FD_CLOEXEC) == -1)
+				perror("Failed to set socket attributes");
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(menport);
 	addr.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -125,13 +128,13 @@ void * manager(void * arg) {
 		perror("Failed to listen");
 	int sock = 0;
 	fd_set read_fds;
-	struct timeval tv;
-	tv.tv_sec = 0;
-	tv.tv_usec = 25000;
+//	struct timeval tv;
+//	tv.tv_sec = 0;
+//	tv.tv_usec = 25000;
 	while (!stop) {
 		FD_ZERO(&read_fds);
 		FD_SET(listener, &read_fds);
-		if (select (listener + 1, &read_fds, 0, 0, &tv) > 0) {
+		if (select (listener + 1, &read_fds, 0, 0, 0/*&tv*/) > 0) {
 			if ((sock = accept(listener, NULL, NULL))<0)
 				perror("Failed to accept");
 			char msg_type;//TODO: maybe fix!

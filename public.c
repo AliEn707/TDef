@@ -24,14 +24,10 @@
 
 
 #define sendData(sock,x,y) if(send(sock,x,y,MSG_NOSIGNAL)<=0) return -1 
-int publicGetGame(){
+static int publicConnect(){
 	int sockfd;
 	struct sockaddr_in servaddr;
 	struct hostent *server;
-	char mes;
-	short status;
-	if (PUBLIC_HOSTNAME==0)
-		return -1;
 	server = gethostbyname(PUBLIC_HOSTNAME);
 	if (server == NULL) {
 		perror("gethostbyname");
@@ -42,6 +38,7 @@ int publicGetGame(){
 		perror("socket");
 		return -1;
 	}
+	//set sock to config struct
 	config.game.sock=sockfd;
 	memset(&servaddr,0,sizeof(servaddr));
 	servaddr.sin_family = AF_INET;
@@ -53,6 +50,17 @@ int publicGetGame(){
 		perror("connect");
 		return -2;
 	}	
+	return sockfd;
+}
+
+
+int publicGetGame(){
+	int sockfd;
+	char mes;
+	short status;
+	sockfd=publicConnect();
+	if (sockfd<=0)
+		return -1;
 	printf("connected\n");
 	mes=MESSAGE_ROOM_STATUS;
 	sendData(sockfd,&mes,sizeof(mes));
@@ -78,6 +86,30 @@ int publicGetGame(){
 //	else
 //		if (n>0)
 //			return n;
+	
+	return 0;
+}
+
+int publicSendResults(){
+	int sockfd=config.game.sock;
+	char mes=MESSAGE_ROOM_RESULT;
+	short status=ROOM_FAIL;
+	if (send(sockfd,&mes,sizeof(mes),MSG_NOSIGNAL)<=0){
+		sockfd=publicConnect();
+		if (sockfd<=0)
+			return -1;
+		sendData(sockfd,&mes,sizeof(mes));
+		sockfd=config.game.sock;
+	}
+	sendData(sockfd,&config.game.token,sizeof(config.game.token));
+	//add some data
+	
+	//at the end send status
+	sendData(sockfd,&status,sizeof(status));
+	return 0;
+}
+
+int publicSendThreadResult(){
 	
 	return 0;
 }

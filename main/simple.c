@@ -278,14 +278,18 @@ int main(int argc, char* argv[]){
 	config.game.run=0;
 	close(listener);	
 	
+	
 	realizeMap(grid);
 	realizeTypes();
 	realizeArrays();
 	realizeServer();
 	
-	//add send result of game and closing
-
+	//add wait treads to send results
+	
 end:	
+	//send results
+	publicSendResults();
+	
 	if (f_mem!=0){
 		sem.sem_num=0; 
 		sem.sem_op=-1; 
