@@ -189,6 +189,7 @@ void * manager(void * arg) {
 		waitpid(0, 0, WNOHANG);
 	}
 	waitpid(0, 0, WNOHANG);
+	close(listener);
 	if (semctl(sem_id, 0, IPC_RMID) == -1)
 		perror("semctl in manager");
 	if (shmdt(ports_info) == -1)

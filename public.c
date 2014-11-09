@@ -106,6 +106,7 @@ int publicSendResults(){
 	
 	//at the end send status
 	sendData(sockfd,&status,sizeof(status));
+	close(sockfd);
 	return 0;
 }
 
