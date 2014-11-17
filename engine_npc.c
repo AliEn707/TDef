@@ -114,15 +114,16 @@ tower* findNearTower(gnode* grid,npc* n,int range){
 			if (((xid=x+config.area_array[i][j].x)>=0 && x+config.area_array[i][j].x<config.gridsize) &&
 					((yid=y+config.area_array[i][j].y)>=0 && y+config.area_array[i][j].y<config.gridsize))
 				if (grid[to2d(xid,yid)].tower!=0)
-					if(config.players[grid[to2d(xid,yid)].tower->owner].group!=config.players[n->owner].group)
-						if (canSee(grid,&(vec){n->position.x,n->position.y},&(vec){xid+0.5,yid+0.5})>0 && rand()%100<80) //can see check, in 70%
-//							if(canWalkThrough(grid,&(vec){n->position.x,n->position.y},&(vec){xid+0.5,yid+0.5})>0){//try this || rand()%100<30){//can walk check or rand<30%
-							if(sqr(n->position.x-(xid+0.5))+sqr(n->position.y-(yid+0.5))<=sqr(range)){//try this || rand()%100<30){//can walk check or rand<30%
-								n->ttarget=grid[to2d(xid,yid)].tower;
-//								printf("? %d\n",to2d(xid,yid));
-								if(rand()%100<30)
-									return n->ttarget;
-							}
+					if (config.npc_types[n->type].attack_tower!=0 || grid[to2d(xid,yid)].tower->type==BASE)
+						if(config.players[grid[to2d(xid,yid)].tower->owner].group!=config.players[n->owner].group)
+							if (canSee(grid,&(vec){n->position.x,n->position.y},&(vec){xid+0.5,yid+0.5})>0 && rand()%100<80) //can see check, in 70%
+	//							if(canWalkThrough(grid,&(vec){n->position.x,n->position.y},&(vec){xid+0.5,yid+0.5})>0){//try this || rand()%100<30){//can walk check or rand<30%
+								if(sqr(n->position.x-(xid+0.5))+sqr(n->position.y-(yid+0.5))<=sqr(range)){//try this || rand()%100<30){//can walk check or rand<30%
+									n->ttarget=grid[to2d(xid,yid)].tower;
+	//								printf("? %d\n",to2d(xid,yid));
+									if(rand()%100<30)
+										return n->ttarget;
+								}
 		if(n->ttarget!=0)
 			return n->ttarget;
 	}
@@ -194,7 +195,7 @@ int tickTargetNpc(gnode* grid,npc* n){
 			n->status=IN_MOVE;
 			if (findNearTower(grid,n,config.npc_types[n->type].see_distanse)!=0)
 				goto out;
-			
+		
 			//if near no Towers
 			if (findNearNpc(grid,n,config.npc_types[n->type].see_distanse)!=0)
 				goto out;
@@ -341,52 +342,32 @@ int tickCleanNpc(gnode* grid,npc* n){
 int tickMoveNpc(gnode* grid,npc* n){
 	if (n->status==IN_MOVE){
 		if (n->ttarget!=0 || n->ntarget!=0){
-			if (n->ttarget!=0){
 			//check path from position
-				if ((eqInD(n->position.x,n->destination.x,config.npc_types[n->type].move_speed) &&
-							eqInD(n->position.y,n->destination.y,config.npc_types[n->type].move_speed))||
-					glength(&n->position,&n->destination)<0.05){
-					if (n->path_count>=NPC_PATH){
-						memset(n->path,-1,sizeof(int)*NPC_PATH);
-						if(aSearch(grid,
-								n->ttarget!=0?
-									(grid+n->ttarget->position):
-									(grid+getGridId(n->ntarget->position)),
-								grid+getGridId(n->position),
-								n->path)<0)
-							perror("aSearch tickMoveNpc");
-						n->path_count=0;
-						}
-					
-					int node_id;
-					node_id=n->path[n->path_count++];
-					n->destination.x=getGridx(node_id);
-					n->destination.y=getGridy(node_id);
-					getDir(&n->position,&n->destination,&n->direction);
-				}
-			}else 
-				if (n->ntarget!=0)
-					//check path from position
-					if ((eqInD(n->position.x,n->destination.x,config.npc_types[n->type].move_speed) &&
-								eqInD(n->position.y,n->destination.y,config.npc_types[n->type].move_speed))||
-						glength(&n->position,&n->destination)<0.05){
-						if (n->path_count>=NPC_PATH){
-							memset(n->path,-1,sizeof(int)*NPC_PATH);
-							if(aSearch(grid,
-									grid+getGridId(n->ntarget->position),
-									grid+getGridId(n->position),
-									n->path)<0)
-								perror("aSearch tickMoveNpc");
-							n->path_count=0;
-							}
-						
-						int node_id;
-						node_id=n->path[n->path_count++];
-						n->destination.x=getGridx(node_id);
-						n->destination.y=getGridy(node_id);
-						getDir(&n->position,&n->destination,&n->direction);
+			if ((eqInD(n->position.x,n->destination.x,config.npc_types[n->type].move_speed) &&
+						eqInD(n->position.y,n->destination.y,config.npc_types[n->type].move_speed))||
+				glength(&n->position,&n->destination)<0.05){
+				if (n->path_count>=NPC_PATH || 
+						n->path[n->path_count].node==-1 || 
+						(grid[n->path[n->path_count].node].tower!=0 && n->path[n->path_count].tower<0)){
+					memset(n->path,-1,sizeof(int)*NPC_PATH);
+					if(aSearch(grid,
+							n->ttarget!=0?
+								(grid+n->ttarget->position):
+								(grid+getGridId(n->ntarget->position)),
+							grid+getGridId(n->position),
+							n->path)<0)
+						perror("aSearch tickMoveNpc");
+					n->path_count=0;
 					}
+				
+				int node_id;
+				node_id=n->path[n->path_count++].node;
+				n->destination.x=getGridx(node_id);
+				n->destination.y=getGridy(node_id);
+				getDir(&n->position,&n->destination,&n->direction);
+			}
 			
+				
 			//vec dir={0,0};
 			//getDir(&n->position,&n->destination,&dir);
 			

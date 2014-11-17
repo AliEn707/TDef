@@ -19,7 +19,7 @@
 
 #define TPS 8
 
-#define NPC_PATH 10
+#define NPC_PATH 20
 #define MAX_AREA 33
 
 #define PLAYER_MAX 8
@@ -108,6 +108,12 @@ struct vector2i{
 } veci;
 
 typedef 
+struct vector2c{
+	char x;
+	char y;
+} vecc;
+
+typedef 
 struct workerarg{
 	int sock;
 	int id;
@@ -153,12 +159,13 @@ struct npc_type{
 	float move_speed;
 	int cost;
 	int type;
-	int ignor_type;
-	int prior_type;
+	short ignor_type;
+	short prior_type;
 	int bullet_type;
 	int support;
 	int receive;
 	effect effects;  //наносимые эффекты
+	short attack_tower;
 }npc_type;
 
 typedef
@@ -187,6 +194,12 @@ struct tower{
 }tower;
 
 typedef
+struct{
+	short node;
+	char tower;
+}path;
+
+typedef
 struct npc{
 	char status;
 	int owner;
@@ -204,7 +217,7 @@ struct npc{
 	struct tower* ttarget;
 	int attack_count;
 	int path_count;
-	int path[NPC_PATH];
+	path path[NPC_PATH];
 	struct npc * next; //for list in gnode
 }npc;
 
@@ -224,6 +237,8 @@ struct bullet{
 	int damage;
 	effect effects;
 	int owner;
+	float max_dist;
+	npc* ntarget;
 }bullet;
 
 
@@ -311,7 +326,7 @@ struct config{
 	int gridsize;
 	gnode* grid;
 	
-	veci* area_array[MAX_AREA];
+	vecc * area_array[MAX_AREA];
 	int area_size[MAX_AREA];
 	unsigned int tower_max;
 	unsigned int tower_types_size;
@@ -376,7 +391,7 @@ engine_config config;
 #define setVecto0(v) memset(&v,0,sizeof(vec))
 
 
-int aSearch(gnode* grid,gnode* start,gnode* goal, int* path);//start-куда, goal-откуда
+int aSearch(gnode* grid,gnode* start,gnode* goal, path* path);//start-куда, goal-откуда
 #define setNPCPath(grid,start,goul) aSearch(grid,grid+goul,grid+start)
 
 #define getGlobalId() (++config.global_id!=0?config.global_id:++config.global_id)

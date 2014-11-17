@@ -8,6 +8,8 @@ float cos_grid[6284];
 float sin_grid[6284];
 //float sqrt_grid[20001];
 
+
+
 float gcos(float a){
 	int angle=(int)(a*1000);
 	if (angle<0) angle*=-1;

@@ -34,7 +34,7 @@ int recvData(int sock, void * buf, int size){
 	int need=size;
 	int get;
 	get=recv(sock,buf,need,0);
-	if (get<0)
+	if (get<=0)
 		return -1;
 	if (get==need)
 		return get;

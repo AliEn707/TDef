@@ -3,6 +3,8 @@
 #include "engine_npc.h"
 #include "engine_tower.h"
 #include "engine_bullet.h"
+#include "gridmath.h"
+
 
 bullet* newBullet(){
 	int i;
@@ -25,12 +27,18 @@ int tickCleanBullet(gnode * grid,bullet * b){
 	return 0;
 }
 
+int tickDiedCheckBullet(gnode* grid,bullet* b){
+	b->ntarget=diedCheckNpc(b->ntarget);
+	/**/
+	return 0;
+}
+
 int tickProcessBullet(gnode * grid,bullet * b){
 	if (b->detonate==0){
 		//vec dir={0,0};
 //		printf("!!%g %g\n",b->position.x,b->position.y);
 		//float length=getDir(&b->position,&b->destination,&dir);
-		float delta;
+		float delta=1;
 		if (config.bullet_types[(int)b->type].move_type!=SHOT){
 			b->position.x+=b->direction.x*config.bullet_types[(int)b->type].speed;
 			b->position.y+=b->direction.y*config.bullet_types[(int)b->type].speed;
@@ -40,7 +48,6 @@ int tickProcessBullet(gnode * grid,bullet * b){
 		}else{
 			b->position.x=b->destination.x;
 			b->position.y=b->destination.y;
-			delta=0.2;
 		}
 		setMask(b,BULLET_POSITION);
 		if (eqInD(b->position.x,b->destination.x,delta)&&
@@ -50,14 +57,18 @@ int tickProcessBullet(gnode * grid,bullet * b){
 			int x=(int)b->position.x;
 			int y=(int)b->position.y;
 			int xid,yid;
+			int _id=to2d(x,y);
+			if ( x<0 || y<0)
+				goto out;
 			//tower search
 			{
 				tower * tmp;
-				if ((tmp=grid[to2d((int)b->position.x,(int)b->position.y)].tower)>0)
-					if(config.players[tmp->owner].group!=b->group){
-						damageTower(tmp,b);
-						multiple++;
-					}
+				if (_id<sqr(config.gridsize))
+					if ((tmp=grid[_id].tower)>0)
+						if(config.players[tmp->owner].group!=b->group){
+							damageTower(tmp,b);
+							multiple++;
+						}
 			}	
 			
 			if (config.bullet_types[(int)b->type].attack_type==SINGLE && multiple>0)
@@ -66,9 +77,10 @@ int tickProcessBullet(gnode * grid,bullet * b){
 			//npc search
 			{
 				npc* tmp;
-				for(j=0;j<MAX_GROUPS;j++)
-					for(tmp=grid[to2d((int)b->position.x,(int)b->position.y)].npcs[j];
-						tmp!=0;tmp=tmp->next)
+				if (_id<sqr(config.gridsize))
+					for(j=0;j<MAX_GROUPS;j++)
+						for(tmp=grid[_id].npcs[j];
+								tmp!=0;tmp=tmp->next)
 							if (config.players[tmp->owner].group!=b->group)
 								if (eqInD(tmp->position.x,b->position.x,delta)&&
 									eqInD(tmp->position.y,b->position.y,delta))
@@ -135,6 +147,16 @@ int tickProcessBullet(gnode * grid,bullet * b){
 out:
 			b->detonate++;
 			setMask(b,BULLET_DETONATE);
+		}else{
+			if (b->ntarget!=0){
+				if (glength(&b->ntarget->position,&b->source)>b->max_dist){
+					b->ntarget=0;
+				}else{
+					//TODO: add folow attr
+					memcpy(&b->destination,&b->ntarget->position,sizeof(b->destination));
+					getDir(&b->position,&b->destination,&b->direction);
+				}
+			}
 		}
 	}
 	return 0;

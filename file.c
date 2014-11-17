@@ -247,6 +247,7 @@ void loadTypes(char * filepath){
 		if (strcmp(buf,"//-")==0){
 			err=fscanf(file,"%s\n",buf);
 			i++;
+//			config.npc_types[i].attack_tower=1;
 			continue;
 		}
 		if (strcmp(buf,"name")==0){

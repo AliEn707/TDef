@@ -80,6 +80,7 @@ int main(int argc, char* argv[]){
 	FILE * file;
 	struct sembuf sem;
 	struct sembuf sem_pl;
+	short test=1;
 	
 	int f_token,f_sem=0,f_shmem;
 	int f_port=0; //port in shared memmory
@@ -105,6 +106,7 @@ int main(int argc, char* argv[]){
 	config.game.port=34140;
 
 	if (argc>1){
+		test=0;
 		parseArgv(argc,argv);//get game.port, game.token
 		if ((file=fopen("manager.ini","r"))!=0){
 			char buffer[101];
@@ -189,7 +191,8 @@ int main(int argc, char* argv[]){
 		
 		forEachNpc(grid,tickDiedCheckNpc);
 		forEachTower(grid,tickDiedCheckTower);
-			
+		forEachBullet(grid,tickDiedCheckBullet);
+
 		forEachNpc(grid,tickCleanNpc);
 		forEachTower(grid,tickCleanTower);
 		forEachBullet(grid,tickCleanBullet);
@@ -286,9 +289,12 @@ int main(int argc, char* argv[]){
 	
 	//add wait treads to send results
 	
-end:	
-	//send results
-	publicSendResults();
+	
+	if (test==0){
+		//send results
+		publicSendResults();
+	}
+end:
 	
 	if (f_mem!=0){
 		sem.sem_num=0; 

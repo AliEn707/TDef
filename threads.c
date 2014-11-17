@@ -110,8 +110,8 @@ void * threadListener(void * arg){
 	fd_set read_fds;
 	struct sembuf sem[4]={{0,-1,0},
 						{0,1,0},
-						{3,-1,0},
-						{3,1,0}};
+						{2,-1,0},
+						{2,1,0}};
 	struct timeval tv={0,0};
 	timePassed(&tv);
 	config.players_num=0;

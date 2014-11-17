@@ -5,7 +5,80 @@
 #include "engine_bullet.h"
 #include "gridmath.h"
 
+/*
+#define EPS 1e-5
 
+static vec* getTargetPos(vec *pos, vec *dir, float v, vec * $pos, float $v){
+	static vec target;
+//	printf("pos->x = %g, pos->y = %g, dir->x = %g, dir->y = %g, v = %g, $pos->x = %g, $pos->y = %g, $v = %g\n", pos->x, pos->y, dir->x, dir->y, v, $pos->x, $pos->y, $v);
+//	printf("f(%g, %g, %g, %g, %g, %g, %g, %g, &targetX, &targetY);\n", dir->x, dir->y, pos->x, pos->y, v, $pos->x, $pos->y, $v);
+//	f(dirx, diry, posx, posy, v, $posx, $posy, $v, &x, &y);
+//	int f(float dir->x, float dir->y, float pos->x, float pos->y, float v, float $pos->x, float $pos->y, float $v, float *target.x, float *target.y) {
+//	int f(float dir->x, float dir->y, float pos->x, float pos->y, float v, float $pos->x, float $pos->y, float $v, float *target.x, float *target.y) {
+//	printf("dir- {%g|%g}\n",dir->x,dir->y);
+	target.x = pos->x;
+	target.y = pos->y;		
+	if (fabs(dir->x) < EPS && dir->y < EPS) {//unit is not moving
+		printf("not moving\n");
+		return &target;
+	}
+	if (fabs(dir->x) < EPS){
+		printf("revert\n");
+		vec _pos={pos->y,pos->x};
+		vec _dir={dir->y,dir->x};
+		vec _$pos={$pos->y,$pos->x};
+		
+		getTargetPos(&_pos,&_dir,v,&_$pos,$v);
+		float tmp=target.x;
+		target.x=target.y;
+		target.y=tmp;
+		return &target;
+	}
+	float k = dir->y / dir->x;
+	float b = pos->y - k*pos->x;
+	float v2 = $v*$v;
+	float v1 = v*v;
+	float a1 = v2 + v2*k*k - v1 - v1*k*k;
+	float b1 = -2*v2*pos->x + 2*v2*k*b - 2*pos->y*v2*k + 2*v1*$pos->x + 2*$pos->y*v1*k - 2*v1*k*b;
+	float c1 = v2*pos->x*pos->x + v2*b*b - 2*pos->y*v2*b + v2*pos->y*pos->y - v1*$pos->x*$pos->x - v1*$pos->y*$pos->y + 2*v1*$pos->y*b - v1*b*b;
+//	printf("a = %g b = %g c = %g\n", a1, b1, c1);
+	if (fabs(a1) < EPS) {
+		target.x = -c1/b1;
+		target.y = k*target.x + b;	
+		return &target;
+	}
+	float D = b1*b1 - 4*a1*c1;
+	if (D < 0){
+		printf("D < 0\n");
+		return &target;
+	}
+
+//	if (fabs(D) < EPS) {
+//		printf("min D\n");
+//		target.x = (-b1)/(2*a1);
+//		target.y = k*target.x + b;
+//		return &target;
+//	}
+
+	float _sqrtD=sqrt(D);
+	float x1 = (-b1 + _sqrtD)/(2*a1);
+	float x2 = (-b1 - _sqrtD)/(2*a1);
+	float y1 = k*x1 + b;
+	float y2 = k*x2 + b;
+//	printf("x1 = %g y1 = %g\n", x1, y1);
+//	printf("x2 = %g y2 = %g\n", x2, y2);	
+	if (sqr(pos->x + dir->x - x2) + sqr(pos->y + dir->y - y2) < sqr(pos->x + dir->x - x1) + sqr(pos->y + dir->y - y1)) {
+	//if (sqr(pos->x - x1) + sqr(pos->y - y1) > sqr(pos->x - x2) + sqr(pos->y - y2)) {//use x2
+		target.x = x2;	
+		target.y = y2;	
+	} else { //use x1
+		target.x = x1;	
+		target.y = y1;
+	}
+	printf("yea the end\n");
+	return &target;
+}
+*/
 tower* damageTower(tower* t,bullet* b){
 //	if(t->type==BASE){
 //		config.players[t->owner].base_health-=b->damage;
@@ -144,10 +217,21 @@ int tickAttackTower(gnode* grid,tower* t){
 					return -1;
 				}
 				vec position={getGridx(t->position),getGridy(t->position)};
+				// getTargetPos(vec *pos, vec *dir, float v, vec * $pos, float $v){
+//				vec* target=getTargetPos(&t->target->position,
+//									&t->target->direction,
+//									config.npc_types[t->target->type].move_speed,
+//									&position,
+//									config.bullet_types[config.tower_types[t->type].bullet_type].speed
+//									);
 				memcpy(&b->position,&position,sizeof(vec));
 				memcpy(&b->source,&position,sizeof(vec));
+				//memcpy(&b->destination,target,sizeof(vec));
+//				printf("aaaa = %g|%g {%g|%g}\n",target->x,target->y,t->target->position.x,t->target->position.y);
+				b->ntarget=t->target;
 				b->destination.x=t->target->position.x;
 				b->destination.y=t->target->position.y;
+				b->max_dist=config.tower_types[t->type].distanse;
 				b->type=config.tower_types[t->type].bullet_type;
 				b->damage=config.tower_types[t->type].damage;
 				b->support=config.tower_types[t->type].support;
