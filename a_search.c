@@ -67,7 +67,8 @@ float heuristic_cost_estimate(gnode * a,gnode * b){
 	int ay=a->id%config.gridsize;
 	int bx=b->id/config.gridsize;
 	int by=b->id%config.gridsize;
-	return sqrt((ax-bx)*(ax-bx)+(ay-by)*(ay-by));
+//	return ((ax-bx)*(ax-bx)+(ay-by)*(ay-by));
+	return sqrtf((ax-bx)*(ax-bx)+(ay-by)*(ay-by));
 	
 }
 
@@ -80,7 +81,7 @@ int cost(gnode * grid,gnode* a,gnode* b){
 		y2=idtoy(b->id);
 	if (abs(x1-x2)==1 && abs(y1-y2)==1)
 		if(grid[to2d(x1,y2)].tower!=0 || grid[to2d(x2,y1)].tower!=0 ||
-			grid[to2d(x1,y2)].walkable<=0 || grid[to2d(x2,y1)].walkable<=0){
+				grid[to2d(x1,y2)].walkable<=0 || grid[to2d(x2,y1)].walkable<=0){
 			return 10;
 		}
 	

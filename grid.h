@@ -77,6 +77,7 @@
 #define checkMask(z,x) z&x
 
 #define PLAYER_HEALTH 1
+#define PLAYER_MONEY 2
 #define PLAYER_CREATE 4
 
 #define NPC_HEALTH 1
