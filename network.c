@@ -62,7 +62,11 @@ int processMessage(worker_arg * data,char type){
 			perror("recv Message");
 			return -1;
 		}
-		printf("spawn tower %hd on %hd\n",t_id,node_id);
+		if (config.players[data->id].money < config.tower_types[config.players[data->id].tower_set[t_id].id].cost) {//awesome
+			printf("failed: not enough money\n");
+			return 0;
+		}
+		printf("spawn tower %hd on %hd\n",t_id,node_id);		
 		sem_pl.sem_num=0;
 		sem_pl.sem_op=-1;
 		semop(config.sem.player,&sem_pl,1);
@@ -80,6 +84,10 @@ int processMessage(worker_arg * data,char type){
 			perror("recv Message");
 			return -1;
 		}
+		if (config.players[data->id].money < config.npc_types[config.players[data->id].npc_set[n_id].id].cost) {//awesome
+			printf("failed: not enough money\n");
+			return 0;
+		}		
 		printf("spawn npc %d on %d\n",config.players[data->id].npc_set[n_id].id,config.points[config.bases[config.players[data->id].base_id].point_id].position);
 		
 		sem_pl.sem_num=0;
@@ -263,7 +271,6 @@ int sendPlayers(int sock,int id){
 			sendData(config.players[i].base_health);
 		if(checkMask(bit_mask,PLAYER_MONEY) || checkMask(bit_mask,PLAYER_CREATE))
 			sendData(config.players[i].money);
-		
 	}
 	return 0;
 }

@@ -45,3 +45,5 @@ void setupPlayer(int id,int group,int base_health);
 
 void setPlayerBase(int id,tower* base);
 
+void forEachPlayer();
+

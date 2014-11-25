@@ -226,10 +226,18 @@ void setupPlayer(int id,int group,int base_health){
 	config.players[id].group=group;
 	config.players[id].base_id=id;
 	config.players[id].base_health=base_health;
+	config.players[id].money = 1000;//TODO:remove!
 }
 
 void setPlayerBase(int id,tower* base){
 	config.players[id].base=base;
 	setTowerBase(base);
+}
+
+void forEachPlayer() {
+	int i;
+	for (i = 0; i < config.game.players; i++) {
+		config.players[i].bit_mask = 0;
+	}
 }
 

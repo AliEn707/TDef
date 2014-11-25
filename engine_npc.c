@@ -7,6 +7,7 @@
 
 npc* damageNpc(npc* n,bullet* b){
 	n->health-=b->damage;
+	n->last_attack = b->owner;//save last attacking player to 
 	setMask(n,NPC_HEALTH);
 	return n;
 }
@@ -97,6 +98,8 @@ npc* spawnNpc(gnode* grid,int node_id,int owner,int type){
 	setNpcBase(n);
 	if (addNpc(&grid[node_id],n)==0)
 		perror("addMpc spawnNpc");
+	config.players[owner].money -= config.npc_types[type].cost;
+	setMask(&config.players[owner], PLAYER_MONEY);
 	return n;
 }
 
@@ -333,6 +336,8 @@ int tickDiedCheckNpc(gnode* grid,npc* n){
 int tickCleanNpc(gnode* grid,npc* n){
 	if (n->health>0)
 		return 0;
+	config.players[n->last_attack].money += config.npc_types[n->type].receive;
+	setMask(&config.players[n->last_attack], PLAYER_MONEY);
 	delNpc(grid,n);
 	memset(n,0,sizeof(npc));
 	//foeachNpc

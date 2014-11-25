@@ -73,7 +73,7 @@
 #define MSG_SPAWN_NPC 2
 
 ///////bit mask
-#define setMask(z,x) z->bit_mask|=x
+#define setMask(z,x) (z)->bit_mask|=x
 #define checkMask(z,x) z&x
 
 #define PLAYER_HEALTH 1
@@ -192,6 +192,7 @@ struct tower{
 	short level;
 	effect effects;  //полученные эффекты
 	struct npc* target;
+	int last_attack;
 }tower;
 
 typedef
@@ -220,6 +221,7 @@ struct npc{
 	int path_count;
 	path path[NPC_PATH];
 	struct npc * next; //for list in gnode
+	int last_attack;
 }npc;
 
 

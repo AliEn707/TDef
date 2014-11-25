@@ -273,6 +273,7 @@ int main(int argc, char* argv[]){
 		//pinfo();
 		
 		//usleep(100000);
+		forEachPlayer();
 		forEachNpc(grid,tickMiscNpc);
 		forEachTower(grid,tickMiscTower);
 		forEachBullet(grid,tickMiscBullet);

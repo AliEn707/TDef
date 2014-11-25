@@ -87,6 +87,7 @@ tower* damageTower(tower* t,bullet* b){
 		t->health-=b->damage;
 		setMask(t,TOWER_HEALTH);
 //	}
+	t->last_attack = b->owner;//
 	return t;
 }
 
@@ -144,6 +145,8 @@ tower* spawnTower(gnode * grid,int node_id,int owner,int type){
 	setMask(t,TOWER_CREATE);
 	setTowerBase(t);
 	node->tower=t;
+	config.players[owner].money -= config.tower_types[type].cost;
+	setMask(&config.players[owner], PLAYER_MONEY);
 	return t;
 }
 
