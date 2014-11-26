@@ -99,6 +99,7 @@ npc* spawnNpc(gnode* grid,int node_id,int owner,int type){
 	if (addNpc(&grid[node_id],n)==0)
 		perror("addMpc spawnNpc");
 	config.players[owner].money -= config.npc_types[type].cost;
+	config.players[owner].stat.npcs_spawned++;//spawned npc: save to stats
 	setMask(&config.players[owner], PLAYER_MONEY);
 	return n;
 }
@@ -259,7 +260,7 @@ int tickAttackNpc(gnode* grid,npc* n){
 				b->damage=config.npc_types[n->type].damage;
 				b->support=config.npc_types[n->type].support;
 				b->group=config.players[n->owner].group;
-				b->owner=n->id;
+				b->owner=n->owner;
 				setMask(b,BULLET_CREATE);
 	//			b->target=TOWER;
 				getDir(&b->position,&b->destination,&b->direction);
@@ -337,6 +338,8 @@ int tickCleanNpc(gnode* grid,npc* n){
 	if (n->health>0)
 		return 0;
 	config.players[n->last_attack].money += config.npc_types[n->type].receive;
+	config.players[n->last_attack].stat.npcs_killed++;//n->last_attack killed one more npc
+	config.players[n->owner].stat.npcs_lost++;//n->owner lost one more npc
 	setMask(&config.players[n->last_attack], PLAYER_MONEY);
 	delNpc(grid,n);
 	memset(n,0,sizeof(npc));

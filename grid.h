@@ -279,6 +279,15 @@ struct player{
 	
 	int base_health;
 	int money;
+	struct {
+		int npcs_spawned;
+		int towers_built;
+		int npcs_killed;
+		int towers_destroyed;
+		int npcs_lost;
+		int towers_lost;	
+		int xp;//experience
+	} stat;
 } player;
 
 

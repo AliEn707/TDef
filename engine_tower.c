@@ -146,6 +146,7 @@ tower* spawnTower(gnode * grid,int node_id,int owner,int type){
 	setTowerBase(t);
 	node->tower=t;
 	config.players[owner].money -= config.tower_types[type].cost;
+	config.players[owner].stat.towers_built++;//created tower: save to stats
 	setMask(&config.players[owner], PLAYER_MONEY);
 	return t;
 }
@@ -239,7 +240,7 @@ int tickAttackTower(gnode* grid,tower* t){
 				b->damage=config.tower_types[t->type].damage;
 				b->support=config.tower_types[t->type].support;
 				b->group=config.players[t->owner].group;
-				b->owner=t->id;
+				b->owner=t->owner;
 				setMask(b,BULLET_CREATE);
 //				b->target=NPC;
 				getDir(&b->position,&b->destination,&b->direction);
@@ -256,6 +257,8 @@ int tickCleanTower(gnode* grid,tower* t){
 	if (t->health>0)
 		return 0;
 	grid[t->position].tower=0;
+	config.players[t->last_attack].stat.towers_destroyed++;//attacking player destroyed tower
+	config.players[t->owner].stat.towers_lost++;//tower's owner lost tower
 	memset(t,0,sizeof(tower));
 	/**/
 	return 0;

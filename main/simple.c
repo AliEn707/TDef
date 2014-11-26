@@ -278,6 +278,12 @@ int main(int argc, char* argv[]){
 		forEachTower(grid,tickMiscTower);
 		forEachBullet(grid,tickMiscBullet);
 	}
+int aa;
+for (aa = 0; aa < config.game.players; aa++) {//watch stats
+	printf("Stats: player %d\nnpcs spawned: %d\ntowers built: %d\nnpcs killed: %d\ntowers destroyed: %d\nnpcs lost: %d\ntowers lost:%d\n\n", 
+	aa, config.players[aa].stat.npcs_spawned, config.players[aa].stat.towers_built,
+	config.players[aa].stat.npcs_killed, config.players[aa].stat.towers_destroyed, config.players[aa].stat.npcs_lost,config.players[aa].stat.towers_lost);
+}
 	printf("closing\n");
 	config.game.run=0;
 	close(listener);	
