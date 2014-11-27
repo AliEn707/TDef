@@ -255,8 +255,12 @@ int sendPlayers(int sock,int id){
 		return 0;
 	for(i=0;i<=config.players_num;i++){
 		bit_mask=config.players[i].bit_mask;
-		if (config.players[id].first_send!=0)
+		if (config.players[id].first_send!=0){
 			bit_mask|=PLAYER_CREATE;
+			bit_mask|=PLAYER_MONEY;
+		}
+		if (id != i)
+			bit_mask &= ~PLAYER_MONEY;
 		mes=MSG_PLAYER;
 		sendData(mes);
 		sendData(i);
@@ -269,9 +273,7 @@ int sendPlayers(int sock,int id){
 		}	
 		if(checkMask(bit_mask,PLAYER_HEALTH) || checkMask(bit_mask,PLAYER_CREATE))
 			sendData(config.players[i].base_health);
-		/*if (id != i)
-			bit_mask &= ~PLAYER_MONEY;*/
-		if(/*i == id && */(checkMask(bit_mask,PLAYER_MONEY) || checkMask(bit_mask,PLAYER_CREATE)))
+		if(/*i == id && */(checkMask(bit_mask,PLAYER_MONEY)))
 			sendData(config.players[i].money);
 	}
 	return 0;
