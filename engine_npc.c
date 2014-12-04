@@ -4,6 +4,7 @@
 #include "engine_tower.h"
 #include "engine_bullet.h"
 #include "gridmath.h"
+#include "types.h"
 
 npc* damageNpc(npc* n,bullet* b){
 	n->health-=b->damage;
@@ -72,14 +73,20 @@ int delNpc(gnode* grid,npc* n){
 }
 
 void setNpcBase(npc* n){
-	n->health=config.npc_types[n->type].health;
-	n->shield=config.npc_types[n->type].shield;
+	npc_type * type=typesNpcGet(n->type);
+	if (type==0)
+		return;
+	n->health=type->health;
+	n->shield=type->shield;
 	//may be more
 }
 
 
 npc* spawnNpc(gnode* grid,int node_id,int owner,int type){
 	npc* n;
+	npc_type* ntype=typesNpcGet(type);
+	if (ntype==0)
+		return 0;
 	if((n=newNpc())==0){
 		perror("newNpc spawnNpc");
 		return 0;
@@ -98,7 +105,7 @@ npc* spawnNpc(gnode* grid,int node_id,int owner,int type){
 	setNpcBase(n);
 	if (addNpc(&grid[node_id],n)==0)
 		perror("addMpc spawnNpc");
-	config.players[owner].money -= config.npc_types[type].cost;
+	config.players[owner].money -= ntype->cost;
 	config.players[owner].stat.npcs_spawned++;//spawned npc: save to stats
 	setMask(&config.players[owner], PLAYER_MONEY);
 	return n;
@@ -112,13 +119,16 @@ tower* findNearTower(gnode* grid,npc* n,int range){
 	int x=(int)n->position.x;
 	int y=(int)n->position.y;
 	int yid,xid;
+	npc_type *type=typesNpcGet(n->type);
+	if (type==0)
+		return 0;
 //	printf("%d\n",n->id);
 	for(i=0;i<range;i++){
 		for(j=0;j<config.area_size[i];j++)
 			if (((xid=x+config.area_array[i][j].x)>=0 && x+config.area_array[i][j].x<config.gridsize) &&
 					((yid=y+config.area_array[i][j].y)>=0 && y+config.area_array[i][j].y<config.gridsize))
 				if (grid[to2d(xid,yid)].tower!=0)
-					if (config.npc_types[n->type].attack_tower!=0 || grid[to2d(xid,yid)].tower->type==BASE)
+					if (type->attack_tower!=0 || grid[to2d(xid,yid)].tower->type==BASE)
 						if(config.players[grid[to2d(xid,yid)].tower->owner].group!=config.players[n->owner].group)
 							if (canSee(grid,&(vec){n->position.x,n->position.y},&(vec){xid+0.5,yid+0.5})>0 && rand()%100<80) //can see check, in 70%
 	//							if(canWalkThrough(grid,&(vec){n->position.x,n->position.y},&(vec){xid+0.5,yid+0.5})>0){//try this || rand()%100<30){//can walk check or rand<30%
@@ -194,35 +204,41 @@ int findEnemyBase(int group){
 
 
 int tickTargetNpc(gnode* grid,npc* n){
-		if(n->ttarget==0 && n->ntarget==0){
-			n->path_count=NPC_PATH;
-			n->status=IN_MOVE;
-			if (findNearTower(grid,n,config.npc_types[n->type].see_distanse)!=0)
-				goto out;
+	npc_type *type=typesNpcGet(n->type);
+	if (type==0)
+		return 0;
+	if(n->ttarget==0 && n->ntarget==0){
+		n->path_count=NPC_PATH;
+		n->status=IN_MOVE;
+		if (findNearTower(grid,n,type->see_distanse)!=0)
+			goto out;
+	
+		//if near no Towers
+		if (findNearNpc(grid,n,type->see_distanse)!=0)
+			goto out;
 		
-			//if near no Towers
-			if (findNearNpc(grid,n,config.npc_types[n->type].see_distanse)!=0)
-				goto out;
-			
-			int id;
-			if((id=findEnemyBase(config.players[n->owner].group))<0)
-				return 0;  
-			
-			if ((n->ttarget=grid[id].tower)==0)
-				perror("ttarget tickTargetNpc");
-			if (n->ttarget==0 && n->ntarget==0){
-				n->status=IN_IDLE;
-				return 0;
-			}
-out:
-			memcpy(&n->destination,&n->position,sizeof(vec));
+		int id;
+		if((id=findEnemyBase(config.players[n->owner].group))<0)
+			return 0;  
+		
+		if ((n->ttarget=grid[id].tower)==0)
+			perror("ttarget tickTargetNpc");
+		if (n->ttarget==0 && n->ntarget==0){
+			n->status=IN_IDLE;
+			return 0;
 		}
+out:
+		memcpy(&n->destination,&n->position,sizeof(vec));
+	}
 	return 0;
 }
 
 
 int tickAttackNpc(gnode* grid,npc* n){
-	if (n->status==IN_ATTACK || (rand()%100<20 && n->attack_count<config.npc_types[n->type].attack_speed)){
+	npc_type *type=typesNpcGet(n->type);
+	if (type==0)
+		return 0;
+	if (n->status==IN_ATTACK || (rand()%100<20 && n->attack_count<type->attack_speed)){
 		//if target !=0
 		//-attacking
 		//else set IN_MOVE
@@ -232,21 +248,21 @@ int tickAttackNpc(gnode* grid,npc* n){
 //			n->ttarget=0;
 //			return 0;
 //		}
-//		printf("\t %d %d %d\n",n->id,n->attack_count,config.npc_types[n->type].attack_speed);
+//		printf("\t %d %d %d\n",n->id,n->attack_count,type->attack_speed);
 		if (n->ntarget!=0){
 			if (sqr(n->ntarget->position.x-n->position.x)+
 					sqr(n->ntarget->position.y-n->position.y)>
-					sqr(config.npc_types[n->type].see_distanse)){
+					sqr(type->see_distanse)){
 				n->ntarget=0;
 				return 0;
 			}
 			if (sqr(n->ntarget->position.x-n->position.x)+
 					sqr(n->ntarget->position.y-n->position.y)>
-					sqr(config.npc_types[n->type].attack_distanse)){
+					sqr(type->attack_distanse)){
 				n->status=IN_MOVE;
 				return 0;
 			}
-			if (n->attack_count>=config.npc_types[n->type].attack_speed){
+			if (n->attack_count>=type->attack_speed){
 				n->attack_count=0;
 				bullet* b;//set params of bullet
 				if ((b=newBullet())==0){
@@ -256,32 +272,32 @@ int tickAttackNpc(gnode* grid,npc* n){
 				memcpy(&b->position,&n->position,sizeof(vec));
 				memcpy(&b->source,&n->position,sizeof(vec));
 				memcpy(&b->destination,&n->ntarget->position,sizeof(vec));
-				b->type=config.npc_types[n->type].bullet_type;
-				b->damage=config.npc_types[n->type].damage;
-				b->support=config.npc_types[n->type].support;
+				b->type=type->bullet_type;
+				b->damage=type->damage;
+				b->support=type->support;
 				b->group=config.players[n->owner].group;
 				b->owner=n->owner;
 				setMask(b,BULLET_CREATE);
 	//			b->target=TOWER;
 				getDir(&b->position,&b->destination,&b->direction);
-	//			memcpy(&b->effects,&config.npc_types[n->type].effects,sizeof(effects));
+	//			memcpy(&b->effects,&type->effects,sizeof(effects));
 				return 0;
 			}
 		}
 		if (n->ttarget!=0){
 			if (sqr(n->position.x-getGridx(n->ttarget->position))+
 					sqr(n->position.y-getGridy(n->ttarget->position))>
-					sqr(config.npc_types[n->type].see_distanse)){
+					sqr(type->see_distanse)){
 				n->ttarget=0;
 				return 0;
 			}
 			if (sqr(n->position.x-getGridx(n->ttarget->position))+
 					sqr(n->position.y-getGridy(n->ttarget->position))>
-					sqr(config.npc_types[n->type].attack_distanse)){
+					sqr(type->attack_distanse)){
 				n->status=IN_MOVE;
 				return 0;
 			}
-			if (n->attack_count>=config.npc_types[n->type].attack_speed){
+			if (n->attack_count>=type->attack_speed){
 				n->attack_count=0;
 				bullet* b;//set params of bullet
 				if ((b=newBullet())==0){
@@ -292,15 +308,15 @@ int tickAttackNpc(gnode* grid,npc* n){
 				memcpy(&b->source,&n->position,sizeof(vec));
 				b->destination.x=getGridx(n->ttarget->position);
 				b->destination.y=getGridy(n->ttarget->position);
-				b->type=config.npc_types[n->type].bullet_type;
-				b->damage=config.npc_types[n->type].damage;
-				b->support=config.npc_types[n->type].support;
+				b->type=type->bullet_type;
+				b->damage=type->damage;
+				b->support=type->support;
 				b->group=config.players[n->owner].group;
 				b->owner=n->id;
 				setMask(b,BULLET_CREATE);
 //				b->target=TOWER;
 				getDir(&b->position,&b->destination,&b->direction);
-//				memcpy(&b->effects,&config.npc_types[n->type].effects,sizeof(effects));
+//				memcpy(&b->effects,&type->effects,sizeof(effects));
 				return 0;
 			}
 		}
@@ -309,7 +325,7 @@ int tickAttackNpc(gnode* grid,npc* n){
 		//if finded set IN_ATTACK
 		npc* ntmp=n->ntarget;
 		n->ntarget=0;
-		if (findNearNpc(grid,n,(rand()%100<60)?config.npc_types[n->type].see_distanse:config.npc_types[n->type].attack_distanse)!=0){
+		if (findNearNpc(grid,n,(rand()%100<60)?type->see_distanse:type->attack_distanse)!=0){
 			n->status=IN_ATTACK;
 			n->path_count=NPC_PATH;
 			return 0;
@@ -317,7 +333,7 @@ int tickAttackNpc(gnode* grid,npc* n){
 		n->ntarget=ntmp;
 		tower* ttmp=n->ttarget;
 		n->ttarget=0;
-		if (findNearTower(grid,n,(rand()%100<60)?config.npc_types[n->type].see_distanse:config.npc_types[n->type].attack_distanse)!=0){
+		if (findNearTower(grid,n,(rand()%100<60)?type->see_distanse:type->attack_distanse)!=0){
 			n->status=IN_ATTACK;
 			n->path_count=NPC_PATH;
 			return 0;
@@ -335,9 +351,13 @@ int tickDiedCheckNpc(gnode* grid,npc* n){
 }
 
 int tickCleanNpc(gnode* grid,npc* n){
+	npc_type *type;
 	if (n->health>0)
 		return 0;
-	config.players[n->last_attack].money += config.npc_types[n->type].receive;
+	type=typesNpcGet(n->type);
+	if (type==0)
+		return 0;
+	config.players[n->last_attack].money += type->receive;
 	config.players[n->last_attack].stat.npcs_killed++;//n->last_attack killed one more npc
 	config.players[n->owner].stat.npcs_lost++;//n->owner lost one more npc
 	setMask(&config.players[n->last_attack], PLAYER_MONEY);
@@ -348,11 +368,14 @@ int tickCleanNpc(gnode* grid,npc* n){
 }
 
 int tickMoveNpc(gnode* grid,npc* n){
+	npc_type *type=typesNpcGet(n->type);
+	if (type==0)
+		return 0;
 	if (n->status==IN_MOVE){
 		if (n->ttarget!=0 || n->ntarget!=0){
 			//check path from position
-			if ((eqInD(n->position.x,n->destination.x,config.npc_types[n->type].move_speed) &&
-						eqInD(n->position.y,n->destination.y,config.npc_types[n->type].move_speed))||
+			if ((eqInD(n->position.x,n->destination.x,type->move_speed) &&
+						eqInD(n->position.y,n->destination.y,type->move_speed))||
 				glength(&n->position,&n->destination)<0.05){
 				if (n->path_count>=NPC_PATH || 
 						n->path[n->path_count].node==-1 || 
@@ -379,8 +402,8 @@ int tickMoveNpc(gnode* grid,npc* n){
 			//vec dir={0,0};
 			//getDir(&n->position,&n->destination,&dir);
 			
-			vec pos={n->position.x+n->direction.x*config.npc_types[n->type].move_speed,
-					n->position.y+n->direction.y*config.npc_types[n->type].move_speed};
+			vec pos={n->position.x+n->direction.x*type->move_speed,
+					n->position.y+n->direction.y*type->move_speed};
 			//check node change 
 			int a,b;
 			if ((a=getGridId(n->position))!=(b=getGridId(pos))){
@@ -400,7 +423,10 @@ int tickMoveNpc(gnode* grid,npc* n){
 }
 
 int tickMiscNpc(gnode* grid,npc* n){
-	if (n->attack_count<config.npc_types[n->type].attack_speed)
+	npc_type *type=typesNpcGet(n->type);
+	if (type==0)
+		return 0;
+	if (n->attack_count<type->attack_speed)
 		n->attack_count++;
 	n->bit_mask=0;
 	return 0;

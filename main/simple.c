@@ -149,7 +149,10 @@ int main(int argc, char* argv[]){
 	
 	initGridMath();
 	//	loadConfig("../test.cfg");
-	loadTypes("../types.cfg");
+//	loadTypes("../types.cfg");
+	loadNpcTypes();
+	loadTowerTypes();
+	loadBulletTypes();
 	grid=loadMap(config.game.map);
 	
 	listener=startServer(config.game.port,grid);

@@ -1,2 +1,2 @@
 #!/bin/sh
-gcc simple.c ../*.c -m32 -lm -g -Wall -lpthread -o server
+gcc simple.c ../*.c ../*.cpp -m32 -lm -lstdc++ -g -Wall -lpthread -o server

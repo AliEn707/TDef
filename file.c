@@ -6,6 +6,7 @@
 #include "engine_tower.h"
 #include "engine_npc.h"
 #include "engine_bullet.h"
+#include "types.h"
 
 //map file parser
 gnode * loadMap(char *path){
@@ -144,7 +145,249 @@ void realizeMap(gnode* grid){
 	
 }
 
+int loadNpcTypes(){
+	char * filepath="../data/types/npc.cfg";
+	FILE * file;
+	npc_type* n_n=0;
+	char buf[100];
+	printf("Load npc types....");
+	if ((file=fopen(filepath,"rt"))==0){
+		perror("fopen loadNpcTypes");
+		return 1;
+	}
+	
+	while(feof(file)==0){
+		if (n_n==0)
+			if((n_n=malloc(sizeof(npc_type)))==0){
+				perror("malloc npc loadTypes");
+				return 1;
+			}
+		memset(buf,0,sizeof(buf));
+		fscanf(file,"%s ",buf);
+//		printf("%s  ||\n",buf);
+		if (strcmp(buf,"//-")==0){
+			fscanf(file,"%s\n",buf);
+			typesNpcAdd(n_n->id,n_n);
+			n_n=0;
+			continue;
+		}
+		if (strcmp(buf,"name")==0){
+			fscanf(file,"%s\n",buf);
+			continue;
+		}
+		if (strcmp(buf,"id")==0){
+			fscanf(file,"%d\n",&n_n->id);
+			continue;
+		}
+		if (strcmp(buf,"health")==0){
+			fscanf(file,"%d\n",&n_n->health);
+			continue;
+		}
+		if (strcmp(buf,"damage")==0){
+			fscanf(file,"%d\n",&n_n->damage);
+			continue;
+		}
+		if (strcmp(buf,"shield")==0){
+			fscanf(file,"%d\n",&n_n->shield);
+			continue;
+		}
+		if (strcmp(buf,"support")==0){
+			fscanf(file,"%d\n",&n_n->support);
+			continue;
+		}
+		if (strcmp(buf,"see_distanse")==0){
+			fscanf(file,"%d\n",&n_n->see_distanse);
+			continue;
+		}
+		if (strcmp(buf,"attack_distanse")==0){
+			fscanf(file,"%d\n",&n_n->attack_distanse);
+			continue;
+		}
+		if (strcmp(buf,"attack_speed")==0){
+			float tmp;
+			fscanf(file,"%f\n",&tmp);
+			n_n->attack_speed=TPS/tmp;
+			continue;
+		}
+		if (strcmp(buf,"move_speed")==0){
+			float tmp;
+			fscanf(file,"%f\n",&tmp);
+			n_n->move_speed=tmp/TPS;
+			continue;
+		}
+		if (strcmp(buf,"cost")==0){
+			fscanf(file,"%d\n",&n_n->cost);
+			continue;
+		}
+		if (strcmp(buf,"receive")==0){
+			fscanf(file,"%d\n",&n_n->receive);
+			continue;
+		}
+		if (strcmp(buf,"bullet_type")==0){
+			fscanf(file,"%d\n",&n_n->bullet_type);
+			continue;
+		}
+		if (strcmp(buf,"type")==0){
+			fscanf(file,"%d\n",&n_n->type);
+			continue;
+		}
+		
+	}
+	
+	if (n_n!=0)
+		free(n_n);
+	
+	fclose(file);
+	printf("done\n");
+	return 0;
+}
 
+int loadTowerTypes(){
+	char * filepath="../data/types/tower.cfg";
+	FILE * file;
+	tower_type* t_t=0;
+	char buf[100];
+	printf("Load tower types....");
+	if ((file=fopen(filepath,"rt"))==0){
+		perror("fopen loadTowerTypes");
+		return 1;
+	}
+	
+	while(feof(file)==0){
+		memset(buf,0,sizeof(buf));
+		fscanf(file,"%s ",buf);
+//		printf("%s  ||\n",buf);
+		if (t_t==0)
+			if((t_t=malloc(sizeof(tower_type)))==0)
+				perror("malloc tower loadTypes");
+			
+		if (strcmp(buf,"//-")==0){
+			fscanf(file,"%s\n",buf);
+			typesTowerAdd(t_t->id,t_t);
+			t_t=0;
+			continue;
+		}
+		if (strcmp(buf,"name")==0){
+			fscanf(file,"%s\n",buf);
+			continue;
+		}
+		if (strcmp(buf,"id")==0){
+			fscanf(file,"%d\n",&t_t->id);
+			continue;
+		}
+		if (strcmp(buf,"health")==0){
+			fscanf(file,"%d\n",&t_t->health);
+			continue;
+		}
+		if (strcmp(buf,"damage")==0){
+			fscanf(file,"%d\n",&t_t->damage);
+			continue;
+		}
+		if (strcmp(buf,"energy")==0){
+			fscanf(file,"%d\n",&t_t->energy);
+			continue;
+		}
+		if (strcmp(buf,"shield")==0){
+			fscanf(file,"%d\n",&t_t->shield);
+			continue;
+		}
+		if (strcmp(buf,"attack_distanse")==0){
+			fscanf(file,"%d\n",&t_t->distanse);
+			continue;
+		}
+		if (strcmp(buf,"attack_speed")==0){
+			float tmp;
+			fscanf(file,"%f\n",&tmp);
+			t_t->attack_speed=TPS/tmp;
+			continue;
+		}
+		if (strcmp(buf,"cost")==0){
+			fscanf(file,"%d\n",&t_t->cost);
+			continue;
+		}
+		if (strcmp(buf,"ignor_type")==0){
+			fscanf(file,"%d\n",&t_t->ignor_type);
+			continue;
+		}
+		if (strcmp(buf,"prior_type")==0){
+			fscanf(file,"%d\n",&t_t->prior_type);
+			continue;
+		}
+		if (strcmp(buf,"bullet_type")==0){
+			fscanf(file,"%d\n",&t_t->bullet_type);
+			continue;
+		}
+		
+	}
+	
+	if (t_t!=0)
+		free(t_t);
+	
+	fclose(file);
+	printf("done\n");
+	return 0;
+}
+
+int loadBulletTypes(){
+	char * filepath="../data/types/bullet.cfg";
+	FILE * file;
+	bullet_type* b_b=0;
+	char buf[100];
+	printf("Load bullet types....");
+	if ((file=fopen(filepath,"rt"))==0){
+		perror("fopen loadBulletTypes");
+		return 1;
+	}
+	
+	while(feof(file)==0){
+		memset(buf,0,sizeof(buf));
+		fscanf(file,"%s ",buf);
+		if (b_b==0)
+			if((b_b=malloc(sizeof(bullet_type)))==0)
+				perror("malloc bullet loadTypes");
+			
+//		printf("%s  ||\n",buf);
+		if (strcmp(buf,"name")==0){
+			fscanf(file,"%s\n",buf);
+			continue;
+		}
+		if (strcmp(buf,"//-")==0){
+			fscanf(file,"%s\n",buf);
+			typesBulletAdd(b_b->id,b_b);
+			b_b=0;
+			continue;
+		}
+		if (strcmp(buf,"id")==0){
+			fscanf(file,"%d\n",&b_b->id);
+			continue;
+		}
+		if (strcmp(buf,"speed")==0){
+			float tmp;
+			fscanf(file,"%f\n",&tmp);
+			b_b->speed=tmp/TPS;
+			continue;
+		}
+		if (strcmp(buf,"attack_type")==0){
+			fscanf(file,"%d\n",&b_b->attack_type);
+			continue;
+		}
+		if (strcmp(buf,"move_type")==0){
+			fscanf(file,"%d\n",&b_b->move_type);
+			continue;
+		}
+		
+	}
+	
+	if (b_b!=0)
+		free(b_b);
+	
+	fclose(file);
+	printf("done\n");
+	return 0;
+}
+
+
+/*
 void loadTypes(char * filepath){
 	FILE * file;
 	int err;
@@ -351,12 +594,14 @@ void loadTypes(char * filepath){
 //	printf("%d %d\n",config.tower_types_size,config.npc_types_size);
 	fclose(file);
 }
-
+*/
 
 void realizeTypes(){
-	free(config.bullet_types);
-	free(config.tower_types);
-	free(config.npc_types);
-	
+//	free(config.bullet_types);
+//	free(config.tower_types);
+//	free(config.npc_types);
+	typesNpcClear();
+	typesTowerClear();
+	typesBulletClear();
 }
 

@@ -7,6 +7,7 @@
 #include "engine_tower.h"
 #include "engine_npc.h"
 #include "engine_bullet.h"
+#include "types.h"
 
 #define sendData(x) if(_sendData(sock,&x,sizeof(x))<=0) return -1
 
@@ -54,6 +55,7 @@ int processMessage(worker_arg * data,char type){
 	if (type==MSG_SPAWN_TOWER){
 		int node_id=0;
 		short t_id=0;
+		tower_type *type;
 		if(recvData(data->sock,&node_id,sizeof(node_id))<0){
 			perror("recv Message");
 			return -1;
@@ -62,7 +64,10 @@ int processMessage(worker_arg * data,char type){
 			perror("recv Message");
 			return -1;
 		}
-		if (config.players[data->id].money < config.tower_types[config.players[data->id].tower_set[t_id].id].cost) {//awesome
+		type=typesTowerGet(config.players[data->id].tower_set[t_id].id);
+		if (type==0)
+			return 0;
+		if (config.players[data->id].money < type->cost) {//awesome
 			printf("failed: not enough money\n");
 			return 0;
 		}
@@ -80,11 +85,15 @@ int processMessage(worker_arg * data,char type){
 	}
 	if (type==MSG_SPAWN_NPC){
 		int n_id=0;
+		npc_type *type;
 		if (recvData(data->sock,&n_id,sizeof(n_id))<0){
 			perror("recv Message");
 			return -1;
 		}
-		if (config.players[data->id].money < config.npc_types[config.players[data->id].npc_set[n_id].id].cost) {//awesome
+		type=typesNpcGet(config.players[data->id].npc_set[n_id].id);
+		if (type==0)
+			return 0;
+		if (config.players[data->id].money < type->cost) {//awesome
 			printf("failed: not enough money\n");
 			return 0;
 		}		

@@ -20,7 +20,10 @@ parts [(types num)*((points num)] [delay]
 [point id] [type] [num] [delay]
 ...
 */
-void loadTypes(char* filepath);
+//void loadTypes(char* filepath);
+int loadNpcTypes();
+int loadTowerTypes();
+int loadBulletTypes();
 
 void realizeTypes();
 
