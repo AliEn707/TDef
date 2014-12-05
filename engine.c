@@ -221,17 +221,21 @@ void processWaves(gnode* grid){
 
 
 //player 
-void setupPlayer(int id,int group,int base_health){
+void setupPlayer(int id,int group){
 	config.players[id].id=getGlobalId();
 	config.players[id].group=group;
 	config.players[id].base_id=id;
-	config.players[id].base_health=base_health;
-	config.players[id].money = 1000;//TODO:remove!
+//	config.players[id].base_type.health=base_health;
 }
 
 void setPlayerBase(int id,tower* base){
 	config.players[id].base=base;
 	setTowerBase(base);
+}
+
+void setPlayerHero(int id,npc* hero){
+	config.players[id].hero=hero;
+	setNpcBase(hero);
 }
 
 void forEachPlayer() {
@@ -240,4 +244,6 @@ void forEachPlayer() {
 		config.players[i].bit_mask = 0;
 	}
 }
+
+
 

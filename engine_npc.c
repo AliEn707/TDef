@@ -73,18 +73,30 @@ int delNpc(gnode* grid,npc* n){
 }
 
 void setNpcBase(npc* n){
-	npc_type * type=typesNpcGet(n->type);
-	if (type==0)
+	npc_type * type=0;
+	if (n->type==HERO)
+		type=&config.players[n->owner].hero_type;
+	else
+		type=typesNpcGet(n->type);
+	
+	if (type==0){
+		n->id=0;
 		return;
+	}
 	n->health=type->health;
 	n->shield=type->shield;
+	
 	//may be more
 }
 
 
 npc* spawnNpc(gnode* grid,int node_id,int owner,int type){
 	npc* n;
-	npc_type* ntype=typesNpcGet(type);
+	npc_type* ntype=0;
+	if (type==HERO)
+		ntype=&config.players[owner].hero_type;
+	else
+		ntype=typesNpcGet(type);
 	if (ntype==0)
 		return 0;
 	if((n=newNpc())==0){
@@ -119,9 +131,15 @@ tower* findNearTower(gnode* grid,npc* n,int range){
 	int x=(int)n->position.x;
 	int y=(int)n->position.y;
 	int yid,xid;
-	npc_type *type=typesNpcGet(n->type);
-	if (type==0)
+	npc_type * type=0;
+	if (n->type==HERO)
+		type=&config.players[n->owner].hero_type;
+	else
+		type=typesNpcGet(n->type);
+	if (type==0){
+		n->id=0;
 		return 0;
+	}
 //	printf("%d\n",n->id);
 	for(i=0;i<range;i++){
 		for(j=0;j<config.area_size[i];j++)
@@ -204,9 +222,16 @@ int findEnemyBase(int group){
 
 
 int tickTargetNpc(gnode* grid,npc* n){
-	npc_type *type=typesNpcGet(n->type);
-	if (type==0)
+	npc_type * type=0;
+	if (n->type==HERO)//Hero not search for
 		return 0;
+//		type=&config.players[n->owner].hero_type;
+	else
+		type=typesNpcGet(n->type);
+	if (type==0){
+		n->id=0;
+		return 0;
+	}
 	if(n->ttarget==0 && n->ntarget==0){
 		n->path_count=NPC_PATH;
 		n->status=IN_MOVE;
@@ -235,9 +260,15 @@ out:
 
 
 int tickAttackNpc(gnode* grid,npc* n){
-	npc_type *type=typesNpcGet(n->type);
-	if (type==0)
+	npc_type * type=0;
+	if (n->type==HERO)
+		type=&config.players[n->owner].hero_type;
+	else
+		type=typesNpcGet(n->type);
+	if (type==0){
+		n->id=0;
 		return 0;
+	}
 	if (n->status==IN_ATTACK || (rand()%100<20 && n->attack_count<type->attack_speed)){
 		//if target !=0
 		//-attacking
@@ -351,12 +382,17 @@ int tickDiedCheckNpc(gnode* grid,npc* n){
 }
 
 int tickCleanNpc(gnode* grid,npc* n){
-	npc_type *type;
+	npc_type *type=0;
 	if (n->health>0)
 		return 0;
-	type=typesNpcGet(n->type);
-	if (type==0)
+	if (n->type==HERO)
+		type=&config.players[n->owner].hero_type;
+	else
+		type=typesNpcGet(n->type);
+	if (type==0){
+		n->id=0;
 		return 0;
+	}
 	config.players[n->last_attack].money += type->receive;
 	config.players[n->last_attack].stat.npcs_killed++;//n->last_attack killed one more npc
 	config.players[n->owner].stat.npcs_lost++;//n->owner lost one more npc
@@ -368,9 +404,15 @@ int tickCleanNpc(gnode* grid,npc* n){
 }
 
 int tickMoveNpc(gnode* grid,npc* n){
-	npc_type *type=typesNpcGet(n->type);
-	if (type==0)
+	npc_type * type=0;
+	if (n->type==HERO)
+		type=&config.players[n->owner].hero_type;
+	else
+		type=typesNpcGet(n->type);
+	if (type==0){
+		n->id=0;
 		return 0;
+	}
 	if (n->status==IN_MOVE){
 		if (n->ttarget!=0 || n->ntarget!=0){
 			//check path from position
@@ -423,9 +465,15 @@ int tickMoveNpc(gnode* grid,npc* n){
 }
 
 int tickMiscNpc(gnode* grid,npc* n){
-	npc_type *type=typesNpcGet(n->type);
-	if (type==0)
+	npc_type * type=0;
+	if (n->type==HERO)
+		type=&config.players[n->owner].hero_type;
+	else
+		type=typesNpcGet(n->type);
+	if (type==0){
+		n->id=0;
 		return 0;
+	}
 	if (n->attack_count<type->attack_speed)
 		n->attack_count++;
 	n->bit_mask=0;

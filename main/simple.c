@@ -26,7 +26,7 @@ void pinfo(){
 					config.tower_array[i].position,
 					config.tower_array[i].type!=BASE?
 						config.tower_array[i].health:
-						config.players[config.tower_array[i].owner].base_health
+						config.players[config.tower_array[i].owner].base_type.health
 					);
 			i++;
 		}

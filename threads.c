@@ -140,9 +140,12 @@ void * threadListener(void * arg){
 			int id=config.players_num;
 			printf("client id set to %d\n",id);
 			/////
+			setupPlayer(id,id/*group*/);
 			
-			setupPlayer(id,id/*group*/,2000/*base health*/);
-	//		printf("player id %d base %d on %d \n",id,config.players[id].base_id,config.bases[config.players[id].base_id].position);
+			config.players[id].base_type.health=2000;//base health
+			config.players[id].money = 1000;//TODO:remove!
+
+//			printf("player id %d base %d on %d \n",id,config.players[id].base_id,config.bases[config.players[id].base_id].position);
 			semop(config.sem.player,&sem[1],1);
 			
 			
@@ -159,8 +162,8 @@ void * threadListener(void * arg){
 		syncTPS(timePassed(&tv),TPS);
 	}
 //	close(listener);
-	free(data);
 	printf("close listener\n");
+	free(data);
 	return 0;
 }
 

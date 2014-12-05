@@ -281,7 +281,7 @@ int sendPlayers(int sock,int id){
 			sendData(config.players[i].group);
 		}	
 		if(checkMask(bit_mask,PLAYER_HEALTH) || checkMask(bit_mask,PLAYER_CREATE))
-			sendData(config.players[i].base_health);
+			sendData(config.players[i].base_type.health);
 		if(/*i == id && */(checkMask(bit_mask,PLAYER_MONEY)))
 			sendData(config.players[i].money);
 	}

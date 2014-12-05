@@ -42,15 +42,17 @@ tower* diedCheckTower(tower* n){
 
 
 void setTowerBase(tower* t){
+	tower_type *type;
 	if (t!=0){
-		tower_type *type=typesTowerGet(t->type);
-		if (type==0)
+		if (t->type==BASE)
+			type=&config.players[t->owner].base_type;
+		else
+			type=typesTowerGet(t->type);
+		if (type==0){
+			t->id=0;
 			return;
-		if (t->type==BASE){
-			t->health=config.players[t->owner].base_health;
-		}else{
-			t->health=type->health;
 		}
+		t->health=type->health;
 		t->energy=type->energy;
 	}
 }
@@ -58,20 +60,24 @@ void setTowerBase(tower* t){
 
 tower* spawnTower(gnode * grid,int node_id,int owner,int type){
 	tower* t;
-	tower_type *ttype;
+	tower_type *ttype=0;
 //	printf("spawn tower %d on %d by %d\n",type,node_id,owner);
 	if (node_id<0 || node_id>=config.gridsize*config.gridsize)
 		return 0;
 	if (grid[node_id].tower!=0)
 		return 0;
 	gnode* node=&grid[node_id];
+	if (type==BASE)
+			ttype=&config.players[owner].base_type;
+		else
+			ttype=typesTowerGet(type);
+	if (ttype==0)
+		return 0;
+
 	if((t=newTower())==0){
 		perror("newTower spawnTower");
 		return 0;
 	}
-	ttype=typesTowerGet(type);
-	if (ttype==0)
-		return 0;
 	t->owner=owner;
 	t->position=node_id;
 	t->type=type;
@@ -95,9 +101,14 @@ int removeTower(gnode * grid,tower* t){
 }
 
 int tickMiscTower(gnode* grid,tower* t){
-	tower_type *type=typesTowerGet(t->type);
-	if (type==0)
+	tower_type *type;
+	if (t->type==BASE)
 		return 0;
+	type=typesTowerGet(t->type);
+	if (type==0){
+		t->id=0;
+		return 0;
+	}
 	if (t->attack_count<type->attack_speed)
 		t->attack_count++;
 	t->bit_mask=0;
@@ -117,8 +128,10 @@ int tickAttackTower(gnode* grid,tower* t){
 	if (t->type==BASE)
 		return 0;
 	type=typesTowerGet(t->type);
-	if (type==0)
+	if (type==0){
+		t->id=0;
 		return 0;
+	}
 	if (t->target==0){
 		//find near npc
 		int x=idtox(t->position);
@@ -194,10 +207,12 @@ int tickAttackTower(gnode* grid,tower* t){
 }
 
 int tickCleanTower(gnode* grid,tower* t){
-	if (t->type==BASE)
-		return 0;
 	if (t->health>0)
 		return 0;
+	if (t->type==BASE){//TODO: add check for player lose
+		printf("player %d lose\n",t->owner);
+//		return 0;
+	}
 	grid[t->position].tower=0;
 	config.players[t->last_attack].stat.towers_destroyed++;//attacking player destroyed tower
 	config.players[t->owner].stat.towers_lost++;//tower's owner lost tower

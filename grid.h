@@ -32,6 +32,9 @@
 //tower types
 #define BASE 0
 
+//npc types
+#define HERO 0
+
 //group types
 #define ENEMY 0
 
@@ -274,10 +277,13 @@ struct player{
 		int id;
 		int num;
 	} npc_set[NPC_SET_NUM];
-	int base_id; //id od base in list
+	int base_id; //id of base in list of all map bases
 	tower * base;
+	npc * hero;
 	
-	int base_health;
+	tower_type base_type;
+	npc_type hero_type;
+//	int base_health;
 	int money;
 	struct {
 		int npcs_spawned;

@@ -41,7 +41,7 @@ void processWaves(gnode* grid);
 
 
 //player
-void setupPlayer(int id,int group,int base_health);
+void setupPlayer(int id,int group);
 
 void setPlayerBase(int id,tower* base);
 
