@@ -12,7 +12,7 @@ tower* damageTower(tower* t,bullet* b){
 //		config.players[t->owner].base_health-=b->damage;
 //		setMask((&config.players[t->owner]),PLAYER_HEALTH);
 //	}else{
-		t->health-=b->damage;
+		t->health -= (b->damage - t->armor);
 		setMask(t,TOWER_HEALTH);
 //	}
 	t->last_attack = b->owner;//
@@ -54,6 +54,7 @@ void setTowerBase(tower* t){
 		}
 		t->health=type->health;
 		t->energy=type->energy;
+		t->armor=type->armor;
 	}
 }
 

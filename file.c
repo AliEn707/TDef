@@ -192,6 +192,10 @@ int loadNpcTypes(){
 			fscanf(file,"%d\n",&n_n->shield);
 			continue;
 		}
+		if (strcmp(buf,"armor")==0){
+			fscanf(file,"%d\n",&n_n->armor);
+			continue;
+		}		
 		if (strcmp(buf,"support")==0){
 			fscanf(file,"%d\n",&n_n->support);
 			continue;
@@ -292,6 +296,10 @@ int loadTowerTypes(){
 			fscanf(file,"%d\n",&t_t->shield);
 			continue;
 		}
+		if (strcmp(buf,"armor")==0){
+			fscanf(file,"%d\n",&t_t->armor);
+			continue;
+		}			
 		if (strcmp(buf,"attack_distanse")==0){
 			fscanf(file,"%d\n",&t_t->distanse);
 			continue;

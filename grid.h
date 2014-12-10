@@ -141,6 +141,7 @@ struct tower_type{
 	int damage;
 	int energy;
 	int shield;
+	int armor;
 	int distanse;
 	int attack_speed; //ticks to attack
 	int cost;
@@ -157,6 +158,7 @@ struct npc_type{
 	int health;
 	int damage;
 	int shield;
+	int armor;
 	int attack_distanse;
 	int see_distanse;
 	int attack_speed;
@@ -189,6 +191,7 @@ struct tower{
 	int type;
 	int health;
 	int shield;
+	int armor;
 	int energy;
 	int attack_count;
 	int owner;
@@ -216,6 +219,7 @@ struct npc{
 	int type;
 	int health;
 	int shield;
+	int armor;
 	short level;
 	effect effects; //полученные эффекты
 	struct npc* ntarget;

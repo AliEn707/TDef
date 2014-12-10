@@ -7,7 +7,7 @@
 #include "types.h"
 
 npc* damageNpc(npc* n,bullet* b){
-	n->health-=b->damage;
+	n->health -= (b->damage - n->armor);
 	n->last_attack = b->owner;//save last attacking player to 
 	setMask(n,NPC_HEALTH);
 	return n;
@@ -85,6 +85,7 @@ void setNpcBase(npc* n){
 	}
 	n->health=type->health;
 	n->shield=type->shield;
+	n->armor=type->armor;
 	
 	//may be more
 }
