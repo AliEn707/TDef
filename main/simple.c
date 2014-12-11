@@ -254,14 +254,14 @@ int main(int argc, char* argv[]){
 		sem.sem_num=1;
 		sem.sem_op=0;
 //		semInfo();
-		err=semop(config.sem.send,&sem,1);  //thread 1 stops here
+		err=semop(config.sem.send,&sem,1); 
 		if (err<0)
 			printf("semop err\n");
 		//check 0
 		sem.sem_num=0;
 		sem.sem_op=0;
 //		semInfo();
-		err=semop(config.sem.send,&sem,1);  //thread 1 stops here
+		err=semop(config.sem.send,&sem,1); 
 		if (err<0)
 			printf("semop err\n");
 		

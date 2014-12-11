@@ -8,13 +8,27 @@
 
 
 tower* damageTower(tower* t,bullet* b){
-//	if(t->type==BASE){
-//		config.players[t->owner].base_health-=b->damage;
-//		setMask((&config.players[t->owner]),PLAYER_HEALTH);
-//	}else{
-		t->health -= (b->damage - t->armor);
-		setMask(t,TOWER_HEALTH);
-//	}
+	tower_type *type=0;
+	if (t->type==BASE)
+		type=&config.players[t->owner].base_type;
+	else
+		type=typesTowerGet(t->type);
+	if (type==0){
+		t->id=0;
+	}
+	if (t->shield>0){
+		t->shield-=b->damage;
+		if (t->shield<0)
+			t->shield=0;
+		t->$shield=0;
+		setMask(t,TOWER_SHIELD);
+		return t;
+	}
+	
+	int damage=b->damage*(0.06f*type->armor/(1+0.06f*type->armor));
+	t->health -= damage?:1;
+	setMask(t,TOWER_HEALTH);
+	
 	t->last_attack = b->owner;//
 	return t;
 }
@@ -48,13 +62,14 @@ void setTowerBase(tower* t){
 			type=&config.players[t->owner].base_type;
 		else
 			type=typesTowerGet(t->type);
+		
 		if (type==0){
 			t->id=0;
 			return;
 		}
 		t->health=type->health;
+		t->shield=type->shield;
 		t->energy=type->energy;
-		t->armor=type->armor;
 	}
 }
 
@@ -103,6 +118,7 @@ int removeTower(gnode * grid,tower* t){
 
 int tickMiscTower(gnode* grid,tower* t){
 	tower_type *type;
+	t->bit_mask=0;
 	if (t->type==BASE)
 		return 0;
 	type=typesTowerGet(t->type);
@@ -112,7 +128,11 @@ int tickMiscTower(gnode* grid,tower* t){
 	}
 	if (t->attack_count<type->attack_speed)
 		t->attack_count++;
-	t->bit_mask=0;
+	t->$shield++;
+	if (t->$shield>SHIELD_RECOVERY && t->$shield%TPS==0){
+		t->shield+=type->shield/100;
+		setMask(t,TOWER_SHIELD);
+	}
 	return 0;
 }
 

@@ -180,6 +180,13 @@ int tickSendNpc(gnode* grid,npc* n){
 	int bit_mask=n->bit_mask;
 	if (config.players[id].first_send!=0)
 		bit_mask|=NPC_CREATE;
+	
+	if (checkMask(bit_mask,NPC_CREATE)){
+		bit_mask|=NPC_LEVEL;
+		bit_mask|=NPC_HEALTH;
+		bit_mask|=NPC_SHIELD;
+	}
+	
 	sendData(bit_mask);
 	if (checkMask(bit_mask,NPC_CREATE)){
 		sendData(n->owner);
@@ -187,10 +194,12 @@ int tickSendNpc(gnode* grid,npc* n){
 	}
 //	if(checkMask(bit_mask,NPC_POSITION) || checkMask(bit_mask,NPC_CREATE))
 		sendData(n->position);
-	if(checkMask(bit_mask,NPC_LEVEL) || checkMask(bit_mask,NPC_CREATE))
+	if(checkMask(bit_mask,NPC_LEVEL))
 		sendData(n->level);
-	if(checkMask(bit_mask,NPC_HEALTH) || checkMask(bit_mask,NPC_CREATE))
+	if(checkMask(bit_mask,NPC_HEALTH))
 		sendData(n->health);
+	if(checkMask(bit_mask,NPC_SHIELD))
+		sendData(n->shield);
 	return 0;
 }
 
@@ -208,23 +217,32 @@ int tickSendTower(gnode* grid,tower* t){
 	int bit_mask=t->bit_mask;
 	if (config.players[id].first_send!=0)
 		bit_mask|=TOWER_CREATE;
+	if(checkMask(bit_mask,TOWER_CREATE)){
+		bit_mask|=TOWER_TARGET;
+		bit_mask|=TOWER_LEVEL;
+		bit_mask|=TOWER_HEALTH;
+		bit_mask|=TOWER_SHIELD;
+	}
 	sendData(bit_mask);
+	
 	if(checkMask(bit_mask,TOWER_CREATE)){
 		sendData(t->type);
 		sendData(t->owner);
 		sendData(t->position);
 	}
-	if(checkMask(bit_mask,TOWER_TARGET) || checkMask(bit_mask,TOWER_CREATE)){
+	if(checkMask(bit_mask,TOWER_TARGET)){
 		short target=-1;
 		if(t->target!=0)
 			target=getGridId(t->target->position);
 		sendData(target);
 	}
-	if(checkMask(bit_mask,TOWER_LEVEL) || checkMask(bit_mask,TOWER_CREATE)){
+	if(checkMask(bit_mask,TOWER_LEVEL)){
 		sendData(t->level);
 	}
-	if(checkMask(bit_mask,TOWER_HEALTH) || checkMask(bit_mask,TOWER_CREATE))
+	if(checkMask(bit_mask,TOWER_HEALTH))
 		sendData(t->health);
+	if(checkMask(bit_mask,TOWER_SHIELD))
+		sendData(t->shield);
 	return 0;
 }
 
@@ -242,6 +260,9 @@ int tickSendBullet(gnode* grid,bullet * b){
 	int bit_mask=b->bit_mask;
 	if (config.players[id].first_send!=0)
 		bit_mask|=BULLET_CREATE;
+	if (checkMask(bit_mask,BULLET_CREATE)){
+	}
+	
 	sendData(bit_mask);
 //	if(checkMask(bit_mask,BULLET_POSITION) || checkMask(bit_mask,BULLET_CREATE))
 	sendData(b->position);

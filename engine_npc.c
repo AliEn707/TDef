@@ -7,7 +7,27 @@
 #include "types.h"
 
 npc* damageNpc(npc* n,bullet* b){
-	n->health -= (b->damage - n->armor);
+	npc_type * type=0;
+	if (n->type==HERO)
+		type=&config.players[n->owner].hero_type;
+	else
+		type=typesNpcGet(n->type);
+	
+	if (type==0){
+		n->id=0;
+		return n;
+	}
+	if (n->shield>0){
+		n->shield-=b->damage;
+		if (n->shield<0)
+			n->shield=0;
+		n->$shield=0;
+		setMask(n,NPC_SHIELD);
+		return n;
+	}
+	int damage=b->damage*(1-0.06f*type->armor/(1+0.06f*type->armor));
+//	printf("(%d * %g)=%d damage\n",b->damage,(1-0.06f*type->armor/(1+0.06f*type->armor)),damage);
+	n->health -= damage?:1;
 	n->last_attack = b->owner;//save last attacking player to 
 	setMask(n,NPC_HEALTH);
 	return n;
@@ -85,7 +105,7 @@ void setNpcBase(npc* n){
 	}
 	n->health=type->health;
 	n->shield=type->shield;
-	n->armor=type->armor;
+	n->energy=type->energy;
 	
 	//may be more
 }
@@ -467,6 +487,7 @@ int tickMoveNpc(gnode* grid,npc* n){
 
 int tickMiscNpc(gnode* grid,npc* n){
 	npc_type * type=0;
+	n->bit_mask=0;
 	if (n->type==HERO)
 		type=&config.players[n->owner].hero_type;
 	else
@@ -477,7 +498,12 @@ int tickMiscNpc(gnode* grid,npc* n){
 	}
 	if (n->attack_count<type->attack_speed)
 		n->attack_count++;
-	n->bit_mask=0;
+	n->$shield++;
+	if (n->$shield>SHIELD_RECOVERY && n->$shield%TPS==0){
+		short add=type->shield/100;
+		n->shield+=add?:1;
+		setMask(n,NPC_SHIELD);
+	}
 	return 0;
 }
 

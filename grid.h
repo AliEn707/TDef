@@ -1,4 +1,4 @@
-#include <errno.h>
+﻿#include <errno.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -25,6 +25,8 @@
 #define PLAYER_MAX 8
 #define TOWER_SET_NUM 9
 #define NPC_SET_NUM 9
+
+#define SHIELD_RECOVERY (TPS*3)
 
 //player types
 #define PC 0
@@ -87,11 +89,13 @@
 #define NPC_POSITION 2
 #define NPC_CREATE 4
 #define NPC_LEVEL 8
+#define NPC_SHIELD 16
 
 #define TOWER_HEALTH 1
 #define TOWER_TARGET 2
 #define TOWER_CREATE 4
 #define TOWER_LEVEL 8
+#define TOWER_SHIELD 16
 
 #define BULLET_POSITION 1
 #define BULLET_DETONATE 2
@@ -141,7 +145,7 @@ struct tower_type{
 	int damage;
 	int energy;
 	int shield;
-	int armor;
+	float armor;
 	int distanse;
 	int attack_speed; //ticks to attack
 	int cost;
@@ -158,7 +162,8 @@ struct npc_type{
 	int health;
 	int damage;
 	int shield;
-	int armor;
+	int energy;
+	float armor;
 	int attack_distanse;
 	int see_distanse;
 	int attack_speed;
@@ -191,7 +196,7 @@ struct tower{
 	int type;
 	int health;
 	int shield;
-	int armor;
+	short $shield; //shield not attack counter
 	int energy;
 	int attack_count;
 	int owner;
@@ -219,7 +224,8 @@ struct npc{
 	int type;
 	int health;
 	int shield;
-	int armor;
+	short $shield;  //shield not attack counter
+	int energy;
 	short level;
 	effect effects; //полученные эффекты
 	struct npc* ntarget;

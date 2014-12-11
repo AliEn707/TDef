@@ -79,7 +79,7 @@ void * threadWorker(void * arg){
 out:
 	semOp(1); //drop sem send[1]
 	semOp(0);
-	semOp(2);
+//	semOp(2);  //need to test, may be need
 	semop(config.sem.player,&sem_pl[0],1);
 	config.players_num--;
 	semop(config.sem.player,&sem_pl[1],1);
