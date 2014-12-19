@@ -414,10 +414,12 @@ int tickCleanNpc(gnode* grid,npc* n){
 		n->id=0;
 		return 0;
 	}
-	config.players[n->last_attack].money += type->receive;
-	config.players[n->last_attack].stat.npcs_killed++;//n->last_attack killed one more npc
+	if (n->last_attack>0){
+		config.players[n->last_attack].money += type->receive;
+		config.players[n->last_attack].stat.npcs_killed++;//n->last_attack killed one more npc
+		setMask(&config.players[n->last_attack], PLAYER_MONEY);
+	}
 	config.players[n->owner].stat.npcs_lost++;//n->owner lost one more npc
-	setMask(&config.players[n->last_attack], PLAYER_MONEY);
 	delNpc(grid,n);
 	memset(n,0,sizeof(npc));
 	//foeachNpc

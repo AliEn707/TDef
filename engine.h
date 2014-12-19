@@ -16,24 +16,29 @@ int canWalkThrough(gnode* grid,vec* a,vec* b);
 
 /*
 must be this
-tickMiscNpc
-tickMiscTower
-tickMiscBullet
+
 tickDiedCheckNpc
 tickDiedCheckTower
+tickDiedCheckBullet
 
 tickCleanNpc
 tickCleanTower
 tickCleanBullet
 
-tickProcessBullet
 tickMoveNpc
 tickTargetNpc
 tickAtackNpc
+
 tickAtackTower
+tickProcessBullet
 
 some user stuff
--remove tower set it to died
+
+tickMiscNpc
+tickMiscTower
+tickMiscBullet
+
+-remove tower == set it to died
 
 */
 

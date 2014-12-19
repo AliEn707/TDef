@@ -83,6 +83,23 @@ int processMessage(worker_arg * data,char type){
 		semop(config.sem.player,&sem_pl,1);
 		return 0;
 	}
+	if (type==MSG_DROP_TOWER){
+		int node_id=0;
+		if(recvData(data->sock,&node_id,sizeof(node_id))<0){
+			perror("recv Message");
+			return -1;
+		}
+		printf("drop tower on %hd\n",node_id);		
+		sem_pl.sem_num=0;
+		sem_pl.sem_op=-1;
+		semop(config.sem.player,&sem_pl,1);
+		if (data->grid[node_id].tower!=0)
+			removeTower(data->grid,data->grid[node_id].tower);
+		sem_pl.sem_num=0;
+		sem_pl.sem_op=1;
+		semop(config.sem.player,&sem_pl,1);
+		return 0;
+	}
 	if (type==MSG_SPAWN_NPC){
 		int n_id=0;
 		npc_type *type;

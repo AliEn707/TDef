@@ -318,6 +318,10 @@ int loadTowerTypes(){
 			fscanf(file,"%d\n",&t_t->cost);
 			continue;
 		}
+		if (strcmp(buf,"receive")==0){
+			fscanf(file,"%d\n",&t_t->receive);
+			continue;
+		}
 		if (strcmp(buf,"ignor_type")==0){
 			fscanf(file,"%d\n",&t_t->ignor_type);
 			continue;

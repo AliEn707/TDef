@@ -110,9 +110,11 @@ tower* spawnTower(gnode * grid,int node_id,int owner,int type){
 
 
 int removeTower(gnode * grid,tower* t){
-	gnode * node=&grid[t->position];
-	node->tower=0;
+//	gnode * node=&grid[t->position];
+//	node->tower=0;
 	t->health=-1;
+	t->last_attack=t->owner;
+	setMask(t,TOWER_HEALTH);
 	return 0;
 }
 
@@ -228,14 +230,28 @@ int tickAttackTower(gnode* grid,tower* t){
 }
 
 int tickCleanTower(gnode* grid,tower* t){
+	tower_type *type=0;
 	if (t->health>0)
 		return 0;
 	if (t->type==BASE){//TODO: add check for player lose
 		printf("player %d lose\n",t->owner);
 //		return 0;
 	}
+	if (t->type==BASE)
+		type=&config.players[t->owner].base_type;
+	else
+		type=typesTowerGet(t->type);
+	if (type==0){
+		t->id=0;
+		return 0;
+	}
 	grid[t->position].tower=0;
-	config.players[t->last_attack].stat.towers_destroyed++;//attacking player destroyed tower
+	if (t->last_attack>0){
+		//get cash, if enemy -> receve, if player's own -> 0.5 of cost
+		config.players[t->last_attack].money += t->last_attack==t->owner?type->cost/2:type->receive;
+		config.players[t->last_attack].stat.towers_destroyed++;//attacking player destroyed tower
+		setMask(&config.players[t->last_attack], PLAYER_MONEY);
+	}
 	config.players[t->owner].stat.towers_lost++;//tower's owner lost tower
 	memset(t,0,sizeof(tower));
 	/**/

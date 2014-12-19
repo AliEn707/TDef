@@ -76,6 +76,7 @@
 //msg to server
 #define MSG_SPAWN_TOWER 1
 #define MSG_SPAWN_NPC 2
+#define MSG_DROP_TOWER 3
 
 ///////bit mask
 #define setMask(z,x) (z)->bit_mask|=x
@@ -149,6 +150,7 @@ struct tower_type{
 	int distanse;
 	int attack_speed; //ticks to attack
 	int cost;
+	int receive;
 	int ignor_type;
 	int prior_type;
 	int bullet_type;

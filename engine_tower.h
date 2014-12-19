@@ -8,6 +8,7 @@ tower* diedCheckTower(tower* t);
 void setTowerBase(tower* t);
 
 tower* spawnTower(gnode * grid,int node_id,int owner,int type);
+int removeTower(gnode * grid,tower* t);
 
 int tickMiscTower(gnode* grid,tower* t);
 

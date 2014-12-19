@@ -170,7 +170,9 @@ int main(int argc, char* argv[]){
 	int i,j;
 	//for testing change to get from server
 	for (i=0;i<5;i++){
-		
+		memset(config.players[i].tower_set,0,sizeof(config.players[i].tower_set));
+		memset(config.players[i].npc_set,0,sizeof(config.players[i].npc_set));
+	
 		for (j=0;j<9;j++){
 			config.players[i].tower_set[j].id=j+1;
 			config.players[i].tower_set[j].num=-1;
