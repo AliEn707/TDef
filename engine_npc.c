@@ -140,6 +140,7 @@ npc* spawnNpc(gnode* grid,int node_id,int owner,int type){
 		perror("addMpc spawnNpc");
 	config.players[owner].money -= ntype->cost;
 	config.players[owner].stat.npcs_spawned++;//spawned npc: save to stats
+	config.players[owner].stat.xp += ntype->cost; //TODO: use something better
 	setMask(&config.players[owner], PLAYER_MONEY);
 	return n;
 }
@@ -417,6 +418,7 @@ int tickCleanNpc(gnode* grid,npc* n){
 	if (n->last_attack>0){
 		config.players[n->last_attack].money += type->receive;
 		config.players[n->last_attack].stat.npcs_killed++;//n->last_attack killed one more npc
+		config.players[n->last_attack].stat.xp += type->receive; //TODO: use something better
 		setMask(&config.players[n->last_attack], PLAYER_MONEY);
 	}
 	config.players[n->owner].stat.npcs_lost++;//n->owner lost one more npc

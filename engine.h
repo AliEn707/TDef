@@ -52,3 +52,5 @@ void setPlayerBase(int id,tower* base);
 
 void forEachPlayer();
 
+void printStats();
+

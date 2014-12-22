@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <strings.h>
 #include <time.h>
 #include <sys/time.h>
 #include <sys/types.h>
@@ -16,6 +15,7 @@
 #include <netdb.h>
 #include <unistd.h> 
 #include <pthread.h>
+#include <signal.h>
 
 #define TPS 8
 
@@ -85,6 +85,7 @@
 #define PLAYER_HEALTH 1
 #define PLAYER_MONEY 2
 #define PLAYER_CREATE 4
+#define PLAYER_LEVEL 8
 
 #define NPC_HEALTH 1
 #define NPC_POSITION 2
@@ -297,13 +298,14 @@ struct player{
 	npc_type hero_type;
 //	int base_health;
 	int money;
+	int level;
 	struct {
 		int npcs_spawned;
 		int towers_built;
 		int npcs_killed;
 		int towers_destroyed;
 		int npcs_lost;
-		int towers_lost;	
+		int towers_lost;
 		int xp;//experience
 	} stat;
 } player;
@@ -384,6 +386,9 @@ struct config{
 		base* bases;
 	unsigned int points_size;
 		point* points;
+		
+	int current_money_timer;
+	int max_money_timer;	
 		
 	struct {
 		int send;

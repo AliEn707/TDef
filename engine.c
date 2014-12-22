@@ -238,12 +238,39 @@ void setPlayerHero(int id,npc* hero){
 	setNpcBase(hero);
 }
 
-void forEachPlayer() {
-	int i;
-	for (i = 0; i < config.game.players; i++) {
-		config.players[i].bit_mask = 0;
-	}
+static int giveMoney(player *pl) {
+	setMask(pl, PLAYER_MONEY);
+	return 10*(pow(pl->level, 1.2) + 1);
 }
 
+static int needLevelInc(player *pl) {
+	return pl->stat.xp > pow(1.2, pl->level)*1000;
+}
 
+void forEachPlayer() {
+	int i, money_flag = 0;
+	if (config.current_money_timer%(config.max_money_timer + 1) == config.max_money_timer) {
+		money_flag = 1; //need to give money!
+	}	
+	for (i = 0; i < config.game.players; i++) {
+		config.players[i].bit_mask = 0;
+		if (needLevelInc (&config.players[i])) {
+			printf("player = %d level = %d", i, config.players[i].level);
+			config.players[i].level++;
+		}
+		if (money_flag)
+			config.players[i].money += giveMoney(&config.players[i]);
+	}
+	if (money_flag)
+		config.current_money_timer = 0;
+}
+
+void printStats() {
+	int aa;
+	for (aa = 0; aa < config.game.players; aa++) {//watch stats
+		printf("Stats: player %d\nnpcs spawned: %d\ntowers built: %d\nnpcs killed: %d\ntowers destroyed: %d\nnpcs lost: %d\ntowers lost:%d\nxp: %d\n\n", 
+		aa, config.players[aa].stat.npcs_spawned, config.players[aa].stat.towers_built,
+		config.players[aa].stat.npcs_killed, config.players[aa].stat.towers_destroyed, config.players[aa].stat.npcs_lost,config.players[aa].stat.towers_lost, config.players[aa].stat.xp);
+	}
+}
 

@@ -104,6 +104,7 @@ tower* spawnTower(gnode * grid,int node_id,int owner,int type){
 	node->tower=t;
 	config.players[owner].money -= ttype->cost;
 	config.players[owner].stat.towers_built++;//created tower: save to stats
+	config.players[owner].stat.xp += ttype->cost; //TODO: use something better
 	setMask(&config.players[owner], PLAYER_MONEY);
 	return t;
 }
@@ -131,7 +132,7 @@ int tickMiscTower(gnode* grid,tower* t){
 	if (t->attack_count<type->attack_speed)
 		t->attack_count++;
 	t->$shield++;
-	if (t->$shield>SHIELD_RECOVERY && t->$shield%TPS==0){
+	if (t->$shield>SHIELD_RECOVERY && t->$shield%TPS==0 && t->shield<type->shield){
 		t->shield+=type->shield/100;
 		setMask(t,TOWER_SHIELD);
 	}
@@ -250,6 +251,7 @@ int tickCleanTower(gnode* grid,tower* t){
 		//get cash, if enemy -> receve, if player's own -> 0.5 of cost
 		config.players[t->last_attack].money += t->last_attack==t->owner?type->cost/2:type->receive;
 		config.players[t->last_attack].stat.towers_destroyed++;//attacking player destroyed tower
+		config.players[t->last_attack].stat.xp += t->last_attack==t->owner?type->cost/2:type->receive; //TODO: use something better
 		setMask(&config.players[t->last_attack], PLAYER_MONEY);
 	}
 	config.players[t->owner].stat.towers_lost++;//tower's owner lost tower

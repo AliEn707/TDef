@@ -75,6 +75,13 @@ void drawGrid(gnode* grid){
 	}		
 }
 
+void segfault_sigaction(int signal, siginfo_t *si, void *arg)
+{
+	printf("Caught segfault at address %p\n", si->si_addr);
+	printStats();
+	realizeServer();
+	exit(0);
+}
 
 int main(int argc, char* argv[]){
 	FILE * file;
@@ -90,6 +97,14 @@ int main(int argc, char* argv[]){
 	struct timeval tv={0,0};
 	timePassed(&tv);
 	
+	struct sigaction sa;
+
+	memset(&sa, 0, sizeof(sigaction));
+	sigemptyset(&sa.sa_mask);
+	sa.sa_sigaction = segfault_sigaction;
+	sa.sa_flags   = SA_SIGINFO;
+
+	sigaction(SIGSEGV, &sa, NULL);	
 	
 	srand(time(0));
 	memset(&config,0,sizeof(config));
@@ -188,6 +203,7 @@ int main(int argc, char* argv[]){
 		usleep(100000);
 	
 	printf("start game\n");
+	config.max_money_timer = TPS*60;
 	
 	while(1){
 		//drawGrid(grid);
@@ -278,17 +294,13 @@ int main(int argc, char* argv[]){
 		//pinfo();
 		
 		//usleep(100000);
+		config.current_money_timer++;
 		forEachPlayer();
 		forEachNpc(grid,tickMiscNpc);
 		forEachTower(grid,tickMiscTower);
 		forEachBullet(grid,tickMiscBullet);
 	}
-int aa;
-for (aa = 0; aa < config.game.players; aa++) {//watch stats
-	printf("Stats: player %d\nnpcs spawned: %d\ntowers built: %d\nnpcs killed: %d\ntowers destroyed: %d\nnpcs lost: %d\ntowers lost:%d\n\n", 
-	aa, config.players[aa].stat.npcs_spawned, config.players[aa].stat.towers_built,
-	config.players[aa].stat.npcs_killed, config.players[aa].stat.towers_destroyed, config.players[aa].stat.npcs_lost,config.players[aa].stat.towers_lost);
-}
+	printStats();
 	printf("closing\n");
 	config.game.run=0;
 	close(listener);	
