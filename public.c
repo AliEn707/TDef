@@ -8,7 +8,7 @@
 #include "engine_npc.h"
 #include "engine_bullet.h"
 
-#define PUBLIC_HOSTNAME "192.168.56.1"//"localhost"
+#define PUBLIC_HOSTNAME "localhost"//"192.168.56.56"//
 #define PUBLIC_PORT 7000
 
 

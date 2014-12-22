@@ -501,7 +501,7 @@ int tickMiscNpc(gnode* grid,npc* n){
 	if (n->attack_count<type->attack_speed)
 		n->attack_count++;
 	n->$shield++;
-	if (n->$shield>SHIELD_RECOVERY && n->$shield%TPS==0){
+	if (n->$shield>SHIELD_RECOVERY && n->$shield%TPS==0 && n->shield<type->shield){
 		short add=type->shield/100;
 		n->shield+=add?:1;
 		setMask(n,NPC_SHIELD);
