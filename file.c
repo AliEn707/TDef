@@ -240,7 +240,10 @@ int loadNpcTypes(){
 			fscanf(file,"%d\n",&n_n->type);
 			continue;
 		}
-		
+		if (strcmp(buf,"attack_tower")==0){
+			fscanf(file,"%hd\n",&n_n->attack_tower);
+			continue;
+		}		
 	}
 	
 	if (n_n!=0)

@@ -78,8 +78,10 @@ void drawGrid(gnode* grid){
 void segfault_sigaction(int signal, siginfo_t *si, void *arg)
 {
 	printf("Caught segfault at address %p\n", si->si_addr);
+	config.game.run = 0;
 	printStats();
 	realizeServer();
+	usleep(100000);
 	exit(0);
 }
 

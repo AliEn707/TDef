@@ -255,7 +255,7 @@ void forEachPlayer() {
 	for (i = 0; i < config.game.players; i++) {
 		config.players[i].bit_mask = 0;
 		if (needLevelInc (&config.players[i])) {
-			printf("player = %d level = %d", i, config.players[i].level);
+			printf("player = %d level = %d\n", i, config.players[i].level);
 			config.players[i].level++;
 		}
 		if (money_flag)
@@ -268,9 +268,10 @@ void forEachPlayer() {
 void printStats() {
 	int aa;
 	for (aa = 0; aa < config.game.players; aa++) {//watch stats
-		printf("Stats: player %d\nnpcs spawned: %d\ntowers built: %d\nnpcs killed: %d\ntowers destroyed: %d\nnpcs lost: %d\ntowers lost:%d\nxp: %d\n\n", 
+		printf("Stats: player %d\nnpcs spawned: %d\ntowers built: %d\nnpcs killed: %d\ntowers destroyed: %d\nnpcs lost: %d\ntowers lost: %d\nxp: %d\nlevel: %d\n\n", 
 		aa, config.players[aa].stat.npcs_spawned, config.players[aa].stat.towers_built,
-		config.players[aa].stat.npcs_killed, config.players[aa].stat.towers_destroyed, config.players[aa].stat.npcs_lost,config.players[aa].stat.towers_lost, config.players[aa].stat.xp);
+		config.players[aa].stat.npcs_killed, config.players[aa].stat.towers_destroyed, 
+		config.players[aa].stat.npcs_lost,config.players[aa].stat.towers_lost, config.players[aa].stat.xp,config.players[aa].level);
 	}
 }
 

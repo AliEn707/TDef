@@ -365,7 +365,7 @@ int tickAttackNpc(gnode* grid,npc* n){
 				b->damage=type->damage;
 				b->support=type->support;
 				b->group=config.players[n->owner].group;
-				b->owner=n->id;
+				b->owner=n->owner;
 				setMask(b,BULLET_CREATE);
 //				b->target=TOWER;
 				getDir(&b->position,&b->destination,&b->direction);
