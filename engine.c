@@ -257,6 +257,7 @@ void forEachPlayer() {
 		if (needLevelInc (&config.players[i])) {
 			printf("player = %d level = %d\n", i, config.players[i].level);
 			config.players[i].level++;
+			setMask(&config.players[i],PLAYER_LEVEL);
 		}
 		if (money_flag)
 			config.players[i].money += giveMoney(&config.players[i]);

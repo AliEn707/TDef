@@ -317,9 +317,17 @@ int sendPlayers(int sock,int id){
 			sendData(config.players[i].tower_set);
 			sendData(config.players[i].npc_set);
 			sendData(config.players[i].group);
+			//send info about base
+			sendData(config.players[i].base_type.health);
+			int base_id=0;
+			if (config.players[i].base!=0) //TODO: check why not on first time
+				base_id=config.players[i].base->id;
+			sendData(base_id);
 		}	
 		if(checkMask(bit_mask,PLAYER_HEALTH) || checkMask(bit_mask,PLAYER_CREATE))
 			sendData(config.players[i].base_type.health);
+		if(checkMask(bit_mask,PLAYER_LEVEL))
+			sendData(config.players[i].level);
 		if(/*i == id && */(checkMask(bit_mask,PLAYER_MONEY)))
 			sendData(config.players[i].money);
 	}
