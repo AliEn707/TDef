@@ -249,7 +249,7 @@ static int needLevelInc(player *pl) {
 	return pl->stat.xp > pow(1.2, pl->level)*1000;
 }
 
-void forEachPlayer() {
+void forEachPlayer(gnode* grid) {
 	int i, money_flag = 0;
 	if (config.current_money_timer%(config.max_money_timer + 1) == config.max_money_timer) {
 		money_flag = 1; //need to give money!
@@ -263,6 +263,14 @@ void forEachPlayer() {
 		}
 		if (money_flag)
 			config.players[i].money += giveMoney(&config.players[i]);
+		if (config.players[i].hero==0){
+			if (config.players[i].hero_conter>HERO_COUNTER){
+				setPlayerHero(i,spawnNpc(grid,config.points[config.bases[config.players[i].base_id].point_id].position,i,HERO));
+				config.players[i].hero_conter=0;
+				setMask(&config.players[i],PLAYER_HERO);
+			}else
+				config.players[i].hero_conter++;
+		}
 	}
 	if (money_flag)
 		config.current_money_timer = 0;

@@ -19,6 +19,8 @@
 
 #define TPS 8
 
+#define HERO_COUNTER (TPS*28)
+
 #define NPC_PATH 20
 #define MAX_AREA 33
 
@@ -87,6 +89,7 @@
 #define PLAYER_MONEY 2
 #define PLAYER_CREATE 4
 #define PLAYER_LEVEL 8
+#define PLAYER_HERO 16
 
 #define NPC_HEALTH 1
 #define NPC_POSITION 2
@@ -298,7 +301,8 @@ struct player{
 	tower_type base_type;
 	npc_type hero_type;
 	npc $npc$; //fake npc need to click move
-
+	int hero_conter;
+	
 	int money;
 	int level;
 	struct {

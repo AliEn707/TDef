@@ -426,6 +426,8 @@ int tickCleanNpc(gnode* grid,npc* n){
 		setMask(&config.players[n->last_attack], PLAYER_MONEY);
 	}
 	config.players[n->owner].stat.npcs_lost++;//n->owner lost one more npc
+	if (n->type==HERO)
+		config.players[n->owner].hero=0;
 	delNpc(grid,n);
 	memset(n,0,sizeof(npc));
 	//foeachNpc

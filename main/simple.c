@@ -297,7 +297,7 @@ int main(int argc, char* argv[]){
 		
 		//usleep(100000);
 		config.current_money_timer++;
-		forEachPlayer();
+		forEachPlayer(grid);
 		forEachNpc(grid,tickMiscNpc);
 		forEachTower(grid,tickMiscTower);
 		forEachBullet(grid,tickMiscBullet);

@@ -338,13 +338,15 @@ int sendPlayers(int sock,int id){
 				base_id=config.players[i].base->id;
 			sendData(base_id);
 			sendData(config.players[i].base_type.health);
-			base_id=0;
-			if (config.players[i].hero!=0) //TODO: check why not on first time
-				base_id=config.players[i].hero->id;
-			sendData(base_id);
 			sendData(config.players[i].hero_type.health);
 			sendData(config.players[i].hero_type.shield);
 		}	
+		if(checkMask(bit_mask,PLAYER_HERO) || checkMask(bit_mask,PLAYER_CREATE)){
+			int hero_id=0;
+			if (config.players[i].hero!=0) //TODO: check why not on first time
+				hero_id=config.players[i].hero->id;
+			sendData(hero_id);
+		}
 		if(checkMask(bit_mask,PLAYER_HEALTH) || checkMask(bit_mask,PLAYER_CREATE))
 			sendData(config.players[i].base_type.health);
 		if(checkMask(bit_mask,PLAYER_LEVEL))

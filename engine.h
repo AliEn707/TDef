@@ -51,7 +51,7 @@ void setupPlayer(int id,int group);
 void setPlayerBase(int id,tower* base);
 void setPlayerHero(int id,npc* hero);
 
-void forEachPlayer();
+void forEachPlayer(gnode * grid);
 
 void printStats();
 
