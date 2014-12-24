@@ -71,7 +71,7 @@ int processMessage(worker_arg * data,char type){
 			printf("failed: not enough money\n");
 			return 0;
 		}
-		printf("spawn tower %hd on %hd\n",t_id,node_id);		
+		printf("%d spawn tower %hd on %hd\n",data->id,t_id,node_id);		
 		sem_pl.sem_num=0;
 		sem_pl.sem_op=-1;
 		semop(config.sem.player,&sem_pl,1);
@@ -89,7 +89,7 @@ int processMessage(worker_arg * data,char type){
 			perror("recv Message");
 			return -1;
 		}
-		printf("drop tower on %hd\n",node_id);		
+		printf("%d drop tower on %hd\n",data->id,node_id);		
 		sem_pl.sem_num=0;
 		sem_pl.sem_op=-1;
 		semop(config.sem.player,&sem_pl,1);
@@ -114,7 +114,7 @@ int processMessage(worker_arg * data,char type){
 			printf("failed: not enough money\n");
 			return 0;
 		}		
-		printf("spawn npc %d on %d\n",config.players[data->id].npc_set[n_id].id,config.points[config.bases[config.players[data->id].base_id].point_id].position);
+		printf("%d spawn npc %d on %d\n",data->id,config.players[data->id].npc_set[n_id].id,config.points[config.bases[config.players[data->id].base_id].point_id].position);
 		
 		sem_pl.sem_num=0;
 		sem_pl.sem_op=-1;
@@ -140,7 +140,7 @@ int processMessage(worker_arg * data,char type){
 		h=config.players[data->id].hero;
 		if (h==0)
 			return 0;
-		printf("move hero to %d\n",node);
+		printf("%d move hero to %d\n",data->id, node);
 		//move hero to node
 		setHeroTargetByNode(data->grid,h,node);
 		return 0;

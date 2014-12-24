@@ -448,8 +448,6 @@ int tickMoveNpc(gnode* grid,npc* n){
 				if (eqInD(n->position.x,n->ntarget->position.x,type->move_speed) &&
 						eqInD(n->position.y,n->ntarget->position.y,type->move_speed)){
 					n->ntarget=0;
-					n->path_count=0;
-					memset(n->path,-1,sizeof(int)*NPC_PATH);
 					printf("\ndest reached\n");
 					return 0;
 				}
@@ -544,6 +542,8 @@ int setHeroTargetByNode(gnode * grid,npc* n, int node){
 	fake->position.y=getGridy(node);
 	fake->health=1;
 	n->ntarget=fake;
+	n->path_count=0;
+	memset(n->path,-1,sizeof(int)*NPC_PATH);
 	n->status=IN_MOVE;
 	return 0;
 }
