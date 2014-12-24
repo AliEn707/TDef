@@ -30,3 +30,5 @@ int tickAttackNpc(gnode* grid,npc* n);
 int tickMoveNpc(gnode* grid,npc* n);
 
 int forEachNpc(gnode* grid, int (process)(gnode*g,npc*n));
+
+int setHeroTargetByNode(gnode * grid,npc* n, int node);

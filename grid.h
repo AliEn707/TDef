@@ -77,6 +77,7 @@
 #define MSG_SPAWN_TOWER 1
 #define MSG_SPAWN_NPC 2
 #define MSG_DROP_TOWER 3
+#define MSG_MOVE_HERO 4
 
 ///////bit mask
 #define setMask(z,x) (z)->bit_mask|=x
@@ -296,7 +297,8 @@ struct player{
 	
 	tower_type base_type;
 	npc_type hero_type;
-//	int base_health;
+	npc $npc$; //fake npc need to click move
+
 	int money;
 	int level;
 	struct {

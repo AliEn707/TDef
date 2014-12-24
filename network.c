@@ -130,6 +130,21 @@ int processMessage(worker_arg * data,char type){
 		semop(config.sem.player,&sem_pl,1);
 		return 0;
 	}
+	if (type==MSG_MOVE_HERO){
+		int node=0;
+		npc * h=0;
+		if (recvData(data->sock,&node,sizeof(node))<0){
+			perror("recv Message");
+			return -1;
+		}
+		h=config.players[data->id].hero;
+		if (h==0)
+			return 0;
+		printf("move hero to %d\n",node);
+		//move hero to node
+		setHeroTargetByNode(data->grid,h,node);
+		return 0;
+	}
 	return -1;
 }
 
@@ -318,11 +333,17 @@ int sendPlayers(int sock,int id){
 			sendData(config.players[i].npc_set);
 			sendData(config.players[i].group);
 			//send info about base
-			sendData(config.players[i].base_type.health);
 			int base_id=0;
 			if (config.players[i].base!=0) //TODO: check why not on first time
 				base_id=config.players[i].base->id;
 			sendData(base_id);
+			sendData(config.players[i].base_type.health);
+			base_id=0;
+			if (config.players[i].hero!=0) //TODO: check why not on first time
+				base_id=config.players[i].hero->id;
+			sendData(base_id);
+			sendData(config.players[i].hero_type.health);
+			sendData(config.players[i].hero_type.shield);
 		}	
 		if(checkMask(bit_mask,PLAYER_HEALTH) || checkMask(bit_mask,PLAYER_CREATE))
 			sendData(config.players[i].base_type.health);

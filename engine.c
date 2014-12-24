@@ -230,11 +230,13 @@ void setupPlayer(int id,int group){
 
 void setPlayerBase(int id,tower* base){
 	config.players[id].base=base;
+	base->owner=id;
 	setTowerBase(base);
 }
 
 void setPlayerHero(int id,npc* hero){
 	config.players[id].hero=hero;
+	hero->owner=id;
 	setNpcBase(hero);
 }
 

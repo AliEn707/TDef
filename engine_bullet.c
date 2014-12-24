@@ -37,8 +37,10 @@ int tickDiedCheckBullet(gnode* grid,bullet* b){
 int tickProcessBullet(gnode * grid,bullet * b){
 	if (b->detonate==0){
 		bullet_type * type=typesBulletGet(b->type);
-		if (type==0)
+		if (type==0){
+			b->id=0;
 			return 0;
+		}
 		//vec dir={0,0};
 //		printf("!!%g %g\n",b->position.x,b->position.y);
 		//float length=getDir(&b->position,&b->destination,&dir);

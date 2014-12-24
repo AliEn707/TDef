@@ -303,6 +303,10 @@ int tickAttackNpc(gnode* grid,npc* n){
 //		}
 //		printf("\t %d %d %d\n",n->id,n->attack_count,type->attack_speed);
 		if (n->ntarget!=0){
+			if (n->ntarget==&config.players[n->owner].$npc$){
+				n->status=IN_MOVE;
+				return 0;
+			}
 			if (sqr(n->ntarget->position.x-n->position.x)+
 					sqr(n->ntarget->position.y-n->position.y)>
 					sqr(type->see_distanse)){
@@ -440,6 +444,15 @@ int tickMoveNpc(gnode* grid,npc* n){
 	}
 	if (n->status==IN_MOVE){
 		if (n->ttarget!=0 || n->ntarget!=0){
+			if (eqInD(n->position.x,n->ntarget->position.x,type->move_speed) &&
+					eqInD(n->position.y,n->ntarget->position.y,type->move_speed)){
+				n->ntarget=0;
+				n->path_count=0;
+				memset(n->path,-1,sizeof(int)*NPC_PATH);
+				printf("\ndest reached\n");
+				return 0;
+			}
+				
 			//check path from position
 			if ((eqInD(n->position.x,n->destination.x,type->move_speed) &&
 						eqInD(n->position.y,n->destination.y,type->move_speed))||
@@ -518,5 +531,18 @@ int forEachNpc(gnode* grid, int (process)(gnode*g,npc*n)){//add function
 		if(config.npc_array[i].id>0)
 			if (process(grid,&config.npc_array[i])!=0)
 				return -1;
+	return 0;
+}
+
+
+int setHeroTargetByNode(gnode * grid,npc* n, int node){
+	npc * fake=&config.players[n->owner].$npc$;
+	if (grid[node].walkable<=0)
+		return -1;
+	fake->position.x=getGridx(node);
+	fake->position.y=getGridy(node);
+	fake->health=1;
+	n->ntarget=fake;
+	n->status=IN_MOVE;
 	return 0;
 }

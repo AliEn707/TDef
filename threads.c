@@ -10,6 +10,7 @@
 #include "engine_npc.h"
 #include "engine_tower.h"
 #include "engine_bullet.h"
+#include "types.h"
 
 
 #define sendData(x) if(send(sock,&x,sizeof(x),0)<0) return -1
@@ -137,12 +138,25 @@ void * threadListener(void * arg){
 			//add get player data
 			
 			//setup player change to get from server
-			int id=config.players_num;
+			int i;
+			int id;
+			id=config.players_num;
+			for (i=1;i<=config.players_num;i++)
+				if (config.players[i].id==0){
+					id=i;
+					break;
+				}
 			printf("client id set to %d\n",id);
 			/////
 			setupPlayer(id,id/*group*/);
 			
+			//fake setup base
 			config.players[id].base_type.health=2000;//base health
+			//fake setup hero
+			npc_type * type=typesNpcGet(HERO);
+			if (type!=0)
+				memcpy(&config.players[id].hero_type,type,sizeof(npc_type));
+			
 			config.players[id].money = 1000;//TODO:remove!
 
 //			printf("player id %d base %d on %d \n",id,config.players[id].base_id,config.bases[config.players[id].base_id].position);
@@ -153,6 +167,7 @@ void * threadListener(void * arg){
 			semop(config.sem.send,&sem[3],1);
 			
 			setPlayerBase(id,spawnTower(data->grid,config.bases[config.players[id].base_id].position,id,BASE));
+			setPlayerHero(id,spawnNpc(data->grid,config.points[config.bases[config.players[id].base_id].point_id].position,id,HERO));
 			//start worker
 			if (startWorker(sock,id,data->grid)<=0)
 				perror("startWorker");
