@@ -444,14 +444,15 @@ int tickMoveNpc(gnode* grid,npc* n){
 	}
 	if (n->status==IN_MOVE){
 		if (n->ttarget!=0 || n->ntarget!=0){
-			if (eqInD(n->position.x,n->ntarget->position.x,type->move_speed) &&
-					eqInD(n->position.y,n->ntarget->position.y,type->move_speed)){
-				n->ntarget=0;
-				n->path_count=0;
-				memset(n->path,-1,sizeof(int)*NPC_PATH);
-				printf("\ndest reached\n");
-				return 0;
-			}
+			if (n->ntarget!=0)
+				if (eqInD(n->position.x,n->ntarget->position.x,type->move_speed) &&
+						eqInD(n->position.y,n->ntarget->position.y,type->move_speed)){
+					n->ntarget=0;
+					n->path_count=0;
+					memset(n->path,-1,sizeof(int)*NPC_PATH);
+					printf("\ndest reached\n");
+					return 0;
+				}
 				
 			//check path from position
 			if ((eqInD(n->position.x,n->destination.x,type->move_speed) &&
