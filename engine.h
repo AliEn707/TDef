@@ -52,6 +52,7 @@ void setPlayerBase(int id,tower* base);
 void setPlayerHero(int id,npc* hero);
 
 void forEachPlayer(gnode * grid);
+void playersClearBitMasks();
 
 void printStats();
 

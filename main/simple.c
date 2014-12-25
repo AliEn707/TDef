@@ -189,7 +189,7 @@ int main(int argc, char* argv[]){
 	for (i=0;i<5;i++){
 		memset(config.players[i].tower_set,0,sizeof(config.players[i].tower_set));
 		memset(config.players[i].npc_set,0,sizeof(config.players[i].npc_set));
-	
+		config.players[i]._hero_counter=TPS*62;
 		for (j=0;j<9;j++){
 			config.players[i].tower_set[j].id=j+1;
 			config.players[i].tower_set[j].num=-1;
@@ -227,6 +227,8 @@ int main(int argc, char* argv[]){
 		forEachTower(grid,tickAttackTower);
 		
 		forEachBullet(grid,tickProcessBullet);
+		
+		forEachPlayer(grid);
 		
 		//set 1
 		sem_pl.sem_num=0;
@@ -297,7 +299,7 @@ int main(int argc, char* argv[]){
 		
 		//usleep(100000);
 		config.current_money_timer++;
-		forEachPlayer(grid);
+		playersClearBitMasks();
 		forEachNpc(grid,tickMiscNpc);
 		forEachTower(grid,tickMiscTower);
 		forEachBullet(grid,tickMiscBullet);

@@ -316,10 +316,17 @@ int sendPlayers(int sock,int id){
 	if (sock==0)
 		return 0;
 	for(i=0;i<=config.players_num;i++){
+		if (config.players[i].id==0)
+			continue;
 		bit_mask=config.players[i].bit_mask;
-		if (config.players[id].first_send!=0){
+		if (config.players[id].first_send!=0 || config.players[i].first_send!=0){
 			bit_mask|=PLAYER_CREATE;
+		}
+		if(checkMask(bit_mask,PLAYER_CREATE)){
 			bit_mask|=PLAYER_MONEY;
+			bit_mask|=PLAYER_HERO;
+			bit_mask|=PLAYER_HERO_COUNTER;
+			bit_mask|=PLAYER_HEALTH;
 		}
 		if (id != i)
 			bit_mask &= ~PLAYER_MONEY;
@@ -332,6 +339,7 @@ int sendPlayers(int sock,int id){
 			sendData(config.players[i].tower_set);
 			sendData(config.players[i].npc_set);
 			sendData(config.players[i].group);
+			sendData(config.players[i]._hero_counter);
 			//send info about base
 			int base_id=0;
 			if (config.players[i].base!=0) //TODO: check why not on first time
@@ -341,13 +349,16 @@ int sendPlayers(int sock,int id){
 			sendData(config.players[i].hero_type.health);
 			sendData(config.players[i].hero_type.shield);
 		}	
-		if(checkMask(bit_mask,PLAYER_HERO) || checkMask(bit_mask,PLAYER_CREATE)){
+		if(checkMask(bit_mask,PLAYER_HERO)){
 			int hero_id=0;
 			if (config.players[i].hero!=0) //TODO: check why not on first time
 				hero_id=config.players[i].hero->id;
 			sendData(hero_id);
 		}
-		if(checkMask(bit_mask,PLAYER_HEALTH) || checkMask(bit_mask,PLAYER_CREATE))
+		if(checkMask(bit_mask,PLAYER_HERO_COUNTER)){
+			sendData(config.players[i].hero_counter);
+		}
+		if(checkMask(bit_mask,PLAYER_HEALTH))
 			sendData(config.players[i].base_type.health);
 		if(checkMask(bit_mask,PLAYER_LEVEL))
 			sendData(config.players[i].level);

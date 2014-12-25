@@ -255,7 +255,9 @@ void forEachPlayer(gnode* grid) {
 		money_flag = 1; //need to give money!
 	}	
 	for (i = 0; i < config.game.players; i++) {
-		config.players[i].bit_mask = 0;
+		if (config.players[i].id==0)
+			continue;
+//		config.players[i].bit_mask = 0;
 		if (needLevelInc (&config.players[i])) {
 			printf("player = %d level = %d\n", i, config.players[i].level);
 			config.players[i].level++;
@@ -264,17 +266,29 @@ void forEachPlayer(gnode* grid) {
 		if (money_flag)
 			config.players[i].money += giveMoney(&config.players[i]);
 		if (config.players[i].hero==0){
-			if (config.players[i].hero_conter>HERO_COUNTER){
+			if (config.players[i].hero_counter>config.players[i]._hero_counter){
 				setPlayerHero(i,spawnNpc(grid,config.points[config.bases[config.players[i].base_id].point_id].position,i,HERO));
-				config.players[i].hero_conter=0;
+				config.players[i].hero_counter=0;
 				setMask(&config.players[i],PLAYER_HERO);
-			}else
-				config.players[i].hero_conter++;
+			}else{
+				config.players[i].hero_counter++;
+				//if (config.players[i].hero_counter%TPS==0)//set less solid
+				setMask(&config.players[i],PLAYER_HERO_COUNTER);
+			}
 		}
 	}
 	if (money_flag)
 		config.current_money_timer = 0;
 }
+
+void playersClearBitMasks(){
+	int i;
+	for (i = 0; i < config.game.players; i++) {
+		if (config.players[i].id==0)
+			continue;
+		config.players[i].bit_mask = 0;
+	}
+} 
 
 void printStats() {
 	int aa;

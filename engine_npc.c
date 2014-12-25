@@ -106,7 +106,7 @@ void setNpcBase(npc* n){
 	n->health=type->health;
 	n->shield=type->shield;
 	n->energy=type->energy;
-	
+//	printf("%d seted %d %d \n",n->id,type->health,type->shield);
 	//may be more
 }
 
@@ -426,8 +426,10 @@ int tickCleanNpc(gnode* grid,npc* n){
 		setMask(&config.players[n->last_attack], PLAYER_MONEY);
 	}
 	config.players[n->owner].stat.npcs_lost++;//n->owner lost one more npc
-	if (n->type==HERO)
+	if (n->type==HERO){
 		config.players[n->owner].hero=0;
+		setMask(&config.players[n->owner],PLAYER_HERO);
+	}
 	delNpc(grid,n);
 	memset(n,0,sizeof(npc));
 	//foeachNpc

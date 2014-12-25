@@ -81,6 +81,9 @@ out:
 	semOp(1); //drop sem send[1]
 	semOp(0);
 //	semOp(2);  //need to test, may be need
+	//add send stats to public
+	
+	memset(&config.players[data->id],0,sizeof(player));
 	semop(config.sem.player,&sem_pl[0],1);
 	config.players_num--;
 	semop(config.sem.player,&sem_pl[1],1);
