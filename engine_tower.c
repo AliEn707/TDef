@@ -236,6 +236,7 @@ int tickCleanTower(gnode* grid,tower* t){
 		return 0;
 	if (t->type==BASE){//TODO: add check for player lose
 		printf("player %d lose\n",t->owner);
+		config.players[t->owner].base=0;
 //		return 0;
 	}
 	if (t->type==BASE)

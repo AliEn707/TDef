@@ -237,6 +237,8 @@ struct npc{
 	effect effects; //полученные эффекты
 	struct npc* ntarget;
 	struct tower* ttarget;
+	int finded_base;
+	
 	int attack_count;
 	int path_count;
 	path path[NPC_PATH];

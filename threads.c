@@ -83,7 +83,12 @@ out:
 //	semOp(2);  //need to test, may be need
 	//add send stats to public
 	
-	memset(&config.players[data->id],0,sizeof(player));
+//	memset(&config.players[data->id],0,sizeof(player));
+	config.players[data->id].id=0;	
+	if (config.players[data->id].base!=0){
+		data->grid[config.players[data->id].base->position].tower=0;
+		config.players[data->id].base=0;
+	}
 	semop(config.sem.player,&sem_pl[0],1);
 	config.players_num--;
 	semop(config.sem.player,&sem_pl[1],1);
@@ -120,7 +125,7 @@ void * threadListener(void * arg){
 	timePassed(&tv);
 	config.players_num=0;
 	//
-	config.game.players=3;
+	//config.game.players=5;
 	//printf("sock %d\n",data->sock);
 	while(config.game.run!=0){
 		FD_ZERO(&read_fds);
@@ -144,7 +149,7 @@ void * threadListener(void * arg){
 			int i;
 			int id;
 			id=config.players_num;
-			for (i=1;i<=config.players_num;i++)
+			for (i=1;i<=config.game.players;i++)
 				if (config.players[i].id==0){
 					id=i;
 					break;
@@ -168,9 +173,10 @@ void * threadListener(void * arg){
 			
 			semop(config.sem.send,&sem[2],1);
 			semop(config.sem.send,&sem[3],1);
-			
-			setPlayerBase(id,spawnTower(data->grid,config.bases[config.players[id].base_id].position,id,BASE));
-			setPlayerHero(id,spawnNpc(data->grid,config.points[config.bases[config.players[id].base_id].point_id].position,id,HERO));
+			tower * base=spawnTower(data->grid,config.bases[config.players[id].base_id].position,id,BASE);
+			setPlayerBase(id,base);
+			npc * hero=spawnNpc(data->grid,config.points[config.bases[config.players[id].base_id].point_id].position,id,HERO);
+			setPlayerHero(id,hero);
 			//start worker
 			if (startWorker(sock,id,data->grid)<=0)
 				perror("startWorker");

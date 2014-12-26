@@ -14,7 +14,7 @@ gnode * loadMap(char *path){
 	FILE * file;
 	int err;
 	char filepath[25];
-	sprintf(filepath,"../%s.mp",path);
+	sprintf(filepath,"../maps/%s.mp",path);
 	config.global_id=1;
 	memset(config.players,0,sizeof(player)*PLAYER_MAX);
 	initAreaArray();
@@ -46,6 +46,10 @@ gnode * loadMap(char *path){
 	}
 	free(walk);
 	free(build);
+	
+	config.npc_max=1000;
+	config.tower_max=1000;
+	config.bullet_max=1000;
 	
 	while(feof(file)==0){
 		memset(buf,0,sizeof(buf));
@@ -94,6 +98,8 @@ gnode * loadMap(char *path){
 				err=fscanf(file,"%d %d\n",&config.bases[j].position,&config.bases[j].point_id);
 				config.bases[j].id=j;
 			}
+			
+			config.game.players=config.bases_size; //0 is AI and not playble
 			continue;
 		}
 		if (strcmp(buf,"points")==0){

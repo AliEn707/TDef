@@ -255,21 +255,38 @@ int tickTargetNpc(gnode* grid,npc* n){
 		return 0;
 	}
 	if(n->ttarget==0 && n->ntarget==0){
+		int id=-1;
 		n->path_count=NPC_PATH;
 		n->status=IN_MOVE;
 		if (findNearTower(grid,n,type->see_distanse)!=0)
 			goto out;
-	
+		
 		//if near no Towers
 		if (findNearNpc(grid,n,type->see_distanse)!=0)
 			goto out;
+		//try to go to previous base
+		if (n->finded_base>=0){
+			if (config.players[n->finded_base].base==0){
+//				printf("not found base %d\n",n->finded_base);
+				n->finded_base=-1;
+			}else{
+				id=config.bases[config.players[n->finded_base].base_id].position;
+//				printf("set id = %d\n",id);
+			}
+		}
 		
-		int id;
-		if((id=findEnemyBase(config.players[n->owner].group))<0)
-			return 0;  
-		
-		if ((n->ttarget=grid[id].tower)==0)
-			perror("ttarget tickTargetNpc");
+		if (id<0)
+			if((id=findEnemyBase(config.players[n->owner].group))<0)
+				return 0;  
+			
+//		printf("found %d \n",id);
+		if ((n->ttarget=grid[id].tower)!=0){
+			n->finded_base=grid[id].tower->owner;
+//			printf("set base founded = %d\n",n->finded_base);
+		}else{
+			perror("ttarget tickTargetNpc"); //no base found
+//			printf("on %d = %d\n",id,grid[id].tower);
+		}
 		if (n->ttarget==0 && n->ntarget==0){
 			n->status=IN_IDLE;
 			return 0;

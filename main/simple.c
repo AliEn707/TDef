@@ -119,7 +119,7 @@ int main(int argc, char* argv[]){
 	memset(&sem,0,sizeof(sem));
 	memset(&sem_pl,0,sizeof(sem_pl));
 	
-	sprintf(config.game.map,"test");
+	sprintf(config.game.map,"4");//"test");
 	config.game.port=34140;
 
 	if (argc>1){

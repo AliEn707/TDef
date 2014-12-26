@@ -315,7 +315,7 @@ int sendPlayers(int sock,int id){
 	char mes;
 	if (sock==0)
 		return 0;
-	for(i=0;i<=config.players_num;i++){
+	for(i=0;i<=config.game.players;i++){
 		if (config.players[i].id==0)
 			continue;
 		bit_mask=config.players[i].bit_mask;
