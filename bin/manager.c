@@ -40,9 +40,10 @@ messages and commands must be described in this file or another
 #include <pthread.h>
 #include <fcntl.h>
 
+#include "manager.h"
+
 #define MANAGER "manager.ini"
 
-#define sendData(sock,buf,need) send(sock,buf,need,MSG_NOSIGNAL)
 
 int stop = 0;
 
