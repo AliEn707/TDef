@@ -8,9 +8,10 @@
 #include "../network.h"
 #include "../threads.h"
 #include "../public.h"
+#include "../t_sem.h"
 //Test main file
 
-#define semInfo() printf("sem %d=>%d|%d=>%d|%d=>%d before sem %d action %d  %s:%d\n",0,semctl(config.sem.send,0,GETVAL),1,semctl(config.sem.send,1,GETVAL),2,semctl(config.sem.send,2,GETVAL),sem.sem_num,sem.sem_op,__FILE__,__LINE__)
+#define semInfo() printf("sem %d=>%d|%d=>%d|%d=>%d before sem %d action %d  %s:%d\n",0,semctl(t_sem.send,0,GETVAL),1,semctl(t_sem.send,1,GETVAL),2,semctl(t_sem.send,2,GETVAL),sem.sem_num,sem.sem_op,__FILE__,__LINE__)
 
 void pinfo(){
 	int i=0,
@@ -86,12 +87,12 @@ void segfault_sigaction(int signal, siginfo_t *si, void *arg)
 }
 
 int main(int argc, char* argv[]){
-	FILE * file;
+//	FILE * file;
 	struct sembuf sem;
 	struct sembuf sem_pl;
 	short test=1;
 	
-	int f_token,f_sem=0,f_shmem;
+//	int f_sem=0,f_token,f_shmem;
 	int f_port=0; //port in shared memmory
 	char * f_mem=0;
 	int listener;
@@ -125,6 +126,7 @@ int main(int argc, char* argv[]){
 	if (argc>1){
 		test=0;
 		parseArgv(argc,argv);//get game.port, game.token
+/* //TODO: repair
 		if ((file=fopen("manager.ini","r"))!=0){
 			char buffer[101];
 			int startport; //tmp need to set f_port
@@ -139,18 +141,20 @@ int main(int argc, char* argv[]){
 			fclose (file);
 			f_port=config.game.port-startport;
 			if ((f_token=ftok("manager.ini",100))>0)
-				if ((f_sem=semget(f_token,1,0))>0)
+			//	if ((f_sem=t_semget(f_token,1,0))>0) //to change
 					if ((f_shmem=shmget(f_token, servnum*sizeof(char), 0777))>0)
 						if ((f_mem=shmat(f_shmem,0,0))!=0){
-							sem.sem_num=0; 
-							sem.sem_op=-1; 
-							semop(f_sem, &sem, 1);
+//							sem.sem_num=0; 
+//							sem.sem_op=-1; 
+//							t_semop(f_sem, &sem, 1);
+							//TODO change to sockets
 							f_mem[f_port]=1;
-							sem.sem_num=0; 
-							sem.sem_op=1; 
-							semop(f_sem, &sem, 1);
+//							sem.sem_num=0; 
+//							sem.sem_op=1; 
+//							t_semop(f_sem, &sem, 1);
 						}
 		}
+*/
 		printf("port %d token %d\n",config.game.port,config.game.token);
 		
 		if (publicGetGame()<0){
@@ -233,29 +237,29 @@ int main(int argc, char* argv[]){
 		//set 1
 		sem_pl.sem_num=0;
 		sem_pl.sem_op=-1;
-		semop(config.sem.player,&sem_pl,1);
+		t_semop(t_sem.player,&sem_pl,1);
 		
 		sem.sem_num=1;
 		sem.sem_op=config.players_num+1;
 //		semInfo();
-		semop(config.sem.send,&sem,1);
+		t_semop(t_sem.send,&sem,1);
 		
 		//set 0
 		sem.sem_num=0;
 		sem.sem_op=config.players_num;
 //		semInfo();
 		usleep(10);
-		semop(config.sem.send,&sem,1);
+		t_semop(t_sem.send,&sem,1);
 		
 		sem.sem_num=2;
 		sem.sem_op=config.players_num*2;
 //		semInfo();
-		semop(config.sem.send,&sem,1);
+		t_semop(t_sem.send,&sem,1);
 		
 		sem_pl.sem_num=0;
 		sem_pl.sem_op=1;
 		usleep(10);
-		semop(config.sem.player,&sem_pl,1);
+		t_semop(t_sem.player,&sem_pl,1);
 		
 		syncTPS(timePassed(&tv),TPS);
 		if(config.players_num==0)
@@ -265,30 +269,30 @@ int main(int argc, char* argv[]){
 		sem.sem_op=0;
 //		semInfo();
 		usleep(10);
-		semop(config.sem.send,&sem,1);
+		t_semop(t_sem.send,&sem,1);
 		//drop 1
 		sem.sem_num=1;
 		sem.sem_op=-1;
 //		semInfo();
 		usleep(10);
-		semop(config.sem.send,&sem,1);
+		t_semop(t_sem.send,&sem,1);
 		//check 1
 		sem.sem_num=1;
 		sem.sem_op=0;
 //		semInfo();
-		err=semop(config.sem.send,&sem,1); 
+		err=t_semop(t_sem.send,&sem,1); 
 		if (err<0)
-			printf("semop err\n");
+			printf("t_semop err\n");
 		//check 0
 		sem.sem_num=0;
 		sem.sem_op=0;
 //		semInfo();
-		err=semop(config.sem.send,&sem,1); 
+		err=t_semop(t_sem.send,&sem,1); 
 		if (err<0)
-			printf("semop err\n");
+			printf("t_semop err\n");
 		
 //		if (err<0)
-//			printf("semop err\n");
+//			printf("t_semop err\n");
 		
 //		int z;
 		//z=timePassed(1);
@@ -323,18 +327,18 @@ int main(int argc, char* argv[]){
 		publicSendResults();
 	}
 end:
-	
+/*	
 	if (f_mem!=0){
 		sem.sem_num=0; 
 		sem.sem_op=-1; 
-		semop(f_sem, &sem, 1);
+		t_semop(f_sem, &sem, 1);
 		f_mem[f_port]=0;
 		sem.sem_num=0; 
 		sem.sem_op=1; 
-		semop(f_sem, &sem, 1);
+		t_semop(f_sem, &sem, 1);
 		shmdt(f_mem);
 	}
-	
+*/	
 //	memset(&config.wave_current,0,sizeof(config.wave_current));
 	
 //	clearAll(grid);

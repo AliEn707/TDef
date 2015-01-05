@@ -5,10 +5,10 @@
 #include <string.h>
 #include <time.h>
 #include <sys/time.h>
-#include <sys/types.h>
-#include <sys/ipc.h>
-#include <sys/sem.h>
-#include <sys/shm.h>
+//#include <sys/types.h>
+//#include <sys/ipc.h>
+//#include <sys/sem.h>
+//#include <sys/shm.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -398,11 +398,6 @@ struct config{
 		
 	int current_money_timer;
 	int max_money_timer;	
-		
-	struct {
-		int send;
-		int player;
-		} sem;
 		
 	struct {
 		int sock;

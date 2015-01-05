@@ -8,10 +8,11 @@
 #include "engine_npc.h"
 #include "engine_bullet.h"
 #include "types.h"
+#include "t_sem.h"
 
 #define sendData(x) if(_sendData(sock,&x,sizeof(x))<=0) return -1
 
-#define getSem(x) semget(IPC_PRIVATE, x, 0755 | IPC_CREAT)
+#define getSem(x) t_semget(IPC_PRIVATE, x, 0755 | IPC_CREAT)
 
 
 int _sendData(int sock, void * buf, int size){
@@ -74,13 +75,13 @@ int processMessage(worker_arg * data,char type){
 		printf("%d spawn tower %hd on %hd\n",data->id,t_id,node_id);		
 		sem_pl.sem_num=0;
 		sem_pl.sem_op=-1;
-		semop(config.sem.player,&sem_pl,1);
+		t_semop(t_sem.player,&sem_pl,1);
 		
 		spawnTower(data->grid,node_id,data->id,config.players[data->id].tower_set[t_id].id);
 		
 		sem_pl.sem_num=0;
 		sem_pl.sem_op=1;
-		semop(config.sem.player,&sem_pl,1);
+		t_semop(t_sem.player,&sem_pl,1);
 		return 0;
 	}
 	if (type==MSG_DROP_TOWER){
@@ -92,12 +93,12 @@ int processMessage(worker_arg * data,char type){
 		printf("%d drop tower on %hd\n",data->id,node_id);		
 		sem_pl.sem_num=0;
 		sem_pl.sem_op=-1;
-		semop(config.sem.player,&sem_pl,1);
+		t_semop(t_sem.player,&sem_pl,1);
 		if (data->grid[node_id].tower!=0)
 			removeTower(data->grid,data->grid[node_id].tower);
 		sem_pl.sem_num=0;
 		sem_pl.sem_op=1;
-		semop(config.sem.player,&sem_pl,1);
+		t_semop(t_sem.player,&sem_pl,1);
 		return 0;
 	}
 	if (type==MSG_SPAWN_NPC){
@@ -118,7 +119,7 @@ int processMessage(worker_arg * data,char type){
 		
 		sem_pl.sem_num=0;
 		sem_pl.sem_op=-1;
-		semop(config.sem.player,&sem_pl,1);
+		t_semop(t_sem.player,&sem_pl,1);
 		
 		spawnNpc(data->grid,
 				config.points[config.bases[config.players[data->id].base_id].point_id].position,
@@ -127,7 +128,7 @@ int processMessage(worker_arg * data,char type){
 		
 		sem_pl.sem_num=0;
 		sem_pl.sem_op=1;
-		semop(config.sem.player,&sem_pl,1);
+		t_semop(t_sem.player,&sem_pl,1);
 		return 0;
 	}
 	if (type==MSG_MOVE_HERO){
@@ -166,17 +167,17 @@ int startServer(int port,gnode * grid){
 	if(listen(listener, 1)<0)
 		perror("listen startServer");
 	
-	if ((config.sem.send=getSem(3))<0)
+	if ((t_sem.send=getSem(3))==0)
 		perror("get semsend startServer");
 //	sem.sem_num=0;
 //	sem.sem_op=1;
-//	semop(config.sem.send,&sem,1);
+//	t_semop(t_sem.send,&sem,1);
 	
-	if ((config.sem.player=getSem(1))<0)
+	if ((t_sem.player=getSem(1))==0)
 		perror("get semsend startServer");
 //	sem.sem_num=0;
 	sem.sem_op=1;
-	semop(config.sem.player,&sem,1);
+	t_semop(t_sem.player,&sem,1);
 	
 	config.game.run=1;
 	if (startListener(listener,grid)<=0)
@@ -187,12 +188,12 @@ int startServer(int port,gnode * grid){
 
 int realizeServer(){
 	int o=0;
-	if (semctl(config.sem.send,0,IPC_RMID)<0){
-		perror("semctl send realizeServer");
+	if (t_semctl(t_sem.send,0,IPC_RMID)<0){
+		perror("t_semctl send realizeServer");
 		o++;
 	}
-	if (semctl(config.sem.player,0,IPC_RMID)<0){
-		perror("semctl player realizeServer");
+	if (t_semctl(t_sem.player,0,IPC_RMID)<0){
+		perror("t_semctl player realizeServer");
 		o++;
 	}
 	return o;
@@ -362,8 +363,10 @@ int sendPlayers(int sock,int id){
 			sendData(config.players[i].base_type.health);
 		if(checkMask(bit_mask,PLAYER_LEVEL))
 			sendData(config.players[i].level);
-		if(/*i == id && */(checkMask(bit_mask,PLAYER_MONEY)))
+		if(/*i == id && */(checkMask(bit_mask,PLAYER_MONEY))){
+			printf("send_money\n");
 			sendData(config.players[i].money);
+		}
 	}
 	return 0;
 }

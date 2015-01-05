@@ -11,14 +11,15 @@
 #include "engine_tower.h"
 #include "engine_bullet.h"
 #include "types.h"
+#include "t_sem.h"
 
 
 #define sendData(x) if(send(sock,&x,sizeof(x),0)<0) return -1
 
 #define getSem(x) semget(IPC_PRIVATE, x, 0666 | IPC_CREAT)
 
-// printf("worker %d sem %d=>%d|%d=>%d|%d=>%d before sem %d action %d\n",data->id,0,semctl(config.sem.send,0,GETVAL),1,semctl(config.sem.send,1,GETVAL),2,semctl(config.sem.send,2,GETVAL),sem[x].sem_num,sem[x].sem_op); 
-#define semOp(x)				semop(config.sem.send,&sem[x],1)
+// printf("worker %d sem %d=>%d|%d=>%d|%d=>%d before sem %d action %d\n",data->id,0,semctl(t_sem.send,0,GETVAL),1,semctl(t_sem.send,1,GETVAL),2,semctl(t_sem.send,2,GETVAL),sem[x].sem_num,sem[x].sem_op); 
+#define semOp(x)				t_semop(t_sem.send,&sem[x],1)
 
 /// worker thread get data from server and change world
 void * threadWorker(void * arg){
@@ -39,6 +40,7 @@ void * threadWorker(void * arg){
 	//printf("sock %d\n",data->sock);
 	while(config.game.run!=0){
 	//	printf("work\n");
+		usleep(10000);
 		semOp(3);
 	//	printf("sock %d\n",data->sock);
 		for(i=0;i<10;i++){
@@ -69,7 +71,7 @@ void * threadWorker(void * arg){
 			break;
 		if (sendPlayers(data->sock,data->id)<0)
 			break;
-		//while(semctl(config.sem.send,1,GETVAL)!=config.players_num)
+		//while(semctl(t_sem.send,1,GETVAL)!=config.players_num)
 		semOp(1);
 		sleep(0);
 		semOp(2); //thread 4 stops here
@@ -89,9 +91,9 @@ out:
 		data->grid[config.players[data->id].base->position].tower=0;
 		config.players[data->id].base=0;
 	}
-	semop(config.sem.player,&sem_pl[0],1);
+	t_semop(t_sem.player,&sem_pl[0],1);
 	config.players_num--;
-	semop(config.sem.player,&sem_pl[1],1);
+	t_semop(t_sem.player,&sem_pl[1],1);
 	printf("close worker\n");
 	free(data);
 	return 0;
@@ -141,7 +143,7 @@ void * threadListener(void * arg){
 			}
 			//check connected user
 			printf("client connected\n");
-			semop(config.sem.player,&sem[0],1);
+			t_semop(t_sem.player,&sem[0],1);
 			config.players_num++;
 			//add get player data
 			
@@ -168,11 +170,11 @@ void * threadListener(void * arg){
 			config.players[id].money = 1000;//TODO:remove!
 
 //			printf("player id %d base %d on %d \n",id,config.players[id].base_id,config.bases[config.players[id].base_id].position);
-			semop(config.sem.player,&sem[1],1);
+			t_semop(t_sem.player,&sem[1],1);
 			
 			
-			semop(config.sem.send,&sem[2],1);
-			semop(config.sem.send,&sem[3],1);
+			t_semop(t_sem.send,&sem[2],1);
+			t_semop(t_sem.send,&sem[3],1);
 			tower * base=spawnTower(data->grid,config.bases[config.players[id].base_id].position,id,BASE);
 			setPlayerBase(id,base);
 			npc * hero=spawnNpc(data->grid,config.points[config.bases[config.players[id].base_id].point_id].position,id,HERO);
