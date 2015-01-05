@@ -92,9 +92,6 @@ int main(int argc, char* argv[]){
 	struct sembuf sem_pl;
 	short test=1;
 	
-//	int f_sem=0,f_token,f_shmem;
-	int f_port=0; //port in shared memmory
-	char * f_mem=0;
 	int listener;
 	int err;
 	struct timeval tv={0,0};
@@ -125,7 +122,22 @@ int main(int argc, char* argv[]){
 
 	if (argc>1){
 		test=0;
+		int manager=0;
+		char $_$=0;
 		parseArgv(argc,argv);//get game.port, game.token
+		manager=connectToHost("localhost",7920);
+		if (manager==0)
+			return 0;
+		if (_sendData(manager,&config.game.port,sizeof(config.game.port))<=0)
+			return -1;
+		if (recvData(manager,&$_$,sizeof($_$))<=0)
+			return -1;
+		if ($_$!=-1)
+			return -1;
+		$_$=1;
+		if (_sendData(manager,&$_$,sizeof($_$))<=0)
+			return -1;
+		close(manager);
 /* //TODO: repair
 		if ((file=fopen("manager.ini","r"))!=0){
 			char buffer[101];
@@ -158,7 +170,6 @@ int main(int argc, char* argv[]){
 		printf("port %d token %d\n",config.game.port,config.game.token);
 		
 		if (publicGetGame()<0){
-			f_mem[f_port]=0;
 			goto end;
 //			return 0;
 		}
@@ -327,18 +338,20 @@ int main(int argc, char* argv[]){
 		publicSendResults();
 	}
 end:
-/*	
-	if (f_mem!=0){
-		sem.sem_num=0; 
-		sem.sem_op=-1; 
-		t_semop(f_sem, &sem, 1);
-		f_mem[f_port]=0;
-		sem.sem_num=0; 
-		sem.sem_op=1; 
-		t_semop(f_sem, &sem, 1);
-		shmdt(f_mem);
+	//send to clear port
+	if (test==0){
+		int manager=0;
+		char $_$=-1;
+		manager=connectToHost("localhost",7920);
+		if (manager!=0){
+			if (_sendData(manager,&config.game.port,sizeof(config.game.port))<=0)
+				return -1;
+			if (_sendData(manager,&$_$,sizeof($_$))<=0)
+				return -1;
+			close(manager);
+		}
 	}
-*/	
+	
 //	memset(&config.wave_current,0,sizeof(config.wave_current));
 	
 //	clearAll(grid);

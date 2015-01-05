@@ -1,5 +1,6 @@
 //recv size data to buf
 int recvData(int sock, void * buf, int size);
+int _sendData(int sock, void * buf, int size);
 
 int processMessage(worker_arg * data,char type);
 
@@ -18,3 +19,5 @@ int sendPlayers(int sock,int id);
 int sendTest(int sock);
 
 int networkAuth(worker_arg *data);
+
+int connectToHost(char* host, int port);

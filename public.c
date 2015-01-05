@@ -25,32 +25,8 @@
 
 #define sendData(sock,x,y) if(send(sock,x,y,MSG_NOSIGNAL)<=0) return -1 
 static int publicConnect(){
-	int sockfd;
-	struct sockaddr_in servaddr;
-	struct hostent *server;
-	server = gethostbyname(PUBLIC_HOSTNAME);
-	if (server == NULL) {
-		perror("gethostbyname");
-		return -1;
-	}
-	
-	if((sockfd=socket(AF_INET,SOCK_STREAM,0))<0){
-		perror("socket");
-		return -1;
-	}
-	//set sock to config struct
-	config.game.sock=sockfd;
-	memset(&servaddr,0,sizeof(servaddr));
-	servaddr.sin_family = AF_INET;
-	memcpy((char *)&servaddr.sin_addr.s_addr,(char *)server->h_addr, server->h_length);
-//	servaddr.sin_addr.s_addr=inet_addr("172.16.1.40");//argv[1]);
-	servaddr.sin_port=htons(PUBLIC_PORT);
-
-	if(connect(sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr))<0){
-		perror("connect");
-		return -2;
-	}	
-	return sockfd;
+	config.game.sock=connectToHost(PUBLIC_HOSTNAME,PUBLIC_PORT);//set sock to config struct
+	return config.game.sock;
 }
 
 
@@ -99,7 +75,7 @@ int publicSendResults(){
 		if (sockfd<=0)
 			return -1;
 		sendData(sockfd,&mes,sizeof(mes));
-		sockfd=config.game.sock;
+		config.game.sock=sockfd;
 	}
 	sendData(sockfd,&config.game.token,sizeof(config.game.token));
 	//add some data

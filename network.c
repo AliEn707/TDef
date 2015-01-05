@@ -386,3 +386,31 @@ int networkAuth(worker_arg *data){
 	sendData(tmp);
 	return 0;
 }
+
+int connectToHost(char* host, int port){
+	int sockfd;
+	struct sockaddr_in servaddr;
+	struct hostent *server;
+	server = gethostbyname(host);
+	if (server == NULL) {
+		perror("gethostbyname");
+		return -1;
+	}
+	
+	if((sockfd=socket(AF_INET,SOCK_STREAM,0))<0){
+		perror("socket");
+		return -1;
+	}
+	memset(&servaddr,0,sizeof(servaddr));
+	servaddr.sin_family = AF_INET;
+	memcpy((char *)&servaddr.sin_addr.s_addr,(char *)server->h_addr, server->h_length);
+//	servaddr.sin_addr.s_addr=inet_addr("172.16.1.40");//argv[1]);
+	servaddr.sin_port=htons(port);
+
+	if(connect(sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr))<0){
+		perror("connect");
+		return -2;
+	}	
+	return sockfd;
+
+}
