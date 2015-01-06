@@ -150,6 +150,7 @@ void * manager(void * arg) {
 	while (!stop) {
 		FD_ZERO(&read_fds);
 		FD_SET(listener, &read_fds);
+		FD_SET(p_listener, &read_fds);
 		if (select (m_m + 1, &read_fds, 0, 0, 0/*&tv*/) > 0) {
 			if (FD_ISSET(listener, &read_fds)){
 				if ((sock = accept(listener, NULL, NULL))<0)
@@ -237,16 +238,21 @@ void * manager(void * arg) {
 				}
 			}
 			if (FD_ISSET(p_listener, &read_fds)){
+//				printf("wait room\n");
 				if ((sock = accept(p_listener, NULL, NULL))<0)
 					perror("Failed to accept");
 //				char msg_type;//TODO: maybe fix!
+//				printf("connected room\n");
 				int msg_port;
 				char data;
 				recvData(sock,&msg_port,sizeof(msg_port));
-				data=ports_info[msg_port-startport];
-				sendData(sock,&data,sizeof(data));
-				if (recvData(sock,&data,sizeof(data))>0){
-					ports_info[msg_port-startport]=data;
+				if (msg_port>=startport && msg_port<startport+servnum){
+					data=ports_info[msg_port-startport];
+//					printf("get port %d = %d\n",msg_port,data);
+					sendData(sock,&data,sizeof(data));
+					if (recvData(sock,&data,sizeof(data))>0){
+						ports_info[msg_port-startport]=data;
+					}
 				}
 				close(sock);
 			}

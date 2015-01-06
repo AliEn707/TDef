@@ -40,7 +40,7 @@ static void syncTPS(int z,int TPS){
 	}
 }
 
-#define map "for4"
+char map[50]="4";
 #define MESSAGE_ROOM_STATUS 1
 
 static int proceedServerMessage(char msg_type){
@@ -58,7 +58,7 @@ static int proceedServerMessage(char msg_type){
 		sendData(sock,map,l_l);
 		//send data to client
 		//----------------
-		
+		sendData(client,&port,sizeof(port));
 		return 0;
 	}
 	return -1;
@@ -108,7 +108,9 @@ void * perfTest(void * arg){
 	if ((client = accept(listener, NULL, NULL))<0)
 				perror("Failed to accept");
 	printf("client connected\n");
-	
+	short l_l;
+	recvData(client,&l_l,sizeof(l_l));
+	recvData(client,map,l_l);
 	close(listener);
 	
 	if ((listener = socket(AF_INET, SOCK_STREAM, 0)) < 0)

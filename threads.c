@@ -147,28 +147,28 @@ void * threadListener(void * arg){
 			config.players_num++;
 			//add get player data
 			
-			//setup player change to get from server
-			int i;
-			int id;
-			id=config.players_num;
-			for (i=1;i<=config.game.players;i++)
-				if (config.players[i].id==0){
-					id=i;
-					break;
-				}
-			printf("client id set to %d\n",id);
-			/////
-			setupPlayer(id,id/*group*/);
-			
-			//fake setup base
-			config.players[id].base_type.health=2000;//base health
-			//fake setup hero
-			npc_type * type=typesNpcGet(HERO);
-			if (type!=0)
-				memcpy(&config.players[id].hero_type,type,sizeof(npc_type));
-			
-			config.players[id].money = 1000;//TODO:remove!
-
+//////////////////////////setup player change to get from server
+				int i;
+				int id;
+				id=config.players_num;
+				for (i=1;i<=config.game.players;i++)
+					if (config.players[i].id==0){
+						id=i;
+						break;
+					}
+				printf("client id set to %d\n",id);
+				/////
+				setupPlayer(id,id/*group*/);
+				
+				//fake setup base
+				config.players[id].base_type.health=2000;//base health
+				//fake setup hero
+				npc_type * type=typesNpcGet(HERO);
+				if (type!=0)
+					memcpy(&config.players[id].hero_type,type,sizeof(npc_type));
+				
+				config.players[id].money = 1000;//TODO:remove!
+///////////////////////////////////////////
 //			printf("player id %d base %d on %d \n",id,config.players[id].base_id,config.bases[config.players[id].base_id].position);
 			t_semop(t_sem.player,&sem[1],1);
 			

@@ -128,15 +128,19 @@ int main(int argc, char* argv[]){
 		manager=connectToHost("localhost",7920);
 		if (manager==0)
 			return 0;
+//		printf("connected to manager\n");
 		if (_sendData(manager,&config.game.port,sizeof(config.game.port))<=0)
 			return -1;
+//		printf("sent port\n");
 		if (recvData(manager,&$_$,sizeof($_$))<=0)
 			return -1;
+//		printf("get %d\n",$_$);
 		if ($_$!=-1)
 			return -1;
 		$_$=1;
 		if (_sendData(manager,&$_$,sizeof($_$))<=0)
 			return -1;
+//		printf("send ");
 		close(manager);
 /* //TODO: repair
 		if ((file=fopen("manager.ini","r"))!=0){
