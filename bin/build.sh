@@ -1,3 +1,3 @@
 #!/bin/sh
 uname -m && echo build
-gcc simple.c ../*.c -lm -g -Wall -lpthread -o server
+gcc simple.c ../src/*.c -lm -g -Wall -lpthread -o server

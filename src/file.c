@@ -8,11 +8,13 @@
 #include "engine_bullet.h"
 #include "types.h"
 
+static signed err;
+
 //map file parser
 gnode * loadMap(char *path){
 	gnode * grid;
 	FILE * file;
-	int err;
+//	int err;
 	char filepath[25];
 	sprintf(filepath,"../maps/%s.mp",path);
 	config.global_id=1;
@@ -156,6 +158,7 @@ int loadNpcTypes(){
 	char * filepath="../data/types/npc.cfg";
 	FILE * file;
 	npc_type* n_n=0;
+//	int err;
 	char buf[100];
 	printf("Load npc types....");
 	if ((file=fopen(filepath,"rt"))==0){
@@ -170,84 +173,84 @@ int loadNpcTypes(){
 				return 1;
 			}
 		memset(buf,0,sizeof(buf));
-		fscanf(file,"%s ",buf);
+		err=fscanf(file,"%s ",buf);
 //		printf("%s  ||\n",buf);
 		if (strcmp(buf,"//-")==0){
-			fscanf(file,"%s\n",buf);
+			err=fscanf(file,"%s\n",buf);
 			typesNpcAdd(n_n->id,n_n);
 			n_n=0;
 			continue;
 		}
 		if (strcmp(buf,"name")==0){
-			fscanf(file,"%s\n",buf);
+			err=fscanf(file,"%s\n",buf);
 			continue;
 		}
 		if (strcmp(buf,"id")==0){
-			fscanf(file,"%d\n",&n_n->id);
+			err=fscanf(file,"%d\n",&n_n->id);
 			continue;
 		}
 		if (strcmp(buf,"health")==0){
-			fscanf(file,"%d\n",&n_n->health);
+			err=fscanf(file,"%d\n",&n_n->health);
 			continue;
 		}
 		if (strcmp(buf,"damage")==0){
-			fscanf(file,"%d\n",&n_n->damage);
+			err=fscanf(file,"%d\n",&n_n->damage);
 			continue;
 		}
 		if (strcmp(buf,"shield")==0){
-			fscanf(file,"%d\n",&n_n->shield);
+			err=fscanf(file,"%d\n",&n_n->shield);
 			continue;
 		}
 		if (strcmp(buf,"energy")==0){
-			fscanf(file,"%d\n",&n_n->energy);
+			err=fscanf(file,"%d\n",&n_n->energy);
 			continue;
 		}
 		if (strcmp(buf,"armor")==0){
-			fscanf(file,"%f\n",&n_n->armor);
+			err=fscanf(file,"%f\n",&n_n->armor);
 			continue;
 		}		
 		if (strcmp(buf,"support")==0){
-			fscanf(file,"%d\n",&n_n->support);
+			err=fscanf(file,"%d\n",&n_n->support);
 			continue;
 		}
 		if (strcmp(buf,"see_distanse")==0){
-			fscanf(file,"%d\n",&n_n->see_distanse);
+			err=fscanf(file,"%d\n",&n_n->see_distanse);
 			continue;
 		}
 		if (strcmp(buf,"attack_distanse")==0){
-			fscanf(file,"%d\n",&n_n->attack_distanse);
+			err=fscanf(file,"%d\n",&n_n->attack_distanse);
 			continue;
 		}
 		if (strcmp(buf,"attack_speed")==0){
 			float tmp;
-			fscanf(file,"%f\n",&tmp);
+			err=fscanf(file,"%f\n",&tmp);
 			n_n->attack_speed=TPS/tmp;
 			continue;
 		}
 		if (strcmp(buf,"move_speed")==0){
 			float tmp;
-			fscanf(file,"%f\n",&tmp);
+			err=fscanf(file,"%f\n",&tmp);
 			n_n->move_speed=tmp/TPS;
 			continue;
 		}
 		if (strcmp(buf,"cost")==0){
-			fscanf(file,"%d\n",&n_n->cost);
+			err=fscanf(file,"%d\n",&n_n->cost);
 			continue;
 		}
 		if (strcmp(buf,"receive")==0){
-			fscanf(file,"%d\n",&n_n->receive);
+			err=fscanf(file,"%d\n",&n_n->receive);
 			continue;
 		}
 		if (strcmp(buf,"bullet_type")==0){
-			fscanf(file,"%d\n",&n_n->bullet_type);
+			err=fscanf(file,"%d\n",&n_n->bullet_type);
 			continue;
 		}
 		if (strcmp(buf,"type")==0){
-			fscanf(file,"%d\n",&n_n->type);
+			err=fscanf(file,"%d\n",&n_n->type);
 			continue;
 		}
 		if (strcmp(buf,"attack_tower")==0){
-			fscanf(file,"%hd\n",&n_n->attack_tower);
+			err=fscanf(file,"%hd\n",&n_n->attack_tower);
 			continue;
 		}		
 	}
@@ -265,6 +268,7 @@ int loadTowerTypes(){
 	FILE * file;
 	tower_type* t_t=0;
 	char buf[100];
+//	int err;
 	printf("Load tower types....");
 	if ((file=fopen(filepath,"rt"))==0){
 		perror("fopen loadTowerTypes");
@@ -273,74 +277,74 @@ int loadTowerTypes(){
 	
 	while(feof(file)==0){
 		memset(buf,0,sizeof(buf));
-		fscanf(file,"%s ",buf);
+		err=fscanf(file,"%s ",buf);
 //		printf("%s  ||\n",buf);
 		if (t_t==0)
 			if((t_t=malloc(sizeof(tower_type)))==0)
 				perror("malloc tower loadTypes");
 			
 		if (strcmp(buf,"//-")==0){
-			fscanf(file,"%s\n",buf);
+			err=fscanf(file,"%s\n",buf);
 			typesTowerAdd(t_t->id,t_t);
 			t_t=0;
 			continue;
 		}
 		if (strcmp(buf,"name")==0){
-			fscanf(file,"%s\n",buf);
+			err=fscanf(file,"%s\n",buf);
 			continue;
 		}
 		if (strcmp(buf,"id")==0){
-			fscanf(file,"%d\n",&t_t->id);
+			err=fscanf(file,"%d\n",&t_t->id);
 			continue;
 		}
 		if (strcmp(buf,"health")==0){
-			fscanf(file,"%d\n",&t_t->health);
+			err=fscanf(file,"%d\n",&t_t->health);
 			continue;
 		}
 		if (strcmp(buf,"damage")==0){
-			fscanf(file,"%d\n",&t_t->damage);
+			err=fscanf(file,"%d\n",&t_t->damage);
 			continue;
 		}
 		if (strcmp(buf,"energy")==0){
-			fscanf(file,"%d\n",&t_t->energy);
+			err=fscanf(file,"%d\n",&t_t->energy);
 			continue;
 		}
 		if (strcmp(buf,"shield")==0){
-			fscanf(file,"%d\n",&t_t->shield);
+			err=fscanf(file,"%d\n",&t_t->shield);
 			continue;
 		}
 		if (strcmp(buf,"armor")==0){
-			fscanf(file,"%f\n",&t_t->armor);
+			err=fscanf(file,"%f\n",&t_t->armor);
 			continue;
 		}			
 		if (strcmp(buf,"attack_distanse")==0){
-			fscanf(file,"%d\n",&t_t->distanse);
+			err=fscanf(file,"%d\n",&t_t->distanse);
 			continue;
 		}
 		if (strcmp(buf,"attack_speed")==0){
 			float tmp;
-			fscanf(file,"%f\n",&tmp);
+			err=fscanf(file,"%f\n",&tmp);
 			t_t->attack_speed=TPS/tmp;
 			continue;
 		}
 		if (strcmp(buf,"cost")==0){
-			fscanf(file,"%d\n",&t_t->cost);
+			err=fscanf(file,"%d\n",&t_t->cost);
 			continue;
 		}
 		if (strcmp(buf,"receive")==0){
-			fscanf(file,"%d\n",&t_t->receive);
+			err=fscanf(file,"%d\n",&t_t->receive);
 			continue;
 		}
 		if (strcmp(buf,"ignor_type")==0){
-			fscanf(file,"%d\n",&t_t->ignor_type);
+			err=fscanf(file,"%d\n",&t_t->ignor_type);
 			continue;
 		}
 		if (strcmp(buf,"prior_type")==0){
-			fscanf(file,"%d\n",&t_t->prior_type);
+			err=fscanf(file,"%d\n",&t_t->prior_type);
 			continue;
 		}
 		if (strcmp(buf,"bullet_type")==0){
-			fscanf(file,"%d\n",&t_t->bullet_type);
+			err=fscanf(file,"%d\n",&t_t->bullet_type);
 			continue;
 		}
 		
@@ -359,6 +363,7 @@ int loadBulletTypes(){
 	FILE * file;
 	bullet_type* b_b=0;
 	char buf[100];
+//	int err;
 	printf("Load bullet types....");
 	if ((file=fopen(filepath,"rt"))==0){
 		perror("fopen loadBulletTypes");
@@ -367,38 +372,38 @@ int loadBulletTypes(){
 	
 	while(feof(file)==0){
 		memset(buf,0,sizeof(buf));
-		fscanf(file,"%s ",buf);
+		err=fscanf(file,"%s ",buf);
 		if (b_b==0)
 			if((b_b=malloc(sizeof(bullet_type)))==0)
 				perror("malloc bullet loadTypes");
 			
 //		printf("%s  ||\n",buf);
 		if (strcmp(buf,"name")==0){
-			fscanf(file,"%s\n",buf);
+			err=fscanf(file,"%s\n",buf);
 			continue;
 		}
 		if (strcmp(buf,"//-")==0){
-			fscanf(file,"%s\n",buf);
+			err=fscanf(file,"%s\n",buf);
 			typesBulletAdd(b_b->id,b_b);
 			b_b=0;
 			continue;
 		}
 		if (strcmp(buf,"id")==0){
-			fscanf(file,"%d\n",&b_b->id);
+			err=fscanf(file,"%d\n",&b_b->id);
 			continue;
 		}
 		if (strcmp(buf,"speed")==0){
 			float tmp;
-			fscanf(file,"%f\n",&tmp);
+			err=fscanf(file,"%f\n",&tmp);
 			b_b->speed=tmp/TPS;
 			continue;
 		}
 		if (strcmp(buf,"attack_type")==0){
-			fscanf(file,"%d\n",&b_b->attack_type);
+			err=fscanf(file,"%d\n",&b_b->attack_type);
 			continue;
 		}
 		if (strcmp(buf,"move_type")==0){
-			fscanf(file,"%d\n",&b_b->move_type);
+			err=fscanf(file,"%d\n",&b_b->move_type);
 			continue;
 		}
 		
