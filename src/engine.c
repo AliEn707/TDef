@@ -141,7 +141,7 @@ int canWalkThrough(gnode* grid,vec* a,vec* b){
 	int destination=to2d((int)x2,(int)y2);
 	if (x1!=x2){
 		if (x1>x2){
-			int tmp;
+			typeof(x1) tmp;
 			tmp=x1;
 			x1=x2;
 			x2=tmp;
@@ -162,7 +162,7 @@ int canWalkThrough(gnode* grid,vec* a,vec* b){
 		}
 	}else{
 		if (y1>y2){
-			int tmp;
+			typeof(x1) tmp;
 			tmp=x1;
 			x1=x2;
 			x2=tmp;
