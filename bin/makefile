@@ -1,14 +1,14 @@
 
-NORMAL_FLAGS = -m32 -lm -g -Wall -lpthread
-OPTIMIZED_FLAGS = -march=native -m32 -lm -Wall -lpthread -O3 -ffast-math
+NORMAL_FLAGS = -lm -g -Wall -lpthread
+OPTIMIZED_FLAGS = -march=native -lm -Wall -lpthread -O3 -ffast-math
 C_FLAGS = $(NORMAL_FLAGS)
 
 ifeq ($(build),release)
 	C_FLAGS = $(OPTIMIZED_FLAGS)
 endif
 
-server:	simple.c ../*.c ../*.h
-	gcc simple.c ../*.c $(C_FLAGS) -c
+server:	simple.c ../src/*.c ../src/*.h
+	gcc simple.c ../src/*.c $(C_FLAGS) -c
 	mv *.o objects/
 	gcc objects/*.o $(C_FLAGS) -o server
 	

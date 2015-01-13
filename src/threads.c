@@ -18,7 +18,7 @@
 
 #define getSem(x) semget(IPC_PRIVATE, x, 0666 | IPC_CREAT)
 
-// printf("worker %d sem %d=>%d|%d=>%d|%d=>%d before sem %d action %d\n",data->id,0,semctl(t_sem.send,0,GETVAL),1,semctl(t_sem.send,1,GETVAL),2,semctl(t_sem.send,2,GETVAL),sem[x].sem_num,sem[x].sem_op); 
+// printDebug("worker %d sem %d=>%d|%d=>%d|%d=>%d before sem %d action %d\n",data->id,0,semctl(t_sem.send,0,GETVAL),1,semctl(t_sem.send,1,GETVAL),2,semctl(t_sem.send,2,GETVAL),sem[x].sem_num,sem[x].sem_op); 
 #define semOp(x)				t_semop(t_sem.send,&sem[x],1)
 
 /// worker thread get data from server and change world
@@ -37,12 +37,12 @@ void * threadWorker(void * arg){
 	//send start data
 	if (networkAuth(data)!=0)
 		return (void *)-1;
-	//printf("sock %d\n",data->sock);
+	//printDebug("sock %d\n",data->sock);
 	while(config.game.run!=0){
-	//	printf("work\n");
+	//	printDebug("work\n");
 		usleep(10000);
 		semOp(3);
-	//	printf("sock %d\n",data->sock);
+	//	printDebug("sock %d\n",data->sock);
 		for(i=0;i<10;i++){
 			if (recv(data->sock,&msg_type,sizeof(msg_type),MSG_DONTWAIT)<0){
 				if (errno==EAGAIN){
@@ -94,7 +94,7 @@ out:
 	t_semop(t_sem.player,&sem_pl[0],1);
 	config.players_num--;
 	t_semop(t_sem.player,&sem_pl[1],1);
-	printf("close worker\n");
+	printDebug("close worker\n");
 	free(data);
 	return 0;
 }
@@ -107,7 +107,7 @@ pthread_t startWorker(int sock,int id,gnode *grid){
 	data->sock=sock;
 	data->id=id;
 	data->grid=grid;
-//	printf("sock %d\n",data->sock);
+//	printDebug("sock %d\n",data->sock);
 	if(pthread_create(&th,0,threadWorker,data)!=0)
 		return 0;
 	return th;
@@ -128,11 +128,11 @@ void * threadListener(void * arg){
 	config.players_num=0;
 	//
 	//config.game.players=5;
-	//printf("sock %d\n",data->sock);
+	//printDebug("sock %d\n",data->sock);
 	while(config.game.run!=0){
 		FD_ZERO(&read_fds);
 		FD_SET(listener, &read_fds);
-		printf("wait for client\n");
+		printDebug("wait for client\n");
 		if (select (listener + 1, &read_fds, 0, 0, 0) > 0) {
 			if((sock = accept(listener, NULL, NULL))<0)  //thread 2 stops here
 				perror("accept startServer");
@@ -142,7 +142,7 @@ void * threadListener(void * arg){
 				continue;
 			}
 			//check connected user
-			printf("client connected\n");
+			printDebug("client connected\n");
 			t_semop(t_sem.player,&sem[0],1);
 			config.players_num++;
 			//add get player data
@@ -156,7 +156,7 @@ void * threadListener(void * arg){
 						id=i;
 						break;
 					}
-				printf("client id set to %d\n",id);
+				printDebug("client id set to %d\n",id);
 				/////
 				setupPlayer(id,id/*group*/);
 				
@@ -169,7 +169,7 @@ void * threadListener(void * arg){
 				
 				config.players[id].money = 1000;//TODO:remove!
 ///////////////////////////////////////////
-//			printf("player id %d base %d on %d \n",id,config.players[id].base_id,config.bases[config.players[id].base_id].position);
+//			printDebug("player id %d base %d on %d \n",id,config.players[id].base_id,config.bases[config.players[id].base_id].position);
 			t_semop(t_sem.player,&sem[1],1);
 			
 			
@@ -188,20 +188,20 @@ void * threadListener(void * arg){
 		syncTPS(timePassed(&tv),TPS);
 	}
 //	close(listener);
-	printf("close listener\n");
+	printDebug("close listener\n");
 	free(data);
 	return 0;
 }
 
 pthread_t startListener(int sock, gnode* grid){
 	worker_arg *data;
-	printf("start listener\n");
+	printDebug("start listener\n");
 	if ((data=malloc(sizeof(worker_arg)))==0)
 		perror("malloc startListener");
 	pthread_t th=0;
 	data->sock=sock;
 	data->grid=grid;
-//	printf("sock %d\n",data->sock);
+//	printDebug("sock %d\n",data->sock);
 	if(pthread_create(&th,0,threadListener,data)!=0)
 		return 0;
 	return th;

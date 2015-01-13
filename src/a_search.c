@@ -197,10 +197,10 @@ int main(){
 	int a=aSearch(grid,grid+80,grid+3);
 	for(i=0;i<10;i++){
 		for(j=0;j<10;j++)
-			printf("{%d}[%d]%d ",grid[to2d(i,j)].buildable,grid[to2d(i,j)].id,grid[to2d(i,j)].next);
-		printf("\n");
+			printDebug("{%d}[%d]%d ",grid[to2d(i,j)].buildable,grid[to2d(i,j)].id,grid[to2d(i,j)].next);
+		printDebug("\n");
 	}
 	
-	printf("%d\n",a);
+	printDebug("%d\n",a);
 }
 */

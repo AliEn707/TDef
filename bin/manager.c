@@ -192,7 +192,7 @@ void * manager(void * arg) {
 //					semop(sem_id, &sem_server, 1);
 					pid_t pid;
 					if (flag != -1) {
-						char port_arg[15], token_arg[15];
+						char port_arg[15], token_armg[15];
 						switch (pid = fork()) { //create child process
 							case -1:
 								perror("Failed to fork");

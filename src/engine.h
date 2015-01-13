@@ -55,4 +55,5 @@ void forEachPlayer(gnode * grid);
 void playersClearBitMasks();
 
 void printStats();
+void printDebug(const char* format, ...); 
 

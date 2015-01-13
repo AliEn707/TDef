@@ -26,7 +26,7 @@ npc* damageNpc(npc* n,bullet* b){
 		return n;
 	}
 	int damage=b->damage*(1-0.06f*type->armor/(1+0.06f*type->armor));
-//	printf("(%d * %g)=%d damage\n",b->damage,(1-0.06f*type->armor/(1+0.06f*type->armor)),damage);
+//	printDebug("(%d * %g)=%d damage\n",b->damage,(1-0.06f*type->armor/(1+0.06f*type->armor)),damage);
 	n->health -= damage?:1;
 	n->last_attack = b->owner;//save last attacking player to 
 	setMask(n,NPC_HEALTH);
@@ -106,7 +106,7 @@ void setNpcBase(npc* n){
 	n->health=type->health;
 	n->shield=type->shield;
 	n->energy=type->energy;
-//	printf("%d seted %d %d \n",n->id,type->health,type->shield);
+//	printDebug("%d seted %d %d \n",n->id,type->health,type->shield);
 	//may be more
 }
 
@@ -162,7 +162,7 @@ tower* findNearTower(gnode* grid,npc* n,int range){
 		n->id=0;
 		return 0;
 	}
-//	printf("%d\n",n->id);
+//	printDebug("%d\n",n->id);
 	for(i=0;i<range;i++){
 		for(j=0;j<config.area_size[i];j++)
 			if (((xid=x+config.area_array[i][j].x)>=0 && x+config.area_array[i][j].x<config.gridsize) &&
@@ -174,7 +174,7 @@ tower* findNearTower(gnode* grid,npc* n,int range){
 	//							if(canWalkThrough(grid,&(vec){n->position.x,n->position.y},&(vec){xid+0.5,yid+0.5})>0){//try this || rand()%100<30){//can walk check or rand<30%
 								if(sqr(n->position.x-(xid+0.5))+sqr(n->position.y-(yid+0.5))<=sqr(range)){//try this || rand()%100<30){//can walk check or rand<30%
 									n->ttarget=grid[to2d(xid,yid)].tower;
-	//								printf("? %d\n",to2d(xid,yid));
+	//								printDebug("? %d\n",to2d(xid,yid));
 									if(rand()%100<30)
 										return n->ttarget;
 								}
@@ -193,9 +193,9 @@ npc* findNearNpc(gnode* grid,npc* n,int range){
 	int y=(int)n->position.y;
 	int yid,xid;
 	npc* tmp;
-//	printf("%d\n",n->id);
+//	printDebug("%d\n",n->id);
 	for(i=0;i<range;i++){
-//		printf("!! %d\n",range);
+//		printDebug("!! %d\n",range);
 		for(j=0;j<config.area_size[i];j++)
 			if (((xid=x+config.area_array[i][j].x)>=0 && x+config.area_array[i][j].x<config.gridsize) &&
 					((yid=y+config.area_array[i][j].y)>=0 && y+config.area_array[i][j].y<config.gridsize))
@@ -267,11 +267,11 @@ int tickTargetNpc(gnode* grid,npc* n){
 		//try to go to previous base
 		if (n->finded_base>=0){
 			if (config.players[n->finded_base].base==0){
-//				printf("not found base %d\n",n->finded_base);
+//				printDebug("not found base %d\n",n->finded_base);
 				n->finded_base=-1;
 			}else{
 				id=config.bases[config.players[n->finded_base].base_id].position;
-//				printf("set id = %d\n",id);
+//				printDebug("set id = %d\n",id);
 			}
 		}
 		
@@ -279,13 +279,13 @@ int tickTargetNpc(gnode* grid,npc* n){
 			if((id=findEnemyBase(config.players[n->owner].group))<0)
 				return 0;  
 			
-//		printf("found %d \n",id);
+//		printDebug("found %d \n",id);
 		if ((n->ttarget=grid[id].tower)!=0){
 			n->finded_base=grid[id].tower->owner;
-//			printf("set base founded = %d\n",n->finded_base);
+//			printDebug("set base founded = %d\n",n->finded_base);
 		}else{
 			perror("ttarget tickTargetNpc"); //no base found
-//			printf("on %d = %d\n",id,grid[id].tower);
+//			printDebug("on %d = %d\n",id,grid[id].tower);
 		}
 		if (n->ttarget==0 && n->ntarget==0){
 			n->status=IN_IDLE;
@@ -318,7 +318,7 @@ int tickAttackNpc(gnode* grid,npc* n){
 //			n->ttarget=0;
 //			return 0;
 //		}
-//		printf("\t %d %d %d\n",n->id,n->attack_count,type->attack_speed);
+//		printDebug("\t %d %d %d\n",n->id,n->attack_count,type->attack_speed);
 		if (n->ntarget!=0){
 			if (n->ntarget==&config.players[n->owner].$npc$){
 				n->status=IN_MOVE;
@@ -469,7 +469,7 @@ int tickMoveNpc(gnode* grid,npc* n){
 				if (eqInD(n->position.x,n->ntarget->position.x,type->move_speed) &&
 						eqInD(n->position.y,n->ntarget->position.y,type->move_speed)){
 					n->ntarget=0;
-					printf("\ndest reached\n");
+					printDebug("\ndest reached\n");
 					return 0;
 				}
 				

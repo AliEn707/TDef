@@ -56,7 +56,7 @@ gnode * loadMap(char *path){
 	while(feof(file)==0){
 		memset(buf,0,sizeof(buf));
 		err=fscanf(file,"%s ",buf);
-//		printf("%s\n",buf);
+//		printDebug("%s\n",buf);
 		if (strcmp(buf,"max_npcs")==0){
 			err=fscanf(file,"%d\n",&config.npc_max);
 			if ((config.npc_array=malloc(sizeof(npc)*config.npc_max))==0)
@@ -160,7 +160,7 @@ int loadNpcTypes(){
 	npc_type* n_n=0;
 //	int err;
 	char buf[100];
-	printf("Load npc types....");
+	printDebug("Load npc types....");
 	if ((file=fopen(filepath,"rt"))==0){
 		perror("fopen loadNpcTypes");
 		return 1;
@@ -174,7 +174,7 @@ int loadNpcTypes(){
 			}
 		memset(buf,0,sizeof(buf));
 		err=fscanf(file,"%s ",buf);
-//		printf("%s  ||\n",buf);
+//		printDebug("%s  ||\n",buf);
 		if (strcmp(buf,"//-")==0){
 			err=fscanf(file,"%s\n",buf);
 			typesNpcAdd(n_n->id,n_n);
@@ -259,7 +259,7 @@ int loadNpcTypes(){
 		free(n_n);
 	
 	fclose(file);
-	printf("done\n");
+	printDebug("done\n");
 	return 0;
 }
 
@@ -269,7 +269,7 @@ int loadTowerTypes(){
 	tower_type* t_t=0;
 	char buf[100];
 //	int err;
-	printf("Load tower types....");
+	printDebug("Load tower types....");
 	if ((file=fopen(filepath,"rt"))==0){
 		perror("fopen loadTowerTypes");
 		return 1;
@@ -278,7 +278,7 @@ int loadTowerTypes(){
 	while(feof(file)==0){
 		memset(buf,0,sizeof(buf));
 		err=fscanf(file,"%s ",buf);
-//		printf("%s  ||\n",buf);
+//		printDebug("%s  ||\n",buf);
 		if (t_t==0)
 			if((t_t=malloc(sizeof(tower_type)))==0)
 				perror("malloc tower loadTypes");
@@ -354,7 +354,7 @@ int loadTowerTypes(){
 		free(t_t);
 	
 	fclose(file);
-	printf("done\n");
+	printDebug("done\n");
 	return 0;
 }
 
@@ -364,7 +364,7 @@ int loadBulletTypes(){
 	bullet_type* b_b=0;
 	char buf[100];
 //	int err;
-	printf("Load bullet types....");
+	printDebug("Load bullet types....");
 	if ((file=fopen(filepath,"rt"))==0){
 		perror("fopen loadBulletTypes");
 		return 1;
@@ -377,7 +377,7 @@ int loadBulletTypes(){
 			if((b_b=malloc(sizeof(bullet_type)))==0)
 				perror("malloc bullet loadTypes");
 			
-//		printf("%s  ||\n",buf);
+//		printDebug("%s  ||\n",buf);
 		if (strcmp(buf,"name")==0){
 			err=fscanf(file,"%s\n",buf);
 			continue;
@@ -413,7 +413,7 @@ int loadBulletTypes(){
 		free(b_b);
 	
 	fclose(file);
-	printf("done\n");
+	printDebug("done\n");
 	return 0;
 }
 

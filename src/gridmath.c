@@ -52,7 +52,7 @@ float glength(vec* v1,vec* v2){
 
 float getDir(vec* v1,vec* v2, vec* out){
 	float length=glength(v1,v2);
-//	printf("%g\n",length);
+//	printDebug("%g\n",length);
 	out->x=(v2->x-v1->x)/length;
 	out->y=(v2->y-v1->y)/length;
 	return length;
@@ -63,11 +63,11 @@ main(){
 	float i;
 	initGridFunc();
 	for(i=0;i<6.284;i+=0.01){
-		printf("%g %g  %g %g\n",sin(i),gsin(i),cos(i),gcos(i));
+		printDebug("%g %g  %g %g\n",sin(i),gsin(i),cos(i),gcos(i));
 	}
 	for(i=0;i<=500;i+=0.015)
-		printf("%g %g\n",sqrt(i),gsqrt(i));
-	printf("%g %g",sqrt(45),gsqrt(45));
+		printDebug("%g %g\n",sqrt(i),gsqrt(i));
+	printDebug("%g %g",sqrt(45),gsqrt(45));
 	sleep(10);
 }
 */

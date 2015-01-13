@@ -42,7 +42,7 @@ int tickProcessBullet(gnode * grid,bullet * b){
 			return 0;
 		}
 		//vec dir={0,0};
-//		printf("!!%g %g\n",b->position.x,b->position.y);
+//		printDebug("!!%g %g\n",b->position.x,b->position.y);
 		//float length=getDir(&b->position,&b->destination,&dir);
 		float delta=1;
 		if (type->move_type!=SHOT){

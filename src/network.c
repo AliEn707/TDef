@@ -23,7 +23,7 @@ int _sendData(int sock, void * buf, int size){
 		return get;
 	if (get==need)
 		return get;
-	printf("send not all\n");
+	printDebug("send not all\n");
 	while(need>0){
 		need-=get;
 		if((get=send(sock,buf+(size-need),need,MSG_NOSIGNAL))<=0)
@@ -40,7 +40,7 @@ int recvData(int sock, void * buf, int size){
 		return -1;
 	if (get==need)
 		return get;
-	printf("get not all\n");
+	printDebug("get not all\n");
 	do{
 		need-=get;
 		if((get=recv(sock,buf+(size-need),need,0))<=0)
@@ -69,10 +69,10 @@ int processMessage(worker_arg * data,char type){
 		if (type==0)
 			return 0;
 		if (config.players[data->id].money < type->cost) {//awesome
-			printf("failed: not enough money\n");
+			printDebug("Player %d failed: not enough money\n", data->id);
 			return 0;
 		}
-		printf("%d spawn tower %hd on %hd\n",data->id,t_id,node_id);		
+		printDebug("%d spawn tower %hd on %hd\n",data->id,t_id,node_id);		
 		sem_pl.sem_num=0;
 		sem_pl.sem_op=-1;
 		t_semop(t_sem.player,&sem_pl,1);
@@ -90,7 +90,7 @@ int processMessage(worker_arg * data,char type){
 			perror("recv Message");
 			return -1;
 		}
-		printf("%d drop tower on %hd\n",data->id,node_id);		
+		printDebug("%d drop tower on %hd\n",data->id,node_id);		
 		sem_pl.sem_num=0;
 		sem_pl.sem_op=-1;
 		t_semop(t_sem.player,&sem_pl,1);
@@ -112,10 +112,10 @@ int processMessage(worker_arg * data,char type){
 		if (type==0)
 			return 0;
 		if (config.players[data->id].money < type->cost) {//awesome
-			printf("failed: not enough money\n");
+			printDebug("Player %d failed: not enough money\n", data->id);
 			return 0;
 		}		
-		printf("%d spawn npc %d on %d\n",data->id,config.players[data->id].npc_set[n_id].id,config.points[config.bases[config.players[data->id].base_id].point_id].position);
+		printDebug("%d spawn npc %d on %d\n",data->id,config.players[data->id].npc_set[n_id].id,config.points[config.bases[config.players[data->id].base_id].point_id].position);
 		
 		sem_pl.sem_num=0;
 		sem_pl.sem_op=-1;
@@ -141,7 +141,7 @@ int processMessage(worker_arg * data,char type){
 		h=config.players[data->id].hero;
 		if (h==0)
 			return 0;
-		printf("%d move hero to %d\n",data->id, node);
+		printDebug("%d move hero to %d\n",data->id, node);
 		//move hero to node
 		setHeroTargetByNode(data->grid,h,node);
 		return 0;
@@ -364,7 +364,7 @@ int sendPlayers(int sock,int id){
 		if(checkMask(bit_mask,PLAYER_LEVEL))
 			sendData(config.players[i].level);
 		if(/*i == id && */(checkMask(bit_mask,PLAYER_MONEY))){
-			printf("send_money\n");
+			printDebug("send_money\n");
 			sendData(config.players[i].money);
 		}
 	}

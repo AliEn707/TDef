@@ -11,19 +11,33 @@
 #include "../src/t_sem.h"
 //Test main file
 
-#define semInfo() printf("sem %d=>%d|%d=>%d|%d=>%d before sem %d action %d  %s:%d\n",0,semctl(t_sem.send,0,GETVAL),1,semctl(t_sem.send,1,GETVAL),2,semctl(t_sem.send,2,GETVAL),sem.sem_num,sem.sem_op,__FILE__,__LINE__)
+#define semInfo() printDebug("sem %d=>%d|%d=>%d|%d=>%d before sem %d action %d  %s:%d\n",0,semctl(t_sem.send,0,GETVAL),1,semctl(t_sem.send,1,GETVAL),2,semctl(t_sem.send,2,GETVAL),sem.sem_num,sem.sem_op,__FILE__,__LINE__)
+
+void* printInfo(void*p) {
+	while (1) {
+		char c = getchar();
+		if (c == 'i') { //print info
+			int aa;
+			printf("Current info:\n\n");
+			for (aa = 0; aa < config.game.players; aa++) {
+				printf("Player %d\n money %d\n npcs %d\n\n", aa, config.players[aa].money, config.players[aa].stat.npcs_spawned - config.players[aa].stat.npcs_lost);
+			}
+		}
+	}
+	return 0;
+}
 
 void pinfo(){
 	int i=0,
 		j=0,
 		k=0;
-	printf("Towers\t\t\tNpcs\t\t\tBullets\n");
+	printDebug("Towers\t\t\tNpcs\t\t\tBullets\n");
 	while(i<config.tower_max||
 		j<config.npc_max||
 		k<config.bullet_max){
 		for(;config.tower_array[i].id<=0 && i<config.tower_max;i++);
 		if (i<config.tower_max){
-			printf("%d(%d)%d ",config.tower_array[i].id,
+			printDebug("%d(%d)%d ",config.tower_array[i].id,
 					config.tower_array[i].position,
 					config.tower_array[i].type!=BASE?
 						config.tower_array[i].health:
@@ -31,10 +45,10 @@ void pinfo(){
 					);
 			i++;
 		}
-		printf("|\t\t\t");
+		printDebug("|\t\t\t");
 		for(;config.npc_array[j].id<=0 && j<config.npc_max;j++);
 		if (j<config.npc_max){
-			printf("%d(%g,%g)%d %d",config.npc_array[j].id,
+			printDebug("%d(%g,%g)%d %d",config.npc_array[j].id,
 					config.npc_array[j].position.x,
 					config.npc_array[j].position.y,
 					config.npc_array[j].health,
@@ -42,16 +56,16 @@ void pinfo(){
 					);
 			j++;
 		}
-		printf("|\t\t\t");
+		printDebug("|\t\t\t");
 		for(;config.bullet_array[k].id<=0 && k<config.bullet_max;k++);
 		if (k<config.bullet_max){
-			printf("%d(%g,%g) ",config.bullet_array[k].id,
+			printDebug("%d(%g,%g) ",config.bullet_array[k].id,
 					config.bullet_array[k].position.x,
 					config.bullet_array[k].position.y
 					);
 			k++;
 		}
-		printf("\n");
+		printDebug("\n");
 	}
 	
 		
@@ -61,8 +75,8 @@ void drawGrid(gnode* grid){
 	int i,j;
 	for(i=0;i<10;i++){
 		for(j=0;j<10;j++)
-//			printf("{%d}[%d]%d ",grid[to2d(i,j)].buildable,grid[to2d(i,j)].id,grid[to2d(i,j)].next);
-			printf("%c ",
+//			printDebug("{%d}[%d]%d ",grid[to2d(i,j)].buildable,grid[to2d(i,j)].id,grid[to2d(i,j)].next);
+			printDebug("%c ",
 					grid[to2d(i,j)].tower!=0?
 						grid[to2d(i,j)].tower->type==BASE?
 							'B':
@@ -72,13 +86,13 @@ void drawGrid(gnode* grid){
 								'X':
 							'O':
 						'N');
-		printf("\n");
+		printDebug("\n");
 	}		
 }
 
 void segfault_sigaction(int signal, siginfo_t *si, void *arg)
 {
-	printf("Caught segfault at address %p\n", si->si_addr);
+	printDebug("Caught segfault at address %p\n", si->si_addr);
 	config.game.run = 0;
 	printStats();
 	realizeServer();
@@ -105,6 +119,7 @@ int main(int argc, char* argv[]){
 	sa.sa_flags   = SA_SIGINFO;
 
 	sigaction(SIGSEGV, &sa, NULL);	
+	sigaction(SIGINT, &sa, NULL);	
 	
 	srand(time(0));
 	memset(&config,0,sizeof(config));
@@ -121,66 +136,67 @@ int main(int argc, char* argv[]){
 	config.game.port=34140;
 
 	if (argc>1){
-		test=0;
-		int manager=0;
-		char $_$=0;
-		parseArgv(argc,argv);//get game.port, game.token
-		manager=connectToHost("localhost",7920);
-		if (manager==0)
-			return 0;
-//		printf("connected to manager\n");
-		if (_sendData(manager,&config.game.port,sizeof(config.game.port))<=0)
-			return -1;
-//		printf("sent port\n");
-		if (recvData(manager,&$_$,sizeof($_$))<=0)
-			return -1;
-//		printf("get %d\n",$_$);
-		if ($_$!=-1)
-			return -1;
-		$_$=1;
-		if (_sendData(manager,&$_$,sizeof($_$))<=0)
-			return -1;
-//		printf("send ");
-		close(manager);
-/* //TODO: repair
-		if ((file=fopen("manager.ini","r"))!=0){
-			char buffer[101];
-			int startport; //tmp need to set f_port
-			int servnum; //tmp need to size of shared memory
-			while (!feof (file)) {
-				if (fgets (buffer,100,file) == NULL ) 
-					break;
-//				sscanf(buffer, "menport %d", &f_port);
-				sscanf(buffer, "servnum  %d", &servnum);
-				sscanf(buffer, "startport  %d", &startport);
+		if (parseArgv(argc,argv)) {//get game.port, game.token
+			test=0;
+			int manager=0;
+			char $_$=0;
+			manager=connectToHost("localhost",7920);
+			if (manager==0)
+				return 0;
+	//		printDebug("connected to manager\n");
+			if (_sendData(manager,&config.game.port,sizeof(config.game.port))<=0)
+				return -1;
+	//		printDebug("sent port\n");
+			if (recvData(manager,&$_$,sizeof($_$))<=0)
+				return -1;
+	//		printDebug("get %d\n",$_$);
+			if ($_$!=-1)
+				return -1;
+			$_$=1;
+			if (_sendData(manager,&$_$,sizeof($_$))<=0)
+				return -1;
+	//		printDebug("send ");
+			close(manager);
+	/* //TODO: repair
+			if ((file=fopen("manager.ini","r"))!=0){
+				char buffer[101];
+				int startport; //tmp need to set f_port
+				int servnum; //tmp need to size of shared memory
+				while (!feof (file)) {
+					if (fgets (buffer,100,file) == NULL ) 
+						break;
+	//				sscanf(buffer, "menport %d", &f_port);
+					sscanf(buffer, "servnum  %d", &servnum);
+					sscanf(buffer, "startport  %d", &startport);
+				}
+				fclose (file);
+				f_port=config.game.port-startport;
+				if ((f_token=ftok("manager.ini",100))>0)
+				//	if ((f_sem=t_semget(f_token,1,0))>0) //to change
+						if ((f_shmem=shmget(f_token, servnum*sizeof(char), 0777))>0)
+							if ((f_mem=shmat(f_shmem,0,0))!=0){
+	//							sem.sem_num=0; 
+	//							sem.sem_op=-1; 
+	//							t_semop(f_sem, &sem, 1);
+								//TODO change to sockets
+								f_mem[f_port]=1;
+	//							sem.sem_num=0; 
+	//							sem.sem_op=1; 
+	//							t_semop(f_sem, &sem, 1);
+							}
 			}
-			fclose (file);
-			f_port=config.game.port-startport;
-			if ((f_token=ftok("manager.ini",100))>0)
-			//	if ((f_sem=t_semget(f_token,1,0))>0) //to change
-					if ((f_shmem=shmget(f_token, servnum*sizeof(char), 0777))>0)
-						if ((f_mem=shmat(f_shmem,0,0))!=0){
-//							sem.sem_num=0; 
-//							sem.sem_op=-1; 
-//							t_semop(f_sem, &sem, 1);
-							//TODO change to sockets
-							f_mem[f_port]=1;
-//							sem.sem_num=0; 
-//							sem.sem_op=1; 
-//							t_semop(f_sem, &sem, 1);
-						}
-		}
-*/
-		printf("port %d token %d\n",config.game.port,config.game.token);
+	*/
+			printDebug("port %d token %d\n",config.game.port,config.game.token);
 		
-		if (publicGetGame()<0){
-			goto end;
-//			return 0;
+			if (publicGetGame()<0){
+				goto end;
+	//			return 0;
+			}
 		}
 		
 	}
 	
-	printf("initialising\nmap %s\non port %d\n",config.game.map,config.game.port);
+	printDebug("initialising\nmap %s\non port %d\n",config.game.map,config.game.port);
 	gnode* grid;
 	
 	initGridMath();
@@ -223,8 +239,10 @@ int main(int argc, char* argv[]){
 	while(config.players_num==0)
 		usleep(100000);
 	
-	printf("start game\n");
+	printDebug("start game\n");
 	config.max_money_timer = TPS*60;
+	pthread_t keyboardThread; //evil
+	int kbhit = pthread_create(&keyboardThread, 0, printInfo, 0);
 	
 	while(1){
 		//drawGrid(grid);
@@ -297,26 +315,27 @@ int main(int argc, char* argv[]){
 //		semInfo();
 		err=t_semop(t_sem.send,&sem,1); 
 		if (err<0)
-			printf("t_semop err\n");
+			printDebug("t_semop err\n");
 		//check 0
 		sem.sem_num=0;
 		sem.sem_op=0;
 //		semInfo();
-		err=t_semop(t_sem.send,&sem,1); 
+		err=t_semop(t_sem.send,&sem,1);
 		if (err<0)
-			printf("t_semop err\n");
+			printDebug("t_semop err\n");
 		
 //		if (err<0)
-//			printf("t_semop err\n");
+//			printDebug("t_semop err\n");
 		
 //		int z;
 		//z=timePassed(1);
-		//printf("time %d",z);
+		//printDebug("time %d",z);
 		
 		
 		//pinfo();
 		
 		//usleep(100000);
+	
 		config.current_money_timer++;
 		playersClearBitMasks();
 		forEachNpc(grid,tickMiscNpc);
@@ -324,7 +343,7 @@ int main(int argc, char* argv[]){
 		forEachBullet(grid,tickMiscBullet);
 	}
 	printStats();
-	printf("closing\n");
+	printDebug("closing\n");
 	config.game.run=0;
 	close(listener);	
 	

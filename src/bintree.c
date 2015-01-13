@@ -19,7 +19,7 @@
 int bintreeAdd(bintree* root,int key,void* data){
 	bintree* tmp=root;
 	int next;
-//	printf("add key %d\n",key);
+//	printDebug("add key %d\n",key);
 	while(key>0){
 		next=(int)(key&1);
 		if(tmp->next[next]==0){
@@ -62,7 +62,7 @@ int _bintreeDel(bintree* root, int key){
 		root->data=0;
 		if (root->next[0]==0 && root->next[1]==0){
 			free(root);
-//			printf("free\n");
+//			printDebug("free\n");
 			return 1;
 		}
 		return 0;
@@ -73,7 +73,7 @@ int _bintreeDel(bintree* root, int key){
 	if (get!=0){
 		root->next[next]=0;
 		if (root->next[(next+1)%2]==0){
-//			printf("%d %d\n",next,(next+1)%2);
+//			printDebug("%d %d\n",next,(next+1)%2);
 			free(root);
 			return 1;
 		}
@@ -109,7 +109,7 @@ int bintreeDel(bintree* root, int key){
 void bintreeErase(bintree * root,void (f)(void*v)){
 	if (root==0)
 		return;
-//	printf("y\n");
+//	printDebug("y\n");
 	bintreeErase(root->next[0],f);
 	bintreeErase(root->next[1],f);
 	if (f!=0)
@@ -126,11 +126,11 @@ int main(){
 	memset(&r,0,sizeof(r));
 	bintreeAdd(&r,3,100);
 	bintreeAdd(&r,7,132);
-	printf("%d\n",bintreeGet(&r,3));
+	printDebug("%d\n",bintreeGet(&r,3));
 	bintreeDel(&r,3);
 //	bintreeDel(&r,3);
-	printf("%d\n",bintreeGet(&r,3));
-	printf("%d\n",bintreeGet(&r,7));
+	printDebug("%d\n",bintreeGet(&r,3));
+	printDebug("%d\n",bintreeGet(&r,7));
 	bintreeErase(&r);
 }
 */

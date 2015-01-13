@@ -397,7 +397,9 @@ struct config{
 		point* points;
 		
 	int current_money_timer;
-	int max_money_timer;	
+	int max_money_timer;
+	
+	int debug;	
 		
 	struct {
 		int sock;

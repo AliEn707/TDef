@@ -1,4 +1,5 @@
 #include "grid.h"
+#include "engine.h"
 
 #define tmp_size config.area_size
 #define tmp config.area_array
@@ -210,7 +211,7 @@ void realizeAreaArray(){
 //	int i;
 //	for(i=0;i<33;i++)
 //		free(tmp[i]);
-	printf("Area Array realized\n");
+	printDebug("Area Array realized\n");
 }
 
 #undef shift

@@ -37,24 +37,24 @@ int publicGetGame(){
 	sockfd=publicConnect();
 	if (sockfd<=0)
 		return -1;
-	printf("connected\n");
+	printDebug("connected\n");
 	mes=MESSAGE_ROOM_STATUS;
 	sendData(sockfd,&mes,sizeof(mes));
-	printf("send mes %d\n",mes);
+	printDebug("send mes %d\n",mes);
 	sendData(sockfd,&config.game.token,sizeof(config.game.token));
-	printf("token mes %d\n",config.game.token);
+	printDebug("token mes %d\n",config.game.token);
 	sendData(sockfd,&config.game.port,sizeof(config.game.port));
-	printf("port mes %d\n",config.game.port);
+	printDebug("port mes %d\n",config.game.port);
 	status=ROOM_RUN;
 	sendData(sockfd,&status,sizeof(status));
-	printf("status mes %d\n",status);
-	printf("sended\n");
+	printDebug("status mes %d\n",status);
+	printDebug("sended\n");
 	short l_l;
 	if (recvData(sockfd,&l_l,sizeof(l_l))<0) 
 		return -1;
 	if (recvData(sockfd,config.game.map,l_l)<0)
 		return -1;
-	printf("map name %s\n",config.game.map);
+	printDebug("map name %s\n",config.game.map);
 	
 	//n=recv(sockfd,&mes,sizeof(mes),0);
 //	if (n<0)

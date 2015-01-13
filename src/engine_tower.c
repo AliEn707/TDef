@@ -77,7 +77,7 @@ void setTowerBase(tower* t){
 tower* spawnTower(gnode * grid,int node_id,int owner,int type){
 	tower* t;
 	tower_type *ttype=0;
-//	printf("spawn tower %d on %d by %d\n",type,node_id,owner);
+//	printDebug("spawn tower %d on %d by %d\n",type,node_id,owner);
 	if (node_id<0 || node_id>=config.gridsize*config.gridsize)
 		return 0;
 	if (grid[node_id].tower!=0)
@@ -191,7 +191,7 @@ int tickAttackTower(gnode* grid,tower* t){
 			t->target=0;
 			return 0;
 		}
-//		printf("\t|%d %d\n",t->attack_count,type->attack_speed);
+//		printDebug("\t|%d %d\n",t->attack_count,type->attack_speed);
 		if (t->attack_count>=type->attack_speed){
 				t->attack_count=0;
 				bullet* b;//set params of bullet
@@ -210,7 +210,7 @@ int tickAttackTower(gnode* grid,tower* t){
 				memcpy(&b->position,&position,sizeof(vec));
 				memcpy(&b->source,&position,sizeof(vec));
 				//memcpy(&b->destination,target,sizeof(vec));
-//				printf("aaaa = %g|%g {%g|%g}\n",target->x,target->y,t->target->position.x,t->target->position.y);
+//				printDebug("aaaa = %g|%g {%g|%g}\n",target->x,target->y,t->target->position.x,t->target->position.y);
 				b->ntarget=t->target;
 				b->destination.x=t->target->position.x;
 				b->destination.y=t->target->position.y;
@@ -235,7 +235,7 @@ int tickCleanTower(gnode* grid,tower* t){
 	if (t->health>0)
 		return 0;
 	if (t->type==BASE){//TODO: add check for player lose
-		printf("player %d lose\n",t->owner);
+		printDebug("player %d lose\n",t->owner);
 		config.players[t->owner].base=0;
 //		return 0;
 	}

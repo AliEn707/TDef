@@ -1,3 +1,4 @@
+#include <stdarg.h>
 #include "grid.h"
 #include "engine.h"
 #include "engine_npc.h"
@@ -5,20 +6,25 @@
 #include "engine_bullet.h"
 #include "areaarray.h"
 
-
 int parseArgv(int argc,char * argv[]){
-	int i;
+	int i, ret = 0;
 	for(i=0;i<argc;i++){
 		if (strcmp(argv[i],"-port")==0){
 			config.game.port=atoi(argv[++i]);
+			ret |= 1;
 			continue;
 		}
 		if (strcmp(argv[i],"-token")==0){
 			config.game.token=atoi(argv[++i]);
+			ret |= 2;
 			continue;
 		}
+		if (strcmp(argv[i],"-debug")==0){
+			config.debug = 1;
+			continue;
+		}		
 	}
-	return 0;
+	return ret;
 }
 
 //time passed after previous call of function
@@ -54,7 +60,7 @@ void initArrays(){
 //	memset(config.players,0,sizeof(bullet)*config.player_max);
 	memset(config.players,0,sizeof(bullet)*PLAYER_MAX);
 	initAreaArray();
-//	printf("%d %d %d\n",sizeof(tower)*config.tower_max,sizeof(npc)*config.npc_max,sizeof(bullet)*config.bullet_max);
+//	printDebug("%d %d %d\n",sizeof(tower)*config.tower_max,sizeof(npc)*config.npc_max,sizeof(bullet)*config.bullet_max);
 }
 
 void realizeArrays(){
@@ -82,7 +88,7 @@ int canSee(gnode* grid,vec* a,vec* b){
 	float y2=b->y;
 	int destination=to2d((int)x2,(int)y2);
 	int current;
-//	printf("%g %g %g %g\n",x1,y1,x2,y2);
+//	printDebug("%g %g %g %g\n",x1,y1,x2,y2);
 	if (x1!=x2){
 		if (x1>x2){
 			int tmp;
@@ -99,10 +105,10 @@ int canSee(gnode* grid,vec* a,vec* b){
 		 
 		for(;x1<x2;x1+=0.5){
 			y1=K*x1+B;
-//			printf("1} %d\n",to2d(((int)x1),((int)y1)));
+//			printDebug("1} %d\n",to2d(((int)x1),((int)y1)));
 			if ((current=to2d(((int)x1),((int)y1)))!=destination){
 				if (grid[current].walkable<0){
-//					printf("!\n");
+//					printDebug("!\n");
 					return -1;
 				}
 			}
@@ -123,7 +129,7 @@ int canSee(gnode* grid,vec* a,vec* b){
 		 
 		for(;y1<y2;y1+=0.5){
 			x1=K*y1+B;
-//			printf("2} %d\n",to2d(((int)x1),((int)y1)));
+//			printDebug("2} %d\n",to2d(((int)x1),((int)y1)));
 			if ((current=to2d(((int)x1),((int)y1)))!=destination){
 				if (grid[current].walkable<0)
 					return -1;
@@ -259,7 +265,7 @@ void forEachPlayer(gnode* grid) {
 			continue;
 //		config.players[i].bit_mask = 0;
 		if (needLevelInc (&config.players[i])) {
-			printf("player = %d level = %d\n", i, config.players[i].level);
+			printDebug("player = %d level = %d\n", i, config.players[i].level);
 			config.players[i].level++;
 			setMask(&config.players[i],PLAYER_LEVEL);
 		}
@@ -298,5 +304,14 @@ void printStats() {
 		config.players[aa].stat.npcs_killed, config.players[aa].stat.towers_destroyed, 
 		config.players[aa].stat.npcs_lost,config.players[aa].stat.towers_lost, config.players[aa].stat.xp,config.players[aa].level);
 	}
+}
+
+void printDebug(const char* format, ...) {
+	if (config.debug == 0)
+		return;
+	va_list argptr;
+	va_start(argptr, format);
+	vfprintf(stdout, format, argptr);
+	va_end(argptr);	
 }
 
