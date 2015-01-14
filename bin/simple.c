@@ -242,7 +242,8 @@ int main(int argc, char* argv[]){
 	printDebug("start game\n");
 	config.max_money_timer = TPS*60;
 	pthread_t keyboardThread; //evil
-	int kbhit = pthread_create(&keyboardThread, 0, printInfo, 0);
+	if (pthread_create(&keyboardThread, 0, printInfo, 0)!=0)
+		perror("cant start keyboard thread");
 	
 	while(1){
 		//drawGrid(grid);

@@ -1,4 +1,5 @@
 #include "grid.h"
+#include "engine.h"
 
 typedef
 struct set{
@@ -26,7 +27,7 @@ set* setAdd(set* s,gnode * node){
 int setSize(set* s){
 	set* tmp=s;
 	int i;
-	for(i=0;tmp->next!=0;tmp=tmp->next)i++;;
+	for(i=0;tmp->next!=0;tmp=tmp->next)i++;
 	return i;
 }
 
@@ -61,6 +62,18 @@ void setDel(set* s,gnode*n){
 	tmp->next=tmp->next->next;
 	free(tmp1);
 }
+
+void setRealize(set* s){
+	set*t_p=s;
+	set *t_c=t_p->next;
+	if (t_c==0)
+		free(t_p);
+	for (;t_c!=0;t_c=t_c->next){
+		free(t_p);
+		t_p=t_c;
+	}
+}
+
 
 float heuristic_cost_estimate(gnode * a,gnode * b){
 	int ax=a->id/config.gridsize;
@@ -129,8 +142,16 @@ int reconstruct_path(gnode *grid,gnode *goal,path* path){
 }
 
 int aSearch(gnode* grid,gnode* start,gnode* goal, path* path){
-	set* closedset = setInit();   
-	set* openset = setInit();
+	set* closedset;   
+	set* openset;
+	
+	if (start->id<0 || goal->id<0){
+		printDebug("not correct nodes for path\n");
+		return 0;
+	}
+	
+	openset = setInit();
+	closedset = setInit(); 
 	setAdd(openset,start);
 
 	start->g = 0;   
@@ -143,6 +164,8 @@ int aSearch(gnode* grid,gnode* start,gnode* goal, path* path){
 		x=setMinf(openset);
 		if (x->id == goal->id) {
 		//	start->next=stat->id;
+			setRealize(openset);
+			setRealize(closedset);
 			return reconstruct_path(grid,goal,path); 
 		}
 		setDel(openset,x); 
@@ -176,6 +199,8 @@ int aSearch(gnode* grid,gnode* start,gnode* goal, path* path){
 		}
 		free(y);
 	}
+	setRealize(openset);
+	setRealize(closedset);
 	return -1;
 }
 
