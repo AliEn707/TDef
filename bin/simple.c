@@ -143,19 +143,19 @@ int main(int argc, char* argv[]){
 			manager=connectToHost("localhost",7920);
 			if (manager==0)
 				return 0;
-	//		printDebug("connected to manager\n");
+			printDebug("connected to manager\n");
 			if (_sendData(manager,&config.game.port,sizeof(config.game.port))<=0)
 				return -1;
-	//		printDebug("sent port\n");
+			printDebug("sent port\n");
 			if (recvData(manager,&$_$,sizeof($_$))<=0)
 				return -1;
-	//		printDebug("get %d\n",$_$);
+			printDebug("get %d\n",$_$);
 			if ($_$!=-1)
 				return -1;
 			$_$=1;
 			if (_sendData(manager,&$_$,sizeof($_$))<=0)
 				return -1;
-	//		printDebug("send ");
+			printDebug("send ");
 			close(manager);
 	/* //TODO: repair
 			if ((file=fopen("manager.ini","r"))!=0){
@@ -365,7 +365,7 @@ end:
 	//send to clear port
 	if (test==0){
 		int manager=0;
-		char $_$=-1;
+		char $_$=0;
 		manager=connectToHost("localhost",7920);
 		if (manager!=0){
 			if (_sendData(manager,&config.game.port,sizeof(config.game.port))<=0)

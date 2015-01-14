@@ -1,5 +1,5 @@
 
-NORMAL_FLAGS = -lm -g -Wall -lpthread
+NORMAL_FLAGS = -lm -g -Wall -lpthread -fsigned-char
 OPTIMIZED_FLAGS = -march=native -lm -Wall -lpthread -O3 -ffast-math
 C_FLAGS = $(NORMAL_FLAGS)
 
@@ -13,10 +13,10 @@ server:	simple.c ../src/*.c ../src/*.h
 	gcc objects/*.o $(C_FLAGS) -o server
 	
 manager: manager.c debug.c manager.h
-	gcc manager.c debug.c -g -Wall -lpthread -o manager
+	gcc manager.c debug.c -g -Wall -lpthread -fsigned-char -o manager
 
 daemon: manager.c daemon.c manager.h
-	gcc daemon.c manager.c -g -Wall -lpthread -o daemon
+	gcc daemon.c manager.c -g -Wall -lpthread -fsigned-char -o daemon
 	
 all: server manager daemon
 

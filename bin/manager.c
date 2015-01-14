@@ -48,7 +48,7 @@ messages and commands must be described in this file or another
 int stop = 0;
 
 int menport  = 7922, servnum  = 0, startport = 0;//default values
-char *ports_info=0;	
+signed char *ports_info=0;	
 
 int recvData(int sock, void * buf, int size){
 	int need=size;
@@ -244,7 +244,7 @@ void * manager(void * arg) {
 //				char msg_type;//TODO: maybe fix!
 //				printf("connected room\n");
 				int msg_port;
-				char data;
+				signed char data;
 				recvData(sock,&msg_port,sizeof(msg_port));
 				if (msg_port>=startport && msg_port<startport+servnum){
 					data=ports_info[msg_port-startport];
