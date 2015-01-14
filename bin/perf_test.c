@@ -58,7 +58,8 @@ static int proceedServerMessage(char msg_type){
 		sendData(sock,map,l_l);
 		//send data to client
 		//----------------
-		sendData(client,&port,sizeof(port));
+		if(sendData(client,&port,sizeof(port))<=)
+			DestroyWorkThread();
 		return 0;
 	}
 	return -1;
@@ -88,7 +89,7 @@ static int proceedServerMessage(char msg_type){
 
 void * perfTest(void * arg){
 	char** argv=arg;
-	int listener;
+	int listener,l;
 	struct sockaddr_in addr;
 	int menport=11111;
 	int publicport=7000;
@@ -99,19 +100,18 @@ void * perfTest(void * arg){
 	addr.sin_port = htons(menport);
 	addr.sin_addr.s_addr = htonl(INADDR_ANY);
 	
-	if ((listener = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+	if ((l = socket(AF_INET, SOCK_STREAM, 0)) < 0)
 		perror("Failed to start socket");
-	if (bind(listener, (struct sockaddr *)&addr, sizeof(addr)) < 0)
+	if (bind(l, (struct sockaddr *)&addr, sizeof(addr)) < 0)
 		perror("Failed to bind");
-	if (listen(listener, 1)<0)
+	if (listen(l, 1)<0)
 		perror("Failed to listen");
-	if ((client = accept(listener, NULL, NULL))<0)
+	if ((client = accept(l, NULL, NULL))<0)
 				perror("Failed to accept");
 	printf("client connected\n");
 	short l_l;
 	recvData(client,&l_l,sizeof(l_l));
 	recvData(client,map,l_l);
-	close(listener);
 	
 	if ((listener = socket(AF_INET, SOCK_STREAM, 0)) < 0)
 		perror("Failed to start socket");
@@ -143,6 +143,8 @@ void * perfTest(void * arg){
 		
 		syncTPS(timePassed(&tv),TPS);
 	}
+	close(l);
+	close(listener);
 	
 	return 0;
 }

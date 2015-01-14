@@ -283,10 +283,10 @@ int tickTargetNpc(gnode* grid,npc* n){
 		if ((n->ttarget=grid[id].tower)!=0){
 			n->finded_base=grid[id].tower->owner;
 //			printDebug("set base founded = %d\n",n->finded_base);
-		}else{
-			perror("ttarget tickTargetNpc"); //no base found
+		}//else{
+//			perror("ttarget tickTargetNpc"); //no base found
 //			printDebug("on %d = %d\n",id,grid[id].tower);
-		}
+//		}
 		if (n->ttarget==0 && n->ntarget==0){
 			n->status=IN_IDLE;
 			return 0;
