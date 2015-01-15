@@ -58,8 +58,8 @@ static int proceedServerMessage(char msg_type){
 		sendData(sock,map,l_l);
 		//send data to client
 		//----------------
-		if(sendData(client,&port,sizeof(port))<=0)
-			DestroyWorkThread();
+		if(sendData(client,&port,sizeof(port))<=0);
+//			DestroyWorkThread();
 		return 0;
 	}
 	return -1;
