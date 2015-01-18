@@ -1,5 +1,6 @@
 #include "grid.h"
 #include "engine.h"
+#include "gridmath.h"
 
 typedef
 struct set{
@@ -76,13 +77,16 @@ void setRealize(set* s){
 
 
 float heuristic_cost_estimate(gnode * a,gnode * b){
-	int ax=a->id/config.gridsize;
-	int ay=a->id%config.gridsize;
-	int bx=b->id/config.gridsize;
-	int by=b->id%config.gridsize;
+#define  ax (a->id/config.gridsize)
+#define  ay (a->id%config.gridsize)
+#define  bx (b->id/config.gridsize)
+#define  by (b->id%config.gridsize)
 //	return ((ax-bx)*(ax-bx)+(ay-by)*(ay-by));
-	return sqrtf((ax-bx)*(ax-bx)+(ay-by)*(ay-by));
-	
+	return gsqrt(sqr(ax-bx)+sqr(ay-by));
+#undef ax	
+#undef ay	
+#undef bx	
+#undef by	
 }
 
 int cost(gnode * grid,gnode* a,gnode* b){

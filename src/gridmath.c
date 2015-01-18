@@ -3,13 +3,15 @@
 #include "grid.h"
 
 
+#define SQRT_MAX   200000
+#define SQRT_SHIFT 1000
+static float sqrt_max=SQRT_MAX*1.0/SQRT_SHIFT;
+static float sqrt_grid[SQRT_MAX];
+//float cos_grid[6284];
+//float sin_grid[6284];
 
-float cos_grid[6284];
-float sin_grid[6284];
-//float sqrt_grid[20001];
 
-
-
+/*
 float gcos(float a){
 	int angle=(int)(a*1000);
 	if (angle<0) angle*=-1;
@@ -24,22 +26,24 @@ float gsin(float a){
 	if (angle>6283) angle%=6284;
 	return sin_grid[angle]*i;
 }
+*/
 
-//float gsqrt(float a){
-//	if (a<0) return 0;
-//	if (a>=20)return sqrt(a);
-//	return sqrt_grid[(int)(a*1000)];
-//}
+float gsqrt(float a){
+	if (a<=0) return 0;
+	if (a>=sqrt_max) return sqrtf(a);
+	return sqrt_grid[(int)(a*SQRT_SHIFT)];
+//	return sqrtf(a);
+}
 
 void initGridMath(){
 	float i;
-	for(i=0;i<6.284;i+=0.001){
-		sin_grid[(int)(i*1000)]=sinf(i);
-		cos_grid[(int)(i*1000)]=cosf(i);
-	}
-//	for(i=0;i<=20;i+=0.001)
-//		sqrt_grid[(int)(i*1000)]=sqrt(i);
-		
+//	for(i=0;i<6.284;i+=0.001){
+//		sin_grid[(int)(i*1000)]=sinf(i);
+//		cos_grid[(int)(i*1000)]=cosf(i);
+//	}
+	float sqrt_shift=1.0/SQRT_SHIFT;
+	for(i=0;i<=sqrt_max;i+=sqrt_shift)
+		sqrt_grid[(int)(i*SQRT_SHIFT)]=sqrtf(i);
 }
 
 float glength(vec* v1,vec* v2){
@@ -47,7 +51,7 @@ float glength(vec* v1,vec* v2){
 	//char  buf[15];
 	//sprintf(buf,"|%g\n",sqr(v1->x-v2->x)+sqr(v1->y-v2->y));
 	///////////
-	return sqrt(sqr(v1->x-v2->x)+sqr(v1->y-v2->y));
+	return gsqrt(sqr(v1->x-v2->x)+sqr(v1->y-v2->y));
 }
 
 float getDir(vec* v1,vec* v2, vec* out){
