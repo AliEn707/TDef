@@ -3,10 +3,10 @@
 #include "grid.h"
 
 
-#define SQRT_MAX   200000
-#define SQRT_SHIFT 1000
-static float sqrt_max=SQRT_MAX*1.0/SQRT_SHIFT;
-static float sqrt_grid[SQRT_MAX];
+//#define SQRT_MAX   200000
+//#define SQRT_SHIFT 1000
+//static float sqrt_max=SQRT_MAX*1.0/SQRT_SHIFT;
+//static float sqrt_grid[SQRT_MAX];
 //float cos_grid[6284];
 //float sin_grid[6284];
 
@@ -29,21 +29,21 @@ float gsin(float a){
 */
 
 float gsqrt(float a){
-	if (a<=0) return 0;
-	if (a>=sqrt_max) return sqrtf(a);
-	return sqrt_grid[(int)(a*SQRT_SHIFT)];
-//	return sqrtf(a);
+//	if (a<=0) return 0;
+//	if (a>=sqrt_max) return sqrtf(a);
+//	return sqrt_grid[(int)(a*SQRT_SHIFT)];
+	return sqrtf(a);
 }
 
 void initGridMath(){
-	float i;
+//	float i;
 //	for(i=0;i<6.284;i+=0.001){
 //		sin_grid[(int)(i*1000)]=sinf(i);
 //		cos_grid[(int)(i*1000)]=cosf(i);
 //	}
-	float sqrt_shift=1.0/SQRT_SHIFT;
-	for(i=0;i<=sqrt_max;i+=sqrt_shift)
-		sqrt_grid[(int)(i*SQRT_SHIFT)]=sqrtf(i);
+//	float sqrt_shift=1.0/SQRT_SHIFT;
+//	for(i=0;i<=sqrt_max;i+=sqrt_shift)
+//		sqrt_grid[(int)(i*SQRT_SHIFT)]=sqrtf(i);
 }
 
 float glength(vec* v1,vec* v2){

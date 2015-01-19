@@ -225,6 +225,7 @@ int main(int argc, char* argv[]){
 		memset(config.players[i].tower_set,0,sizeof(config.players[i].tower_set));
 		memset(config.players[i].npc_set,0,sizeof(config.players[i].npc_set));
 		config.players[i]._hero_counter=TPS*62;
+		config.players[i].target=-1;
 		for (j=0;j<9;j++){
 			config.players[i].tower_set[j].id=j+1;
 			config.players[i].tower_set[j].num=-1;

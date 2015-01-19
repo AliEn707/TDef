@@ -264,6 +264,26 @@ int tickTargetNpc(gnode* grid,npc* n){
 		//if near no Towers
 		if (findNearNpc(grid,n,type->see_distanse)!=0)
 			goto out;
+		//if player set target
+		if (config.players[n->owner].target>0){ //1 is o index
+			if (config.players[config.players[n->owner].target].id==0 ||
+					config.players[config.players[n->owner].target].group==config.players[n->owner].group ||
+					config.players[config.players[n->owner].target].base==0){
+				config.players[n->owner].target=0; //set to random
+				setMask(&config.players[n->owner],PLAYER_TARGET);
+			}else{
+				if (config.players[config.players[n->owner].target].base!=0){
+					id=config.bases[config.players[config.players[n->owner].target].base_id].position;
+					n->finded_base=-1;
+				}
+			}
+		} else
+			if (config.players[n->owner].target<0) //set follow hero
+				if (config.players[n->owner].hero!=0){
+					n->ntarget=config.players[n->owner].hero;
+					goto out;
+				}
+
 		//try to go to previous base
 		if (n->finded_base>=0){
 			if (config.players[n->finded_base].base==0){
@@ -466,13 +486,19 @@ int tickMoveNpc(gnode* grid,npc* n){
 	if (n->status==IN_MOVE){
 		if (n->ttarget!=0 || n->ntarget!=0){
 			if (n->ntarget!=0)
-				if (eqInD(n->position.x,n->ntarget->position.x,type->move_speed) &&
-						eqInD(n->position.y,n->ntarget->position.y,type->move_speed)){
+				if (eqInD(n->position.x,n->ntarget->position.x,type->move_speed<1?1:type->move_speed) &&
+						eqInD(n->position.y,n->ntarget->position.y,type->move_speed<1?1:type->move_speed)){
 					n->ntarget=0;
+					n->path_count=NPC_PATH;
 					printDebug("\ndest reached\n");
 					return 0;
 				}
-				
+			//why it happens??	
+			if (n->path_count>0 && n->path_count<NPC_PATH-1)
+				if (n->path[n->path_count-1].node==n->path[n->path_count+1].node){
+					n->path_count=NPC_PATH;
+					memcpy(&n->destination,&n->position,sizeof(vec));
+				}
 			//check path from position
 			if ((eqInD(n->position.x,n->destination.x,type->move_speed) &&
 						eqInD(n->position.y,n->destination.y,type->move_speed))||
@@ -489,6 +515,7 @@ int tickMoveNpc(gnode* grid,npc* n){
 							n->path)<0)
 						perror("aSearch tickMoveNpc");
 					n->path_count=0;
+					printf("wrong\n");
 					}
 				
 				int node_id;

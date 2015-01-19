@@ -17,6 +17,40 @@
 #include <pthread.h>
 #include <signal.h>
 
+#define BIT_1 1
+#define BIT_2 2
+#define BIT_3 4
+#define BIT_4 8
+#define BIT_5 16
+#define BIT_6 32
+#define BIT_7 64
+#define BIT_8 128
+#define BIT_9 256
+#define BIT_10 512
+#define BIT_11 1024
+#define BIT_12 2048
+#define BIT_13 4096
+#define BIT_14 8192
+#define BIT_15 16384
+#define BIT_16 32768
+#define BIT_17 65536
+#define BIT_18 131072
+#define BIT_19 262144
+#define BIT_20 524288
+#define BIT_21 1048576
+#define BIT_22 2097152
+#define BIT_23 4194304
+#define BIT_24 8388608
+#define BIT_25 16777216
+#define BIT_26 33554432
+#define BIT_27 67108864
+#define BIT_28 134217728
+#define BIT_29 268435456
+#define BIT_30 536870912
+#define BIT_31 1073741824
+#define BIT_32 2147483648
+
+
 #define TPS 8
 
 
@@ -84,28 +118,29 @@
 #define setMask(z,x) (z)->bit_mask|=x
 #define checkMask(z,x) z&x
 
-#define PLAYER_HEALTH 1
-#define PLAYER_MONEY 2
-#define PLAYER_CREATE 4
-#define PLAYER_LEVEL 8
-#define PLAYER_HERO 16
-#define PLAYER_HERO_COUNTER 32
+#define PLAYER_HEALTH BIT_1
+#define PLAYER_MONEY BIT_2
+#define PLAYER_CREATE BIT_3
+#define PLAYER_LEVEL BIT_4
+#define PLAYER_HERO BIT_5
+#define PLAYER_HERO_COUNTER BIT_6
+#define PLAYER_TARGET BIT_7
 
-#define NPC_HEALTH 1
-#define NPC_POSITION 2
-#define NPC_CREATE 4
-#define NPC_LEVEL 8
-#define NPC_SHIELD 16
+#define NPC_HEALTH BIT_1
+#define NPC_POSITION BIT_2
+#define NPC_CREATE BIT_3
+#define NPC_LEVEL BIT_4
+#define NPC_SHIELD BIT_5
 
-#define TOWER_HEALTH 1
-#define TOWER_TARGET 2
-#define TOWER_CREATE 4
-#define TOWER_LEVEL 8
-#define TOWER_SHIELD 16
+#define TOWER_HEALTH BIT_1
+#define TOWER_TARGET BIT_2
+#define TOWER_CREATE BIT_3
+#define TOWER_LEVEL BIT_4
+#define TOWER_SHIELD BIT_5
 
-#define BULLET_POSITION 1
-#define BULLET_DETONATE 2
-#define BULLET_CREATE 4
+#define BULLET_POSITION BIT_1
+#define BULLET_DETONATE BIT_2
+#define BULLET_CREATE BIT_3
 
 
 
@@ -308,6 +343,8 @@ struct player{
 	
 	int money;
 	int level;
+	
+	short target;
 	struct {
 		int npcs_spawned;
 		int towers_built;
