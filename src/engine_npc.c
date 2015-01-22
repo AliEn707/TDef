@@ -266,23 +266,22 @@ int tickTargetNpc(gnode* grid,npc* n){
 			goto out;
 		//if player set target
 		if (config.players[n->owner].target>0){ //1 is o index
-			if (config.players[config.players[n->owner].target].id==0 ||
-					config.players[config.players[n->owner].target].group==config.players[n->owner].group ||
-					config.players[config.players[n->owner].target].base==0){
+			if (config.players[config.players[n->owner].target-1].base!=0){
+				id=config.bases[config.players[config.players[n->owner].target-1].base_id].position;
+				n->finded_base=-1;
+				printf("set %d\n",id);
+			}else{
 				config.players[n->owner].target=0; //set to random
 				setMask(&config.players[n->owner],PLAYER_TARGET);
-			}else{
-				if (config.players[config.players[n->owner].target].base!=0){
-					id=config.bases[config.players[config.players[n->owner].target].base_id].position;
-					n->finded_base=-1;
-				}
+				printf("set to rand\n");
 			}
 		} else
-			if (config.players[n->owner].target<0) //set follow hero
+			if (config.players[n->owner].target<0){ //set follow hero
 				if (config.players[n->owner].hero!=0){
 					n->ntarget=config.players[n->owner].hero;
-					goto out;
 				}
+				goto out;
+			}
 
 		//try to go to previous base
 		if (n->finded_base>=0){

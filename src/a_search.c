@@ -141,9 +141,7 @@ int reconstruct_path(gnode *grid,gnode *goal,path* path){
 			tmp=&grid[path[i].node];
 			if (grid[path[i].node].tower!=0)
 				path[i].tower=1;
-			printf("%d ",path[i].node);
 		}
-		printf("\n");
 	return 0;
 }
 

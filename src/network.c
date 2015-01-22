@@ -146,6 +146,15 @@ int processMessage(worker_arg * data,char type){
 		setHeroTargetByNode(data->grid,h,node);
 		return 0;
 	}
+	if (type==MSG_SET_TARGET){
+		char type;
+		if (recvData(data->sock,&type,sizeof(type))<0){
+			perror("recv Message");
+			return -1;
+		}
+		config.players[data->id].target=type;
+		setMask(&config.players[data->id],PLAYER_TARGET);
+	}
 	return -1;
 }
 
@@ -329,8 +338,10 @@ int sendPlayers(int sock,int id){
 			bit_mask|=PLAYER_HERO_COUNTER;
 			bit_mask|=PLAYER_HEALTH;
 		}
-		if (id != i)
+		if (id != i){
 			bit_mask &= ~PLAYER_MONEY;
+			bit_mask &= ~PLAYER_TARGET;
+		}
 		mes=MSG_PLAYER;
 		sendData(mes);
 		sendData(i);
@@ -367,6 +378,9 @@ int sendPlayers(int sock,int id){
 			printDebug("send_money\n");
 			sendData(config.players[i].money);
 		}
+		if(checkMask(bit_mask,PLAYER_TARGET)){
+			sendData(config.players[i].target);
+		}
 	}
 	return 0;
 }
@@ -381,6 +395,7 @@ int networkAuth(worker_arg *data){
 	int sock=data->sock;
 	int tmp;
 	sendData(data->id);
+	sendData(config.game.players);
 	//latency check
 	recvData(sock,&tmp,sizeof(tmp));
 	sendData(tmp);

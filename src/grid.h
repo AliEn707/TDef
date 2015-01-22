@@ -113,6 +113,7 @@
 #define MSG_SPAWN_NPC 2
 #define MSG_DROP_TOWER 3
 #define MSG_MOVE_HERO 4
+#define MSG_SET_TARGET 5
 
 ///////bit mask
 #define setMask(z,x) (z)->bit_mask|=x
@@ -464,7 +465,7 @@ engine_config config;
 
 #define sqr(x) ({typeof(x) $x=(x); ($x)*($x);})//check this
 
-#define eqInD(a,b,eq) (fabs(a-b)<=eq)
+#define eqInD(a,b,eq) (fabs((a)-(b))<=(eq))
 //////
 #define setVecto0(v) memset(&v,0,sizeof(vec))
 
