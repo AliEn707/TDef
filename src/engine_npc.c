@@ -254,6 +254,11 @@ int tickTargetNpc(gnode* grid,npc* n){
 		n->id=0;
 		return 0;
 	}
+	if (config.players[n->owner].target_changed){
+		n->ttarget=0;
+		n->ntarget=0;
+		n->finded_base=-1;
+	}
 	if(n->ttarget==0 && n->ntarget==0){
 		int id=-1;
 		n->path_count=NPC_PATH;
@@ -492,12 +497,13 @@ int tickMoveNpc(gnode* grid,npc* n){
 					printDebug("\ndest reached\n");
 					return 0;
 				}
-			//why it happens??	
+/*			//why it happens??	
 			if (n->path_count>0 && n->path_count<NPC_PATH-1)
 				if (n->path[n->path_count-1].node==n->path[n->path_count+1].node){
 					n->path_count=NPC_PATH;
 					memcpy(&n->destination,&n->position,sizeof(vec));
 				}
+*/
 			//check path from position
 			if ((eqInD(n->position.x,n->destination.x,type->move_speed) &&
 						eqInD(n->position.y,n->destination.y,type->move_speed))||
@@ -505,7 +511,7 @@ int tickMoveNpc(gnode* grid,npc* n){
 				if (n->path_count>=NPC_PATH || 
 						n->path[n->path_count].node==-1 || 
 						(grid[n->path[n->path_count].node].tower!=0 && n->path[n->path_count].tower<0)){
-					memset(n->path,-1,sizeof(int)*NPC_PATH);
+					memset(n->path,-1,sizeof(path)*NPC_PATH);
 					if(aSearch(grid,
 							n->ttarget!=0?
 								(grid+n->ttarget->position):
@@ -514,7 +520,7 @@ int tickMoveNpc(gnode* grid,npc* n){
 							n->path)<0)
 						perror("aSearch tickMoveNpc");
 					n->path_count=0;
-					printf("wrong\n");
+//					printf("wrong\n");
 					}
 				
 				int node_id;

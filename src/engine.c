@@ -282,6 +282,7 @@ void forEachPlayer(gnode* grid) {
 				setMask(&config.players[i],PLAYER_HERO_COUNTER);
 			}
 		}
+		config.players[i].target_changed=0;
 	}
 	if (money_flag)
 		config.current_money_timer = 0;

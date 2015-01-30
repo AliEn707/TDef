@@ -153,6 +153,7 @@ int processMessage(worker_arg * data,char type){
 			return -1;
 		}
 		config.players[data->id].target=type;
+		config.players[data->id].target_changed=1;
 		setMask(&config.players[data->id],PLAYER_TARGET);
 	}
 	return -1;
@@ -337,6 +338,7 @@ int sendPlayers(int sock,int id){
 			bit_mask|=PLAYER_HERO;
 			bit_mask|=PLAYER_HERO_COUNTER;
 			bit_mask|=PLAYER_HEALTH;
+			bit_mask|=PLAYER_TARGET;
 		}
 		if (id != i){
 			bit_mask &= ~PLAYER_MONEY;

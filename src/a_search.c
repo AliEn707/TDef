@@ -132,16 +132,39 @@ int * neighbor_nodes(gnode* grid,gnode* n){
 	return z;
 }
 
-int reconstruct_path(gnode *grid,gnode *goal,path* path){
+int reconstruct_path(gnode *grid,gnode *goal,path* p){
 	gnode* tmp=goal;
 	int i;
-	if (path!=0)
+	if (p!=0){
 		for(i=0;i<NPC_PATH;i++){
-			path[i].node=tmp->next;
-			tmp=&grid[path[i].node];
-			if (grid[path[i].node].tower!=0)
-				path[i].tower=1;
+			p[i].node=tmp->next;
+			tmp=&grid[p[i].node];
+			if (grid[p[i].node].tower!=0)
+				p[i].tower=1;
 		}
+		char * t_t;
+		int grid2=config.gridsize*config.gridsize;
+		if ((t_t=malloc(sizeof(*t_t)*grid2))==0){
+			perror("malloc t_t path");
+			return -1;
+		}
+		memset(t_t,0,sizeof(*t_t)*grid2);
+		//rem loops
+		for(i=0;i<NPC_PATH && p[i].node>=0;i++){
+			if (p[i].node>-1){
+				if (t_t[p[i].node]!=0){
+					int j;
+					for(j=i;p[j].node!=p[i].node;j--)
+						p[j].node=-1;
+					p[i].node=-1;
+//					p[i+1].node=-1;
+//					break;
+				}else
+					t_t[p[i].node]=1;
+			}
+		}
+		free(t_t);
+	}
 	return 0;
 }
 
@@ -151,7 +174,12 @@ int aSearch(gnode* grid,gnode* start,gnode* goal, path* path){
 	
 	if (start->id<0 || goal->id<0){
 		printDebug("not correct nodes for path\n");
-		return 0;
+		path[0].node=-1;
+		return -1;
+	}
+	if (start->id== goal->id){
+		path[0].node=-1;
+		return -1;
 	}
 	
 	openset = setInit();

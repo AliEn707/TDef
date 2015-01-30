@@ -309,6 +309,7 @@ struct gnode{
 	float f;
 	float g;
 	float h;
+	char loop;
 	int id;
 	int next;
 	char walkable; //-1 no see, 0 no walk, 1 walk
@@ -323,7 +324,8 @@ struct player{
 	int id;
 	int bit_mask;
 	int group; //player number [0-7]
-	char first_send;
+	int first_send:1;
+	int target_changed:1;
 	struct {
 		int id;
 		int num;
