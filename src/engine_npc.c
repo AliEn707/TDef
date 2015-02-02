@@ -273,13 +273,13 @@ int tickTargetNpc(gnode* grid,npc* n){
 		if (config.players[n->owner].target>0){ //1 is o index
 			if (config.players[config.players[n->owner].target-1].base!=0){
 				id=config.bases[config.players[config.players[n->owner].target-1].base_id].position;
-				n->finded_base=-1;
-				printf("set %d\n",id);
+//				printf("set %d\n",id);
 			}else{
 				config.players[n->owner].target=0; //set to random
 				setMask(&config.players[n->owner],PLAYER_TARGET);
-				printf("set to rand\n");
+//				printf("set to rand\n");
 			}
+			n->finded_base=-1;
 		} else
 			if (config.players[n->owner].target<0){ //set follow hero
 				if (config.players[n->owner].hero!=0){
@@ -302,7 +302,7 @@ int tickTargetNpc(gnode* grid,npc* n){
 		if (id<0)
 			if((id=findEnemyBase(config.players[n->owner].group))<0)
 				return 0;  
-			
+		
 //		printDebug("found %d \n",id);
 		if ((n->ttarget=grid[id].tower)!=0){
 			n->finded_base=grid[id].tower->owner;
@@ -487,6 +487,9 @@ int tickMoveNpc(gnode* grid,npc* n){
 		n->id=0;
 		return 0;
 	}
+	if (n->destination.x<0 || n->destination.y<0)
+			memcpy(&n->destination,&n->position,sizeof(n->position));
+		
 	if (n->status==IN_MOVE){
 		if (n->ttarget!=0 || n->ntarget!=0){
 			if (n->ntarget!=0)
@@ -507,7 +510,8 @@ int tickMoveNpc(gnode* grid,npc* n){
 			//check path from position
 			if ((eqInD(n->position.x,n->destination.x,type->move_speed) &&
 						eqInD(n->position.y,n->destination.y,type->move_speed))||
-				glength(&n->position,&n->destination)<0.05){
+				glength(&n->position,&n->destination)<0.05 ||
+				n->path[n->path_count].node==-1){
 				if (n->path_count>=NPC_PATH || 
 						n->path[n->path_count].node==-1 || 
 						(grid[n->path[n->path_count].node].tower!=0 && n->path[n->path_count].tower<0)){
@@ -517,8 +521,8 @@ int tickMoveNpc(gnode* grid,npc* n){
 								(grid+n->ttarget->position):
 								(grid+getGridId(n->ntarget->position)),
 							grid+getGridId(n->position),
-							n->path)<0)
-						perror("aSearch tickMoveNpc");
+							n->path)<0);
+//						perror("aSearch tickMoveNpc");
 					n->path_count=0;
 //					printf("wrong\n");
 					}
