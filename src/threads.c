@@ -13,6 +13,7 @@
 #include "types.h"
 #include "t_sem.h"
 
+#define PRIVATE_POLICY "<cross-domain-policy><allow-access-from domain=\"*\" to-ports=\"*\" /></cross-domain-policy>"
 
 #define sendData(x) if(send(sock,&x,sizeof(x),0)<0) return -1
 
@@ -136,54 +137,61 @@ void * threadListener(void * arg){
 		if (select (listener + 1, &read_fds, 0, 0, 0) > 0) {
 			if((sock = accept(listener, NULL, NULL))<0)  //thread 2 stops here
 				perror("accept startServer");
-			
-			if (config.players_num>=config.game.players-1){
+			char t_t[14];
+			memset(t_t,0,sizeof(t_t));
+			recvData(sock,t_t,13);//get 13 bytes
+			if (strstr(t_t,"<policy")!=0){
+				_sendData(sock,PRIVATE_POLICY,sizeof(PRIVATE_POLICY));
 				close(sock);
-				continue;
+			}else{
+				if (config.players_num>=config.game.players-1){
+					close(sock);
+					continue;
+				}
+				//check connected user
+				printDebug("client connected\n");
+				t_semop(t_sem.player,&sem[0],1);
+				config.players_num++;
+				//add get player data
+				
+	//////////////////////////setup player change to get from server
+					int i;
+					int id;
+					id=config.players_num;
+					for (i=1;i<=config.game.players;i++)
+						if (config.players[i].id==0){
+							id=i;
+							break;
+						}
+					printDebug("client id set to %d\n",id);
+					/////
+					setupPlayer(id,id/*group*/);
+					
+					//fake setup base
+					config.players[id].base_type.health=2000;//base health
+					//fake setup hero
+					npc_type * type=typesNpcGet(HERO);
+					if (type!=0)
+						memcpy(&config.players[id].hero_type,type,sizeof(npc_type));
+					
+					config.players[id].money = 1000;//TODO:remove!
+	///////////////////////////////////////////
+	//			printDebug("player id %d base %d on %d \n",id,config.players[id].base_id,config.bases[config.players[id].base_id].position);
+				t_semop(t_sem.player,&sem[1],1);
+				
+				
+				t_semop(t_sem.send,&sem[2],1);
+				t_semop(t_sem.send,&sem[3],1);
+				tower * base=spawnTower(data->grid,config.bases[config.players[id].base_id].position,id,BASE);
+				setPlayerBase(id,base);
+				npc * hero=spawnNpc(data->grid,config.points[config.bases[config.players[id].base_id].point_id].position,id,HERO);
+				setPlayerHero(id,hero);
+				//start worker
+				if (startWorker(sock,id,data->grid)<=0)
+					perror("startWorker");
+				//need to change later
+				//break;
 			}
-			//check connected user
-			printDebug("client connected\n");
-			t_semop(t_sem.player,&sem[0],1);
-			config.players_num++;
-			//add get player data
-			
-//////////////////////////setup player change to get from server
-				int i;
-				int id;
-				id=config.players_num;
-				for (i=1;i<=config.game.players;i++)
-					if (config.players[i].id==0){
-						id=i;
-						break;
-					}
-				printDebug("client id set to %d\n",id);
-				/////
-				setupPlayer(id,id/*group*/);
-				
-				//fake setup base
-				config.players[id].base_type.health=2000;//base health
-				//fake setup hero
-				npc_type * type=typesNpcGet(HERO);
-				if (type!=0)
-					memcpy(&config.players[id].hero_type,type,sizeof(npc_type));
-				
-				config.players[id].money = 1000;//TODO:remove!
-///////////////////////////////////////////
-//			printDebug("player id %d base %d on %d \n",id,config.players[id].base_id,config.bases[config.players[id].base_id].position);
-			t_semop(t_sem.player,&sem[1],1);
-			
-			
-			t_semop(t_sem.send,&sem[2],1);
-			t_semop(t_sem.send,&sem[3],1);
-			tower * base=spawnTower(data->grid,config.bases[config.players[id].base_id].position,id,BASE);
-			setPlayerBase(id,base);
-			npc * hero=spawnNpc(data->grid,config.points[config.bases[config.players[id].base_id].point_id].position,id,HERO);
-			setPlayerHero(id,hero);
-			//start worker
-			if (startWorker(sock,id,data->grid)<=0)
-				perror("startWorker");
-			//need to change later
-			//break;
 		}
 		syncTPS(timePassed(&tv),TPS);
 	}

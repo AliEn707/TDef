@@ -236,7 +236,8 @@ int tickSendNpc(gnode* grid,npc* n){
 		sendData(n->type);
 	}
 //	if(checkMask(bit_mask,NPC_POSITION) || checkMask(bit_mask,NPC_CREATE))
-		sendData(n->position);
+		sendData(n->position.x);
+		sendData(n->position.y);
 	if(checkMask(bit_mask,NPC_LEVEL))
 		sendData(n->level);
 	if(checkMask(bit_mask,NPC_HEALTH))
@@ -308,11 +309,13 @@ int tickSendBullet(gnode* grid,bullet * b){
 	
 	sendData(bit_mask);
 //	if(checkMask(bit_mask,BULLET_POSITION) || checkMask(bit_mask,BULLET_CREATE))
-	sendData(b->position);
+	sendData(b->position.x);
+	sendData(b->position.y);
 	if (checkMask(bit_mask,BULLET_CREATE)){
 		sendData(b->type);
 		sendData(b->owner);
-		sendData(b->source);
+		sendData(b->source.x);
+		sendData(b->source.y);
 //		sendData(b->destination);
 	}
 	if(checkMask(bit_mask,BULLET_DETONATE))
