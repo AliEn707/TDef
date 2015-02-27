@@ -13,6 +13,8 @@
 
 #define semInfo() printDebug("sem %d=>%d|%d=>%d|%d=>%d before sem %d action %d  %s:%d\n",0,semctl(t_sem.send,0,GETVAL),1,semctl(t_sem.send,1,GETVAL),2,semctl(t_sem.send,2,GETVAL),sem.sem_num,sem.sem_op,__FILE__,__LINE__)
 
+static int listener;
+
 void* printInfo(void*p) {
 	while (1) {
 		char c = getchar();
@@ -96,6 +98,7 @@ void segfault_sigaction(int signal, siginfo_t *si, void *arg)
 	config.game.run = 0;
 	printStats();
 	realizeServer();
+	close(listener);
 	usleep(100000);
 	exit(0);
 }
@@ -106,7 +109,7 @@ int main(int argc, char* argv[]){
 	struct sembuf sem_pl;
 	short test=1;
 	
-	int listener;
+	
 	int err;
 	struct timeval tv={0,0};
 	timePassed(&tv);

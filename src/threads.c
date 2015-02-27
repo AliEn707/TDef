@@ -140,6 +140,7 @@ void * threadListener(void * arg){
 			char t_t[14];
 			memset(t_t,0,sizeof(t_t));
 			recvData(sock,t_t,13);//get 13 bytes
+//			printf("%s\n",t_t);
 			if (strstr(t_t,"<policy")!=0){
 				_sendData(sock,PRIVATE_POLICY,sizeof(PRIVATE_POLICY));
 				close(sock);

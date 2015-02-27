@@ -171,8 +171,10 @@ int startServer(int port,gnode * grid){
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(port);
 	addr.sin_addr.s_addr = htonl(INADDR_ANY);
-	if(bind(listener, (struct sockaddr *)&addr, sizeof(addr)) < 0)
+	if(bind(listener, (struct sockaddr *)&addr, sizeof(addr)) < 0){
 		perror("bind startServer");
+		exit(1);
+	}
 	
 	if(listen(listener, 1)<0)
 		perror("listen startServer");
@@ -352,9 +354,16 @@ int sendPlayers(int sock,int id){
 		sendData(i);
 		sendData(bit_mask);
 		if(checkMask(bit_mask,PLAYER_CREATE)){
+			int j;
 			sendData(config.players[i].id);
-			sendData(config.players[i].tower_set);
-			sendData(config.players[i].npc_set);
+			for(j=0;j<TOWER_SET_NUM;j++){
+				sendData(config.players[i].tower_set[j].id);
+				sendData(config.players[i].tower_set[j].num);
+			}
+			for(j=0;j<NPC_SET_NUM;j++){
+				sendData(config.players[i].npc_set[j].id);
+				sendData(config.players[i].npc_set[j].num);
+			}
 			sendData(config.players[i].group);
 			sendData(config.players[i]._hero_counter);
 			//send info about base
