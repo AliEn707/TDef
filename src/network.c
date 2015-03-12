@@ -223,6 +223,9 @@ int tickSendNpc(gnode* grid,npc* n){
 	sendData(n->id);
 	
 	int bit_mask=n->bit_mask;
+	
+	bit_mask|=NPC_POSITION;
+	
 	if (config.players[id].first_send!=0)
 		bit_mask|=NPC_CREATE;
 	
@@ -230,6 +233,7 @@ int tickSendNpc(gnode* grid,npc* n){
 		bit_mask|=NPC_LEVEL;
 		bit_mask|=NPC_HEALTH;
 		bit_mask|=NPC_SHIELD;
+		bit_mask|=NPC_POSITION;
 	}
 	
 	sendData(bit_mask);
@@ -237,7 +241,7 @@ int tickSendNpc(gnode* grid,npc* n){
 		sendData(n->owner);
 		sendData(n->type);
 	}
-//	if(checkMask(bit_mask,NPC_POSITION) || checkMask(bit_mask,NPC_CREATE))
+	if(checkMask(bit_mask,NPC_POSITION))
 		sendData(n->position.x);
 		sendData(n->position.y);
 	if(checkMask(bit_mask,NPC_LEVEL))
