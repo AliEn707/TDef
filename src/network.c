@@ -35,15 +35,27 @@ int _sendData(int sock, void * buf, int size){
 int recvData(int sock, void * buf, int size){
 	int need=size;
 	int get;
-	get=recv(sock,buf,need,0);
-	if (get<=0)
-		return -1;
+	get=recv(sock,buf,need,MSG_DONTWAIT);
+	if (get==0)
+		return 0;
+	if (get<0)
+		if (errno!=EAGAIN)
+			return -1;
 	if (get==need)
 		return get;
 	printDebug("get not all\n");
+	int $$=0;
 	do{
-		need-=get;
-		if((get=recv(sock,buf+(size-need),need,0))<=0)
+		printDebug("try %d to read %d\n", $$, need);
+		if (get>0)
+			need-=get;
+//		printf("try to get\n");
+		if((get=recv(sock,buf+(size-need),need,MSG_DONTWAIT))<=0)
+			if (errno!=EAGAIN)
+				return -1;
+		usleep(30000);//30ms*6 ~ 180ms waiting
+		$$++;
+		if ($$>6)//max tries of read
 			return -1;
 	}while(need>0);
 	return size;

@@ -31,7 +31,7 @@ void * threadWorker(void * arg){
 						{2,-1,0},
 						{2,0,0}};
 	struct sembuf sem_pl[2]={{0,-1,0},
-						  {0,1,0}};
+						   {0,1,0}};
 	int i;
 	char msg_type;
 	config.players[data->id].first_send=1;
@@ -56,6 +56,7 @@ void * threadWorker(void * arg){
 					break;
 				}
 			}
+			//TODO: add check for errors and drop
 			processMessage(data,msg_type);
 		}
 		
