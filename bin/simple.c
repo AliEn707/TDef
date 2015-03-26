@@ -300,6 +300,7 @@ int main(int argc, char* argv[]){
 		t_semop(t_sem.player,&sem_pl,1);
 		
 		syncTPS(timePassed(&tv),TPS);
+		timePassed(&tv);
 		if(config.players_num==0)
 			break;
 		//check 2

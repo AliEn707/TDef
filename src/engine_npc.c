@@ -487,6 +487,7 @@ int tickMoveNpc(gnode* grid,npc* n){
 		n->id=0;
 		return 0;
 	}
+	//TODO: may be not need	
 	if (n->destination.x<0 || n->destination.y<0)
 			memcpy(&n->destination,&n->position,sizeof(n->position));
 		
@@ -529,14 +530,19 @@ int tickMoveNpc(gnode* grid,npc* n){
 				
 				int node_id;
 				node_id=n->path[n->path_count++].node;
-				n->destination.x=getGridx(node_id);
-				n->destination.y=getGridy(node_id);
-				getDir(&n->position,&n->destination,&n->direction);
+				if (node_id<0){
+					//we don't have path 
+//					memcpy(&n->destination,&n->position,sizeof(n->position));
+					memset(&n->direction,0,sizeof(n->direction));
+				}else{
+					//path ok
+					n->destination.x=getGridx(node_id);
+					n->destination.y=getGridy(node_id);
+					getDir(&n->position,&n->destination,&n->direction);
+				}
+				setMask(n,NPC_POSITION);
 			}
 			
-				
-			//vec dir={0,0};
-			//getDir(&n->position,&n->destination,&dir);
 			
 			vec pos={n->position.x+n->direction.x*type->move_speed,
 					n->position.y+n->direction.y*type->move_speed};
@@ -552,7 +558,7 @@ int tickMoveNpc(gnode* grid,npc* n){
 			
 			//write new position
 			memcpy(&n->position,&pos,sizeof(vec));
-			setMask(n,NPC_POSITION);
+//			setMask(n,NPC_POSITION);
 		}
 	}
 	return 0;
