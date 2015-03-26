@@ -39,6 +39,7 @@ void * threadWorker(void * arg){
 	if (networkAuth(data)!=0)
 		return (void *)-1;
 	//printDebug("sock %d\n",data->sock);
+	int error=0;
 	while(config.game.run!=0){
 	//	printDebug("work\n");
 		usleep(10000);
@@ -57,14 +58,18 @@ void * threadWorker(void * arg){
 				}
 			}
 			//TODO: add check for errors and drop
-			processMessage(data,msg_type);
+			if(processMessage(data,msg_type)<0){
+				error++;
+				break;
+			}
 		}
 		
 		//all threads in one time
 		semOp(3);
 		sleep(0);
 		semOp(4);  //thread 3 stops here
-		
+		if (error)
+			break;
 		if (forEachNpc((gnode*)data,tickSendNpc)<0)
 			break;
 		if(forEachTower((gnode*)data,tickSendTower)<0)
@@ -78,6 +83,7 @@ void * threadWorker(void * arg){
 		sleep(0);
 		semOp(2); //thread 4 stops here
 		semOp(0);
+		//need to check
 		if (config.players[data->id].first_send!=0)
 			config.players[data->id].first_send=0;
 	}
