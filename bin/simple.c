@@ -12,6 +12,7 @@
 //Test main file
 
 #define semInfo() printDebug("sem %d=>%d|%d=>%d|%d=>%d before sem %d action %d  %s:%d\n",0,semctl(t_sem.send,0,GETVAL),1,semctl(t_sem.send,1,GETVAL),2,semctl(t_sem.send,2,GETVAL),sem.sem_num,sem.sem_op,__FILE__,__LINE__)
+#define WAITING_TIME 30000000
 
 static int listener;
 
@@ -240,8 +241,15 @@ int main(int argc, char* argv[]){
 //	spawnNpc(grid,42,0,2);
 	
 	//change in future
-	while(config.players_num==0)
-		usleep(100000);
+	printDebug("Max number of players = %d\n", config.game.players - 1); //1 for AI
+ 	while(config.players_num==0)
+ 		usleep(100000);
+	//int time_iterator;
+	for (i = 0; i < 30; i++) {
+		if (config.players_num == config.game.players - 1)
+			break;		
+		usleep(WAITING_TIME/30);
+	}
 	
 	printDebug("start game\n");
 	config.max_money_timer = TPS*60;

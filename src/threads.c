@@ -94,6 +94,8 @@ out:
 	//add send stats to public
 	
 //	memset(&config.players[data->id],0,sizeof(player));
+	config.players[data->id].base->health = -1;
+	config.players[data->id].hero->health = -1;
 	config.players[data->id].id=0;	
 	if (config.players[data->id].base!=0){
 		data->grid[config.players[data->id].base->position].tower=0;

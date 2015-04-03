@@ -65,6 +65,8 @@ int processMessage(worker_arg * data,char type){
 	struct sembuf sem_pl;
 	memset(&sem_pl,0,sizeof(sem_pl));
 	
+	int playerNotFailed = config.players[data->id].base == 0 ? 0 : 1;
+	
 	if (type==MSG_SPAWN_TOWER){
 		int node_id=0;
 		short t_id=0;
@@ -77,23 +79,25 @@ int processMessage(worker_arg * data,char type){
 			perror("recv Message");
 			return -1;
 		}
-		type=typesTowerGet(config.players[data->id].tower_set[t_id].id);
-		if (type==0)
-			return 0;
-		if (config.players[data->id].money < type->cost) {//awesome
-			printDebug("Player %d failed: not enough money\n", data->id);
-			return 0;
+		if (playerNotFailed) {
+			type=typesTowerGet(config.players[data->id].tower_set[t_id].id);
+			if (type==0)
+				return 0;
+			if (config.players[data->id].money < type->cost) {//awesome
+				printDebug("Player %d failed: not enough money\n", data->id);
+				return 0;
+			}
+			printDebug("%d spawn tower %hd on %hd\n",data->id,t_id,node_id);		
+			sem_pl.sem_num=0;
+			sem_pl.sem_op=-1;
+			t_semop(t_sem.player,&sem_pl,1);
+			
+			spawnTower(data->grid,node_id,data->id,config.players[data->id].tower_set[t_id].id);
+			
+			sem_pl.sem_num=0;
+			sem_pl.sem_op=1;
+			t_semop(t_sem.player,&sem_pl,1);
 		}
-		printDebug("%d spawn tower %hd on %hd\n",data->id,t_id,node_id);		
-		sem_pl.sem_num=0;
-		sem_pl.sem_op=-1;
-		t_semop(t_sem.player,&sem_pl,1);
-		
-		spawnTower(data->grid,node_id,data->id,config.players[data->id].tower_set[t_id].id);
-		
-		sem_pl.sem_num=0;
-		sem_pl.sem_op=1;
-		t_semop(t_sem.player,&sem_pl,1);
 		return 0;
 	}
 	if (type==MSG_DROP_TOWER){
@@ -102,15 +106,17 @@ int processMessage(worker_arg * data,char type){
 			perror("recv Message");
 			return -1;
 		}
-		printDebug("%d drop tower on %hd\n",data->id,node_id);		
-		sem_pl.sem_num=0;
-		sem_pl.sem_op=-1;
-		t_semop(t_sem.player,&sem_pl,1);
-		if (data->grid[node_id].tower!=0)
-			removeTower(data->grid,data->grid[node_id].tower);
-		sem_pl.sem_num=0;
-		sem_pl.sem_op=1;
-		t_semop(t_sem.player,&sem_pl,1);
+		if (playerNotFailed) {
+			printDebug("%d drop tower on %hd\n",data->id,node_id);		
+			sem_pl.sem_num=0;
+			sem_pl.sem_op=-1;
+			t_semop(t_sem.player,&sem_pl,1);
+			if (data->grid[node_id].tower!=0)
+				removeTower(data->grid,data->grid[node_id].tower);
+			sem_pl.sem_num=0;
+			sem_pl.sem_op=1;
+			t_semop(t_sem.player,&sem_pl,1);
+		}
 		return 0;
 	}
 	if (type==MSG_SPAWN_NPC){
@@ -120,27 +126,29 @@ int processMessage(worker_arg * data,char type){
 			perror("recv Message");
 			return -1;
 		}
-		type=typesNpcGet(config.players[data->id].npc_set[n_id].id);
-		if (type==0)
-			return 0;
-		if (config.players[data->id].money < type->cost) {//awesome
-			printDebug("Player %d failed: not enough money\n", data->id);
-			return 0;
-		}		
-		printDebug("%d spawn npc %d on %d\n",data->id,config.players[data->id].npc_set[n_id].id,config.points[config.bases[config.players[data->id].base_id].point_id].position);
-		
-		sem_pl.sem_num=0;
-		sem_pl.sem_op=-1;
-		t_semop(t_sem.player,&sem_pl,1);
-		
-		spawnNpc(data->grid,
-				config.points[config.bases[config.players[data->id].base_id].point_id].position,
-				data->id,
-				config.players[data->id].npc_set[n_id].id);
-		
-		sem_pl.sem_num=0;
-		sem_pl.sem_op=1;
-		t_semop(t_sem.player,&sem_pl,1);
+		if (playerNotFailed) {
+			type=typesNpcGet(config.players[data->id].npc_set[n_id].id);
+			if (type==0)
+				return 0;
+			if (config.players[data->id].money < type->cost) {//awesome
+				printDebug("Player %d failed: not enough money\n", data->id);
+				return 0;
+			}		
+			printDebug("%d spawn npc %d on %d\n",data->id,config.players[data->id].npc_set[n_id].id,config.points[config.bases[config.players[data->id].base_id].point_id].position);
+			
+			sem_pl.sem_num=0;
+			sem_pl.sem_op=-1;
+			t_semop(t_sem.player,&sem_pl,1);
+			
+			spawnNpc(data->grid,
+					config.points[config.bases[config.players[data->id].base_id].point_id].position,
+					data->id,
+					config.players[data->id].npc_set[n_id].id);
+			
+			sem_pl.sem_num=0;
+			sem_pl.sem_op=1;
+			t_semop(t_sem.player,&sem_pl,1);
+		}
 		return 0;
 	}
 	if (type==MSG_MOVE_HERO){
@@ -150,12 +158,14 @@ int processMessage(worker_arg * data,char type){
 			perror("recv Message");
 			return -1;
 		}
-		h=config.players[data->id].hero;
-		if (h==0)
-			return 0;
-		printDebug("%d move hero to %d\n",data->id, node);
-		//move hero to node
-		setHeroTargetByNode(data->grid,h,node);
+		if (playerNotFailed) {
+			h=config.players[data->id].hero;
+			if (h==0)
+				return 0;
+			printDebug("%d move hero to %d\n",data->id, node);
+			//move hero to node
+			setHeroTargetByNode(data->grid,h,node);
+		}
 		return 0;
 	}
 	if (type==MSG_SET_TARGET){
@@ -164,9 +174,11 @@ int processMessage(worker_arg * data,char type){
 			perror("recv Message");
 			return -1;
 		}
-		config.players[data->id].target=type;
-		config.players[data->id].target_changed=1;
-		setMask(&config.players[data->id],PLAYER_TARGET);
+		if (playerNotFailed) {
+			config.players[data->id].target=type;
+			config.players[data->id].target_changed=1;
+			setMask(&config.players[data->id],PLAYER_TARGET);
+		}
 	}
 	return -1;
 }
@@ -411,6 +423,9 @@ int sendPlayers(int sock,int id){
 		if(checkMask(bit_mask,PLAYER_TARGET)){
 			sendData(config.players[i].target);
 		}
+		/*if(checkMask(bit_mask,PLAYER_FAIL)) { //TODO: decomment and add to client app
+			sendData(config.players[i].stat.xp);
+		}*/
 	}
 	return 0;
 }

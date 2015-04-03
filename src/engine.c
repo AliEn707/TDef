@@ -271,7 +271,7 @@ void forEachPlayer(gnode* grid) {
 		}
 		if (money_flag)
 			config.players[i].money += giveMoney(&config.players[i]);
-		if (config.players[i].hero==0){
+		if (config.players[i].hero == 0 && config.players[i].base != 0) { //spawn a hero again if the time has come and the base exists
 			if (config.players[i].hero_counter>config.players[i]._hero_counter){
 				setPlayerHero(i,spawnNpc(grid,config.points[config.bases[config.players[i].base_id].point_id].position,i,HERO));
 				config.players[i].hero_counter=0;

@@ -234,9 +234,10 @@ int tickCleanTower(gnode* grid,tower* t){
 	tower_type *type=0;
 	if (t->health>0)
 		return 0;
-	if (t->type==BASE){//TODO: add check for player lose
+	if (t->type==BASE){
 		printDebug("player %d lose\n",t->owner);
 		config.players[t->owner].base=0;
+		setMask(&config.players[t->owner], PLAYER_FAIL);
 //		return 0;
 	}
 	if (t->type==BASE)
