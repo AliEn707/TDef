@@ -57,6 +57,10 @@
 #define NPC_PATH 20
 #define MAX_AREA 33
 
+//time constants on game start
+#define START_WAITING_TIME 30000000
+#define START_WAITING_STEP 1000000
+
 #define PLAYER_MAX 8
 #define TOWER_SET_NUM 9
 #define NPC_SET_NUM 9
@@ -108,6 +112,10 @@
 #define MSG_TOWER 2
 #define MSG_BULLET 3
 #define MSG_PLAYER 4
+#define MSG_INFO 5
+//additional messages to client
+#define MSG_INFO_WAITING_TIME 1
+
 //msg to server
 #define MSG_SPAWN_TOWER 1
 #define MSG_SPAWN_NPC 2
@@ -447,6 +455,7 @@ struct config{
 		int port;
 		int token;
 		short run;
+		int wait_start;
 		int players;
 		char map[20];
 		} game;

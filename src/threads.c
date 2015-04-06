@@ -39,6 +39,10 @@ void * threadWorker(void * arg){
 	if (networkAuth(data)!=0)
 		return (void *)-1;
 	//printDebug("sock %d\n",data->sock);
+	while(config.game.wait_start>0){
+		networkWaitingTime(data);
+		usleep(START_WAITING_STEP-10);
+	}
 	int error=0;
 	while(config.game.run!=0){
 	//	printDebug("work\n");

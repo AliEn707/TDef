@@ -242,12 +242,8 @@ int tickSendNpc(gnode* grid,npc* n){
 	id=((worker_arg*)grid)->id;
 	if (sock==0)
 		return 0;
-	char type=MSG_NPC;
-	sendData(type);
-	sendData(n->id);
 	
 	int bit_mask=n->bit_mask;
-	
 	bit_mask|=NPC_POSITION;
 	
 	if (config.players[id].first_send!=0)
@@ -259,8 +255,12 @@ int tickSendNpc(gnode* grid,npc* n){
 		bit_mask|=NPC_SHIELD;
 		bit_mask|=NPC_POSITION;
 	}
+	char type=MSG_NPC;
 	
+	sendData(type);
 	sendData(bit_mask);
+	sendData(n->id);
+	
 	if (checkMask(bit_mask,NPC_CREATE)){
 		sendData(n->owner);
 		sendData(n->type);
@@ -284,9 +284,8 @@ int tickSendTower(gnode* grid,tower* t){
 	id=((worker_arg*)grid)->id;
 	if (sock==0)
 		return 0;
-	char type=MSG_TOWER;
-	sendData(type);
-	sendData(t->id);
+	
+	
 	
 	int bit_mask=t->bit_mask;
 	if (config.players[id].first_send!=0)
@@ -297,7 +296,11 @@ int tickSendTower(gnode* grid,tower* t){
 		bit_mask|=TOWER_HEALTH;
 		bit_mask|=TOWER_SHIELD;
 	}
+	char type=MSG_TOWER;
+	
+	sendData(type);
 	sendData(bit_mask);
+	sendData(t->id);
 	
 	if(checkMask(bit_mask,TOWER_CREATE)){
 		sendData(t->type);
@@ -327,17 +330,19 @@ int tickSendBullet(gnode* grid,bullet * b){
 	id=((worker_arg*)grid)->id;
 	if (sock==0)
 		return 0;
-	char type=MSG_BULLET;
-	sendData(type);
-	sendData(b->id);
+	
 	
 	int bit_mask=b->bit_mask;
 	if (config.players[id].first_send!=0)
 		bit_mask|=BULLET_CREATE;
 	if (checkMask(bit_mask,BULLET_CREATE)){
 	}
+	char type=MSG_BULLET;
 	
+	sendData(type);	
 	sendData(bit_mask);
+	sendData(b->id);
+	
 //	if(checkMask(bit_mask,BULLET_POSITION) || checkMask(bit_mask,BULLET_CREATE))
 	sendData(b->position.x);
 	sendData(b->position.y);
@@ -378,9 +383,11 @@ int sendPlayers(int sock,int id){
 			bit_mask &= ~PLAYER_TARGET;
 		}
 		mes=MSG_PLAYER;
+		
 		sendData(mes);
-		sendData(i);
 		sendData(bit_mask);
+		sendData(i);
+		
 		if(checkMask(bit_mask,PLAYER_CREATE)){
 			int j;
 			sendData(config.players[i].id);
@@ -423,9 +430,9 @@ int sendPlayers(int sock,int id){
 		if(checkMask(bit_mask,PLAYER_TARGET)){
 			sendData(config.players[i].target);
 		}
-		/*if(checkMask(bit_mask,PLAYER_FAIL)) { //TODO: decomment and add to client app
+		if(checkMask(bit_mask,PLAYER_FAIL)) { //TODO: decomment and add to client app
 			sendData(config.players[i].stat.xp);
-		}*/
+		}
 	}
 	return 0;
 }
@@ -444,6 +451,17 @@ int networkAuth(worker_arg *data){
 	//latency check
 	recvData(sock,&tmp,sizeof(tmp));
 	sendData(tmp);
+	return 0;
+}
+
+int networkWaitingTime(worker_arg *data){
+	int sock=data->sock;
+	short wait=config.game.wait_start/1000; //miliseconds
+	char msg=MSG_INFO;
+	int mes=MSG_INFO_WAITING_TIME;
+	sendData(msg);
+	sendData(mes);
+	sendData(wait); 
 	return 0;
 }
 

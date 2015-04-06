@@ -12,7 +12,7 @@
 //Test main file
 
 #define semInfo() printDebug("sem %d=>%d|%d=>%d|%d=>%d before sem %d action %d  %s:%d\n",0,semctl(t_sem.send,0,GETVAL),1,semctl(t_sem.send,1,GETVAL),2,semctl(t_sem.send,2,GETVAL),sem.sem_num,sem.sem_op,__FILE__,__LINE__)
-#define WAITING_TIME 30000000
+
 
 static int listener;
 
@@ -211,6 +211,8 @@ int main(int argc, char* argv[]){
 	loadBulletTypes();
 	grid=loadMap(config.game.map);
 	
+	config.game.wait_start=START_WAITING_TIME;
+	
 	listener=startServer(config.game.port,grid);
 	
 	//config.player_max=4;
@@ -244,11 +246,11 @@ int main(int argc, char* argv[]){
 	printDebug("Max number of players = %d\n", config.game.players - 1); //1 for AI
  	while(config.players_num==0)
  		usleep(100000);
-	//int time_iterator;
-	for (i = 0; i < 30; i++) {
+	
+	for (; config.game.wait_start > 0; config.game.wait_start-=START_WAITING_STEP) {
 		if (config.players_num == config.game.players - 1)
 			break;		
-		usleep(WAITING_TIME/30);
+		usleep(START_WAITING_STEP);
 	}
 	
 	printDebug("start game\n");
