@@ -251,6 +251,7 @@ int main(int argc, char* argv[]){
 		if (config.players_num == config.game.players - 1)
 			break;		
 		usleep(START_WAITING_STEP);
+//		printDebug("wait for players\n");
 	}
 	
 	printDebug("start game\n");

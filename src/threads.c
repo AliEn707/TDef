@@ -41,7 +41,7 @@ void * threadWorker(void * arg){
 	//printDebug("sock %d\n",data->sock);
 	while(config.game.wait_start>0){
 		networkWaitingTime(data);
-		usleep(START_WAITING_STEP-10);
+		usleep(START_WAITING_STEP);
 	}
 	int error=0;
 	while(config.game.run!=0){
@@ -187,19 +187,20 @@ void * threadListener(void * arg){
 					npc_type * type=typesNpcGet(HERO);
 					if (type!=0)
 						memcpy(&config.players[id].hero_type,type,sizeof(npc_type));
-					
+					printDebug("debug worker\n",id);
 					config.players[id].money = 1000;//TODO:remove!
 	///////////////////////////////////////////
 	//			printDebug("player id %d base %d on %d \n",id,config.players[id].base_id,config.bases[config.players[id].base_id].position);
 				t_semop(t_sem.player,&sem[1],1);
+				printDebug("debug worker\n",id);
 				
-				
-				t_semop(t_sem.send,&sem[2],1);
-				t_semop(t_sem.send,&sem[3],1);
+//				t_semop(t_sem.send,&sem[2],1);
+//				t_semop(t_sem.send,&sem[3],1);
 				tower * base=spawnTower(data->grid,config.bases[config.players[id].base_id].position,id,BASE);
 				setPlayerBase(id,base);
 				npc * hero=spawnNpc(data->grid,config.points[config.bases[config.players[id].base_id].point_id].position,id,HERO);
 				setPlayerHero(id,hero);
+				printDebug("starting worker\n",id);
 				//start worker
 				if (startWorker(sock,id,data->grid)<=0)
 					perror("startWorker");

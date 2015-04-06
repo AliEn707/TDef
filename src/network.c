@@ -462,6 +462,7 @@ int networkWaitingTime(worker_arg *data){
 	sendData(msg);
 	sendData(mes);
 	sendData(wait); 
+//	printDebug("send time wait\n");
 	return 0;
 }
 
