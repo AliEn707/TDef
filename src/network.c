@@ -285,8 +285,6 @@ int tickSendTower(gnode* grid,tower* t){
 	if (sock==0)
 		return 0;
 	
-	
-	
 	int bit_mask=t->bit_mask;
 	if (config.players[id].first_send!=0)
 		bit_mask|=TOWER_CREATE;

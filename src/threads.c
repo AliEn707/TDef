@@ -95,19 +95,40 @@ out:
 	semOp(1); //drop sem send[1]
 	semOp(0);
 //	semOp(2);  //need to test, may be need
+	//go for one another iteration
+	semOp(3);
+	//here we can do different things, after that will be sending to clients
+	if (config.players[data->id].base!=0){
+		removeTower(data->grid,config.players[data->id].base);
+	}
+	if (config.players[data->id].hero!=0){
+		config.players[data->id].hero->health = -1;
+//		config.players[data->id].hero->last_attack=0;
+		setMask(config.players[data->id].hero,NPC_HEALTH);
+	}
+	
+	usleep(10000);
+	semOp(3);
+	semOp(4);  
+	usleep(10000);
+	semOp(1);
+	sleep(0);
+	semOp(2); //thread 4 stops here
+	semOp(0);
+	
+	t_semop(t_sem.player,&sem_pl[0],1);
+	config.players_num--;
+	t_semop(t_sem.player,&sem_pl[1],1);
+	
 	//add send stats to public
 	
-//	memset(&config.players[data->id],0,sizeof(player));
-	config.players[data->id].base->health = -1;
-	config.players[data->id].hero->health = -1;
 	config.players[data->id].id=0;	
 	if (config.players[data->id].base!=0){
 		data->grid[config.players[data->id].base->position].tower=0;
 		config.players[data->id].base=0;
 	}
-	t_semop(t_sem.player,&sem_pl[0],1);
-	config.players_num--;
-	t_semop(t_sem.player,&sem_pl[1],1);
+	
+//	memset(&config.players[data->id],0,sizeof(player));
 	printDebug("close worker\n");
 	free(data);
 	return 0;

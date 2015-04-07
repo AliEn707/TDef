@@ -48,9 +48,9 @@ tower* newTower(){
 tower* diedCheckTower(tower* n){
 	if (n==0)
 		return 0;
-	if (n->type!=BASE)
-		if (n->health<=0)
-			return 0;
+//	if (n->type!=BASE)
+	if (n->health<=0)
+		return 0;
 	return n;
 }
 
@@ -235,7 +235,7 @@ int tickCleanTower(gnode* grid,tower* t){
 	if (t->health>0)
 		return 0;
 	if (t->type==BASE){
-		printDebug("player %d lose\n",t->owner);
+		printDebug("player %d lost base\n",t->owner);
 		config.players[t->owner].base=0;
 		setMask(&config.players[t->owner], PLAYER_FAIL);
 //		return 0;

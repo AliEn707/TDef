@@ -470,6 +470,7 @@ int tickCleanNpc(gnode* grid,npc* n){
 	if (n->type==HERO){
 		config.players[n->owner].hero=0;
 		setMask(&config.players[n->owner],PLAYER_HERO);
+		printDebug("hero of %d died\n",n->owner);
 	}
 	delNpc(grid,n);
 	memset(n,0,sizeof(npc));
