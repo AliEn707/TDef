@@ -544,7 +544,6 @@ int tickMoveNpc(gnode* grid,npc* n){
 				setMask(n,NPC_POSITION);
 			}
 			
-			
 			vec pos={n->position.x+n->direction.x*type->move_speed,
 					n->position.y+n->direction.y*type->move_speed};
 			//check node change 

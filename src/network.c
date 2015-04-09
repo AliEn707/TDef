@@ -255,6 +255,9 @@ int tickSendNpc(gnode* grid,npc* n){
 		bit_mask|=NPC_SHIELD;
 		bit_mask|=NPC_POSITION;
 	}
+	if (bit_mask==0)
+		return 0;
+	
 	char type=MSG_NPC;
 	
 	sendData(type);
@@ -294,6 +297,9 @@ int tickSendTower(gnode* grid,tower* t){
 		bit_mask|=TOWER_HEALTH;
 		bit_mask|=TOWER_SHIELD;
 	}
+	if (bit_mask==0)
+		return 0;
+	
 	char type=MSG_TOWER;
 	
 	sendData(type);
@@ -335,6 +341,10 @@ int tickSendBullet(gnode* grid,bullet * b){
 		bit_mask|=BULLET_CREATE;
 	if (checkMask(bit_mask,BULLET_CREATE)){
 	}
+	
+	if (bit_mask==0)
+		return 0;
+	
 	char type=MSG_BULLET;
 	
 	sendData(type);	
@@ -381,6 +391,9 @@ int sendPlayers(int sock,int id){
 			bit_mask &= ~PLAYER_TARGET;
 		}
 		mes=MSG_PLAYER;
+		
+		if (bit_mask==0)
+			return 0;
 		
 		sendData(mes);
 		sendData(bit_mask);
