@@ -342,8 +342,8 @@ int tickSendBullet(gnode* grid,bullet * b){
 	if (checkMask(bit_mask,BULLET_CREATE)){
 	}
 	
-	if (bit_mask==0)
-		return 0;
+//	if (bit_mask==0)
+//		return 0;
 	
 	char type=MSG_BULLET;
 	
