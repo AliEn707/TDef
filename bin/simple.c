@@ -11,10 +11,10 @@
 #include "../src/t_sem.h"
 //Test main file
 
+#include <signal.h>
+
 #define semInfo() printDebug("sem %d=>%d|%d=>%d|%d=>%d before sem %d action %d  %s:%d\n",0,semctl(t_sem.send,0,GETVAL),1,semctl(t_sem.send,1,GETVAL),2,semctl(t_sem.send,2,GETVAL),sem.sem_num,sem.sem_op,__FILE__,__LINE__)
 
-
-static int listener;
 
 void* printInfo(void*p) {
 	while (1) {
@@ -93,37 +93,112 @@ void drawGrid(gnode* grid){
 	}		
 }
 
-void segfault_sigaction(int signal, siginfo_t *si, void *arg)
-{
-	printf("Caught segfault at address %p\n", si->si_addr);
-	config.game.run = 0;
-	printStats();
-	realizeServer();
-	close(listener);
-	usleep(100000);
-	exit(0);
+
+void fillData(gnode * grid){
+	int id,i;
+	printf("players %d\n",config.game.players);
+	for(id=0;id<config.game.players;id++){
+		setupPlayer(id,id);
+		config.players[id].base_type.health=2000;
+		config.players[id].money = 1000;
+		tower * base=spawnTower(grid,config.bases[config.players[id].base_id].position,id,BASE);
+		setPlayerBase(id,base);
+		npc * hero=spawnNpc(grid,config.points[config.bases[config.players[id].base_id].point_id].position,id,HERO);
+		setPlayerHero(id,hero);
+		for (i=0;i<30;i++)
+			spawnNpc(grid,
+					config.points[config.bases[config.players[id].base_id].point_id].position,
+					id,
+					config.players[id].npc_set[rand()%6].id);
+	}
 }
+
+void check(gnode * grid){
+	
+}
+
+int startRoom(){
+	struct timeval tv={0,0};
+	int i,j;
+	gnode* grid;
+	
+	srand(time(0));
+	memset(&config,0,sizeof(config));
+	sprintf(config.game.map,"4");//"test");
+	
+	initGridMath();
+	loadNpcTypes();
+	loadTowerTypes();
+	loadBulletTypes();
+	grid=loadMap(config.game.map);
+	
+	config.game.wait_start=START_WAITING_TIME;
+	for (i=0;i<5;i++){
+		memset(config.players[i].tower_set,0,sizeof(config.players[i].tower_set));
+		memset(config.players[i].npc_set,0,sizeof(config.players[i].npc_set));
+		config.players[i]._hero_counter=TPS*62;
+//		config.players[i].target=-1;
+		for (j=0;j<9;j++){
+			config.players[i].tower_set[j].id=j+1;
+			config.players[i].tower_set[j].num=-1;
+			config.players[i].npc_set[j].id=j+1;
+			config.players[i].npc_set[j].num=-1;
+		}
+	}
+	fillData(grid);
+	timePassed(&tv);
+	double a,b,c;
+		for (a=0;a<100000;a+=0.1)
+			for (b=0;b<10000;b+=0.1)
+				c=pow(sqrt(a),b);
+		char z[100];
+		sprintf(z,"%lf",c);
+		
+	while(0){
+		//drawGrid(grid);
+		check(grid);
+		processWaves(grid);
+		
+		forEachNpc(grid,tickDiedCheckNpc);
+		forEachTower(grid,tickDiedCheckTower);
+		forEachBullet(grid,tickDiedCheckBullet);
+
+		forEachNpc(grid,tickCleanNpc);
+		forEachTower(grid,tickCleanTower);
+		forEachBullet(grid,tickCleanBullet);
+			
+		forEachNpc(grid,tickMoveNpc);
+		forEachNpc(grid,tickTargetNpc);
+		forEachNpc(grid,tickAttackNpc);
+		
+		forEachTower(grid,tickAttackTower);
+		
+		forEachBullet(grid,tickProcessBullet);
+		
+		forEachPlayer(grid);
+		
+		//set 1
+		syncTPS(timePassed(&tv),TPS);
+		timePassed(&tv);
+
+		config.current_money_timer++;
+		playersClearBitMasks();
+		forEachNpc(grid,tickMiscNpc);
+		forEachTower(grid,tickMiscTower);
+		forEachBullet(grid,tickMiscBullet);
+	}
+	return 0;
+}
+int children[1000];
+int child=0;
+int bad=0;
 
 int main(int argc, char* argv[]){
 //	FILE * file;
-	struct sembuf sem;
-	struct sembuf sem_pl;
-	short test=1;
-	
-	
-	int err;
+
+
 	struct timeval tv={0,0};
 	timePassed(&tv);
-	
-	struct sigaction sa;
-
-	memset(&sa, 0, sizeof(sigaction));
-	sigemptyset(&sa.sa_mask);
-	sa.sa_sigaction = segfault_sigaction;
-	sa.sa_flags   = SA_SIGINFO;
-
-	sigaction(SIGSEGV, &sa, NULL);	
-	sigaction(SIGINT, &sa, NULL);	
 	
 	srand(time(0));
 	memset(&config,0,sizeof(config));
@@ -133,74 +208,15 @@ int main(int argc, char* argv[]){
 //	atexit(clearAll);
 //	sysInit();
 	//glutMainLoop();	
-	memset(&sem,0,sizeof(sem));
-	memset(&sem_pl,0,sizeof(sem_pl));
+//	memset(&sem,0,sizeof(sem));
+//	memset(&sem_pl,0,sizeof(sem_pl));
 	
 	sprintf(config.game.map,"4");//"test");
 	config.game.port=34140;
 
-	if (argc>1){
-		if (parseArgv(argc,argv)) {//get game.port, game.token
-			test=0;
-			int manager=0;
-			char $_$=0;
-			manager=connectToHost("localhost",7920);
-			if (manager==0)
-				return 0;
-			printDebug("connected to manager\n");
-			if (_sendData(manager,&config.game.port,sizeof(config.game.port))<=0)
-				return -1;
-			printDebug("sent port\n");
-			if (recvData(manager,&$_$,sizeof($_$))<=0)
-				return -1;
-			printDebug("get %d\n",$_$);
-			if ($_$!=-1)
-				return -1;
-			$_$=1;
-			if (_sendData(manager,&$_$,sizeof($_$))<=0)
-				return -1;
-			printDebug("send ");
-			close(manager);
-	/* //TODO: repair
-			if ((file=fopen("manager.ini","r"))!=0){
-				char buffer[101];
-				int startport; //tmp need to set f_port
-				int servnum; //tmp need to size of shared memory
-				while (!feof (file)) {
-					if (fgets (buffer,100,file) == NULL ) 
-						break;
-	//				sscanf(buffer, "menport %d", &f_port);
-					sscanf(buffer, "servnum  %d", &servnum);
-					sscanf(buffer, "startport  %d", &startport);
-				}
-				fclose (file);
-				f_port=config.game.port-startport;
-				if ((f_token=ftok("manager.ini",100))>0)
-				//	if ((f_sem=t_semget(f_token,1,0))>0) //to change
-						if ((f_shmem=shmget(f_token, servnum*sizeof(char), 0777))>0)
-							if ((f_mem=shmat(f_shmem,0,0))!=0){
-	//							sem.sem_num=0; 
-	//							sem.sem_op=-1; 
-	//							t_semop(f_sem, &sem, 1);
-								//TODO change to sockets
-								f_mem[f_port]=1;
-	//							sem.sem_num=0; 
-	//							sem.sem_op=1; 
-	//							t_semop(f_sem, &sem, 1);
-							}
-			}
-	*/
-			printDebug("port %d token %d\n",config.game.port,config.game.token);
-		
-			if (publicGetGame()<0){
-				goto end;
-	//			return 0;
-			}
-		}
-		
-	}
 	
-	printDebug("initialising\nmap %s\non port %d\n",config.game.map,config.game.port);
+	
+//	printDebug("initialising\nmap %s\non port %d\n",config.game.map,config.game.port);
 	gnode* grid;
 	
 	initGridMath();
@@ -213,7 +229,7 @@ int main(int argc, char* argv[]){
 	
 	config.game.wait_start=START_WAITING_TIME;
 	
-	listener=startServer(config.game.port,grid);
+//	listener=startServer(config.game.port,grid);
 	
 	//config.player_max=4;
 	//	timePassed(0);
@@ -244,24 +260,27 @@ int main(int argc, char* argv[]){
 	
 	//change in future
 	printDebug("Max number of players = %d\n", config.game.players - 1); //1 for AI
- 	while(config.players_num==0)
- 		usleep(100000);
+ //	while(config.players_num==0)
+ //		usleep(100000);
 	
-	for (; config.game.wait_start > 0; config.game.wait_start-=START_WAITING_STEP) {
-		if (config.players_num == config.game.players - 1)
-			break;		
-		usleep(START_WAITING_STEP);
+//	for (; config.game.wait_start > 0; config.game.wait_start-=START_WAITING_STEP) {
+//		if (config.players_num == config.game.players - 1)
+//			break;		
+//		usleep(START_WAITING_STEP);
 //		printDebug("wait for players\n");
-	}
-	
+//	}
+	fillData(grid);
 	printDebug("start game\n");
 	config.max_money_timer = TPS*60;
-	pthread_t keyboardThread; //evil
-	if (pthread_create(&keyboardThread, 0, printInfo, 0)!=0)
-		perror("cant start keyboard thread");
-	
+//	pthread_t keyboardThread; //evil
+//	if (pthread_create(&keyboardThread, 0, printInfo, 0)!=0)
+//		perror("cant start keyboard thread");
+	int t=time(0);
+	int wait=0;
+	int rooms=1;
 	while(1){
 		//drawGrid(grid);
+		check(grid);
 		
 		processWaves(grid);
 		
@@ -284,114 +303,49 @@ int main(int argc, char* argv[]){
 		forEachPlayer(grid);
 		
 		//set 1
-		sem_pl.sem_num=0;
-		sem_pl.sem_op=-1;
-		t_semop(t_sem.player,&sem_pl,1);
-		
-		sem.sem_num=1;
-		sem.sem_op=config.players_num+1;
-//		semInfo();
-		t_semop(t_sem.send,&sem,1);
-		
-		//set 0
-		sem.sem_num=0;
-		sem.sem_op=config.players_num;
-//		semInfo();
-		usleep(10);
-		t_semop(t_sem.send,&sem,1);
-		
-		sem.sem_num=2;
-		sem.sem_op=config.players_num*2;
-//		semInfo();
-		t_semop(t_sem.send,&sem,1);
-		
-		sem_pl.sem_num=0;
-		sem_pl.sem_op=1;
-		usleep(10);
-		t_semop(t_sem.player,&sem_pl,1);
-		
-		syncTPS(timePassed(&tv),TPS);
+		wait=syncTPS(timePassed(&tv),TPS);
 		timePassed(&tv);
-		if(config.players_num==0)
-			break;
-		//check 2
-		sem.sem_num=2;
-		sem.sem_op=0;
-//		semInfo();
-		usleep(10);
-		t_semop(t_sem.send,&sem,1);
-		//drop 1
-		sem.sem_num=1;
-		sem.sem_op=-1;
-//		semInfo();
-		usleep(10);
-		t_semop(t_sem.send,&sem,1);
-		//check 1
-		sem.sem_num=1;
-		sem.sem_op=0;
-//		semInfo();
-		err=t_semop(t_sem.send,&sem,1); 
-		if (err<0)
-			printDebug("t_semop err\n");
-		//check 0
-		sem.sem_num=0;
-		sem.sem_op=0;
-//		semInfo();
-		err=t_semop(t_sem.send,&sem,1);
-		if (err<0)
-			printDebug("t_semop err\n");
-		
-//		if (err<0)
-//			printDebug("t_semop err\n");
-		
-//		int z;
-		//z=timePassed(1);
-		//printDebug("time %d",z);
-		
-		
-		//pinfo();
-		
-		//usleep(100000);
-	
+
 		config.current_money_timer++;
 		playersClearBitMasks();
 		forEachNpc(grid,tickMiscNpc);
 		forEachTower(grid,tickMiscTower);
 		forEachBullet(grid,tickMiscBullet);
+		
+		if (time(0)-t>1){
+			printf("time out: wait now %d\n",wait);
+			t=time(0);
+			int z;
+			if((z=fork())==0){
+				startRoom();
+			}else{
+				rooms++;
+				children[child++]=z;
+			}
+			
+		}
+		if (wait<-100000) //200ms not very bad
+			bad++;
+		else
+			bad=0;
+		
+		if (bad>6)
+			break;
 	}
-	printStats();
-	printDebug("closing\n");
+	printf("closing on %d\n",rooms);
 	config.game.run=0;
-	close(listener);	
+//	close(listener);	
 	
 	
 	realizeMap(grid);
 	realizeTypes();
 	realizeArrays();
-	realizeServer();
 	
 	//add wait treads to send results
-	
-	
-	if (test==0){
-		//send results
-		publicSendResults();
+	for(i=0;i<child;i++){
+		kill(children[i],SIGINT);
 	}
-end:
-	//send to clear port
-	if (test==0){
-		int manager=0;
-		char $_$=0;
-		manager=connectToHost("localhost",7920);
-		if (manager!=0){
-			if (_sendData(manager,&config.game.port,sizeof(config.game.port))<=0)
-				return -1;
-			if (_sendData(manager,&$_$,sizeof($_$))<=0)
-				return -1;
-			close(manager);
-		}
-	}
-	
+
 //	memset(&config.wave_current,0,sizeof(config.wave_current));
 	
 //	clearAll(grid);
