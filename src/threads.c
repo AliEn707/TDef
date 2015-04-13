@@ -39,6 +39,8 @@ void * threadWorker(void * arg){
 	if (networkAuth(data)!=0)
 		return (void *)-1;
 	//printDebug("sock %d\n",data->sock);
+	//TODO: add send data about player
+	sendPlayers(data->sock,data->id);
 	while(config.game.wait_start>0){
 		networkWaitingTime(data);
 		usleep(START_WAITING_STEP);
@@ -67,7 +69,8 @@ void * threadWorker(void * arg){
 				break;
 			}
 		}
-		
+		if (config.players[data->id].first_send!=0) //maybe not need
+			setMask(&config.players[data->id], PLAYER_CREATE);
 		//all threads in one time
 		semOp(3);
 		sleep(0);
@@ -199,7 +202,7 @@ void * threadListener(void * arg){
 							break;
 						}
 					printDebug("client id set to %d\n",id);
-					/////
+					/////important, not remove
 					setupPlayer(id,id/*group*/);
 					
 					//fake setup base

@@ -127,7 +127,7 @@
 #define setMask(z,x) (z)->bit_mask|=x
 #define checkMask(z,x) z&x
 
-#define PLAYER_HEALTH BIT_1
+#define PLAYER_BASE BIT_1
 #define PLAYER_MONEY BIT_2
 #define PLAYER_CREATE BIT_3
 #define PLAYER_LEVEL BIT_4

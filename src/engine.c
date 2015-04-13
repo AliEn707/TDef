@@ -38,10 +38,11 @@ int timePassed(struct timeval * t){
 	return out;
 }
 
-void syncTPS(int z,int _TPS){
+int syncTPS(int z,int _TPS){
 	if((z=(1000000/_TPS)-z)>0){
 		usleep(z);
 	}
+	return z;
 }
 
 
@@ -228,9 +229,10 @@ void processWaves(gnode* grid){
 
 //player 
 void setupPlayer(int id,int group){
-	config.players[id].id=getGlobalId();
+	config.players[id].id=id;//getGlobalId(); //players have its own ids
 	config.players[id].group=group;
 	config.players[id].base_id=id;
+	setMask(&config.players[id], PLAYER_CREATE);
 //	config.players[id].base_type.health=base_health;
 }
 
