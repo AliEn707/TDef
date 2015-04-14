@@ -87,16 +87,19 @@ int processMessage(worker_arg * data,char type){
 				printDebug("Player %d failed: not enough money\n", data->id);
 				return 0;
 			}
-			printDebug("%d spawn tower %hd on %hd\n",data->id,t_id,node_id);		
-			sem_pl.sem_num=0;
-			sem_pl.sem_op=-1;
-			t_semop(t_sem.player,&sem_pl,1);
+			printDebug("try %d spawn tower %hd on %hd\n",data->id,t_id,node_id);		
+			if (data->grid[node_id].buildable>0){
+				sem_pl.sem_num=0;
+				sem_pl.sem_op=-1;
+				t_semop(t_sem.player,&sem_pl,1);
 			
-			spawnTower(data->grid,node_id,data->id,config.players[data->id].tower_set[t_id].id);
+				spawnTower(data->grid,node_id,data->id,config.players[data->id].tower_set[t_id].id);
 			
-			sem_pl.sem_num=0;
-			sem_pl.sem_op=1;
-			t_semop(t_sem.player,&sem_pl,1);
+				sem_pl.sem_num=0;
+				sem_pl.sem_op=1;
+				t_semop(t_sem.player,&sem_pl,1);
+				printDebug("spawned\n");
+			}
 		}
 		return 0;
 	}
