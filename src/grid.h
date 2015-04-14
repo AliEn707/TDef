@@ -477,7 +477,7 @@ engine_config config;
 
 #define sqr(x) ({typeof(x) $x=(x); ($x)*($x);})//check this
 
-#define eqInD(a,b,eq) (fabs((a)-(b))<=(eq))
+#define eqInD(a,b,eq) (fabsf((a)-(b))<=(eq))
 //////
 #define setVecto0(v) memset(&v,0,sizeof(vec))
 
