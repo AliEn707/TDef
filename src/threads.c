@@ -69,8 +69,12 @@ void * threadWorker(void * arg){
 				break;
 			}
 		}
-		if (config.players[data->id].first_send!=0) //maybe not need
+		//set creation mark on new objects
+		if (config.players[data->id].first_send!=0){ //maybe not need
 			setMask(&config.players[data->id], PLAYER_CREATE);
+			setMask(config.players[data->id].base, TOWER_CREATE);
+			setMask(config.players[data->id].hero, NPC_CREATE);
+		}
 		//all threads in one time
 		semOp(3);
 		sleep(0);
