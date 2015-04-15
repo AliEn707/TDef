@@ -9,7 +9,7 @@ struct set{
 	int size;
 } set;
 
-set* setInit(){
+static inline set* setInit(){
 	set* tmp;
 	if ((tmp=malloc(sizeof(set)))==0) 
 		perror("malloc initSet");
@@ -21,7 +21,7 @@ set* setInit(){
 	return tmp;
 }
 
-set* setAdd(set* s,gnode * node){
+static inline set* setAdd(set* s,gnode * node){
 	if (s->data[node->id]==0){
 		s->data[node->id]=node;
 		s->size++;
@@ -29,15 +29,15 @@ set* setAdd(set* s,gnode * node){
 	return s;
 }
 
-int setSize(set* s){
+static inline int setSize(set* s){
 	return s->size;
 }
 
-gnode* setFind(set* s,gnode * n){
+static inline gnode* setFind(set* s,gnode * n){
 	return s->data[n->id];
 }
 
-gnode * setMinf(set* s){
+static inline gnode * setMinf(set* s){
 	int i;
 	float min=-1;
 	gnode* out=0;
@@ -51,20 +51,20 @@ gnode * setMinf(set* s){
 	return out;
 }
 
-void setDel(set* s,gnode*n){
+static inline void setDel(set* s,gnode*n){
 	if (s->data[n->id]!=0){
 		s->data[n->id]=0;
 		s->size--;
 	}
 }
 
-void setRealize(set* s){
+static inline void setRealize(set* s){
 	free(s->data);
 	free(s);
 }
 
 
-float heuristic_cost_estimate(gnode * a,gnode * b){
+static inline float heuristic_cost_estimate(gnode * a,gnode * b){
 #define  ax (a->id/config.gridsize)
 #define  ay (a->id%config.gridsize)
 #define  bx (b->id/config.gridsize)
@@ -77,7 +77,7 @@ float heuristic_cost_estimate(gnode * a,gnode * b){
 #undef by	
 }
 
-int cost(gnode * grid,gnode* a,gnode* b){
+static inline int cost(gnode * grid,gnode* a,gnode* b){
 	if (b->tower!=0)
 		return 50;
 	int x1=idtox(a->id),
@@ -95,7 +95,7 @@ int cost(gnode * grid,gnode* a,gnode* b){
 	
 }
 
-int * neighbor_nodes(gnode* grid,gnode* n){
+static inline int * neighbor_nodes(gnode* grid,gnode* n){
 	int out=8;	
 	int * z;
 	if((z=malloc(sizeof(int)*out+sizeof(int)))==0)
@@ -120,7 +120,7 @@ int * neighbor_nodes(gnode* grid,gnode* n){
 	return z;
 }
 
-int reconstruct_path(gnode *grid,gnode *goal,path* p){
+static inline int reconstruct_path(gnode *grid,gnode *goal,path* p){
 	gnode* tmp=goal;
 	int i;
 	if (p!=0){
@@ -169,6 +169,7 @@ int aSearch(gnode* grid,gnode* start,gnode* goal, path* path){
 		path[0].node=-1;
 		return -1;
 	}
+	//TODO: add caching for path
 	
 	openset = setInit();
 	closedset = setInit(); 
