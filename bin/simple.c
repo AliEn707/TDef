@@ -312,7 +312,7 @@ int main(int argc, char* argv[]){
 		forEachTower(grid,tickMiscTower);
 		forEachBullet(grid,tickMiscBullet);
 		
-		if (time(0)-t>1){
+		if (time(0)-t>10){
 			printf("time out: wait now %d\n",wait);
 			t=time(0);
 			int z;

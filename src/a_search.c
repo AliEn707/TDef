@@ -3,9 +3,10 @@
 #include "gridmath.h"
 
 typedef
-struct set{
-	gnode * gnode;
-	struct set * next;
+struct set{ 
+	int fullsize;
+	gnode ** data;
+	int size;
 } set;
 
 set* setInit(){
@@ -13,66 +14,53 @@ set* setInit(){
 	if ((tmp=malloc(sizeof(set)))==0) 
 		perror("malloc initSet");
 	memset(tmp,0,sizeof(set));
+	tmp->fullsize=sqr(config.gridsize);
+	if ((tmp->data=malloc(sizeof(gnode*)*tmp->fullsize))==0) 
+		perror("malloc initSet");
+	memset(tmp->data,0,sizeof(gnode*)*tmp->fullsize);
 	return tmp;
 }
 
 set* setAdd(set* s,gnode * node){
-	for(;s->next!=0;s=s->next);
-	if((s->next=malloc(sizeof(set)))==0) 
-		perror("malloc setAdd");
-	memset(s->next,0,sizeof(set));
-	s->next->gnode=node;
+	if (s->data[node->id]==0){
+		s->data[node->id]=node;
+		s->size++;
+	}
 	return s;
 }
 
 int setSize(set* s){
-	set* tmp=s;
-	int i;
-	for(i=0;tmp->next!=0;tmp=tmp->next)i++;
-	return i;
+	return s->size;
 }
 
 gnode* setFind(set* s,gnode * n){
-	set* tmp=s->next;
-	for(;tmp!=0;tmp=tmp->next)
-		if (tmp->gnode->id==n->id) 
-			return tmp->gnode;
-	return 0;
+	return s->data[n->id];
 }
 
 gnode * setMinf(set* s){
-	set* tmp=s,*out=0;
-	int min;
+	int i;
+	float min=-1;
+	gnode* out=0;
 	
-	min=s->next->gnode->f;
-	out=s->next;
-	
-	for(tmp=s->next;tmp->next!=0;tmp=tmp->next)
-		if(min>=tmp->gnode->f){
-			min=tmp->gnode->f;
-			out=tmp;
-		}
-	return out->gnode;
+	for(i=0;i<s->fullsize;i++)
+		if (s->data[i]!=0)
+			if(min>=s->data[i]->f || min<0){
+				min=s->data[i]->f;
+				out=s->data[i];
+			}
+	return out;
 }
 
 void setDel(set* s,gnode*n){
-	set* tmp;
-	for(tmp=s;tmp->next!=0;tmp=tmp->next)
-		if (tmp->next->gnode->id==n->id) break;
-	set* tmp1=tmp->next;
-	tmp->next=tmp->next->next;
-	free(tmp1);
+	if (s->data[n->id]!=0){
+		s->data[n->id]=0;
+		s->size--;
+	}
 }
 
 void setRealize(set* s){
-	set*t_p=s;
-	set *t_c=t_p->next;
-	if (t_c==0)
-		free(t_p);
-	for (;t_c!=0;t_c=t_c->next){
-		free(t_p);
-		t_p=t_c;
-	}
+	free(s->data);
+	free(s);
 }
 
 
