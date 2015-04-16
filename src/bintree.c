@@ -51,13 +51,14 @@ void * bintreeGet(bintree* root, int key){
 	return tmp->data;
 }
 
-int _bintreeDel(bintree* root, int key){
+int _bintreeDel(bintree* root, int key, void (f)(void*v)){
 	int get;
 	int next;
 	if (root==0)
 		return 0;
 	if (key==0){
-//		get=root->data;
+		if (f!=0)
+			f(root->data);
 //		free(root->data); //may be need
 		root->data=0;
 		if (root->next[0]==0 && root->next[1]==0){
@@ -68,7 +69,7 @@ int _bintreeDel(bintree* root, int key){
 		return 0;
 	}
 	next=key&1;
-	get=_bintreeDel(root->next[next],key>>1);
+	get=_bintreeDel(root->next[next],key>>1,f);
 //	free(root->next[next]);
 	if (get!=0){
 		root->next[next]=0;
@@ -81,10 +82,10 @@ int _bintreeDel(bintree* root, int key){
 	return 0;
 }
 
-int bintreeDel(bintree* root, int key){
+int bintreeDel(bintree* root, int key, void (f)(void*v)){
 	int get;
 	int next=key&1;
-	get=_bintreeDel(root->next[next],key>>1);
+	get=_bintreeDel(root->next[next],key>>1,f);
 	if (get!=0)
 		root->next[next]=0;
 	return get;

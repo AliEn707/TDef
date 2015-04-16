@@ -1,7 +1,10 @@
 #include "grid.h"
 #include "engine.h"
 #include "gridmath.h"
+#include "bintree.h"
 
+
+#define PATH_UPDATE_TIME 10
 typedef
 struct set{
 	int fullsize;
@@ -9,6 +12,13 @@ struct set{
 	int size;
 } set;
 
+typedef
+struct {
+	path path[NPC_PATH];
+	int timestamp;
+} cache_t;
+
+//set
 static inline set* setInit(){
 	set* tmp;
 	if ((tmp=malloc(sizeof(set)))==0) 
@@ -63,6 +73,46 @@ static inline void setRealize(set* s){
 	free(s);
 }
 
+//cache
+static bintree cache;
+
+static inline int cacheAdd(int k_1,int k_2, path* p){
+	bintree* cur;
+	cache_t* p_p;
+	if (p==0)
+		return 1;
+	cur=bintreeGet(&cache,k_1);
+	if (cur==0){
+		if((cur=malloc(sizeof(bintree)))==0)
+			perror("malloc cache");
+		memset(cur,0,sizeof(bintree));
+		bintreeAdd(&cache,k_1,cur);
+	}
+	p_p=bintreeGet(cur,k_2);
+	if(p_p==0){
+		if((p_p=malloc(sizeof(cache_t)))==0)
+			perror("malloc cache");
+		bintreeAdd(cur,k_2,p_p);
+	}
+	memcpy(p_p->path,p,sizeof(p_p->path));
+	p_p->timestamp=time(0);
+	return 0;
+}
+
+static inline cache_t* cacheGet(int k_1,int k_2){
+	bintree* cur;
+	cur=bintreeGet(&cache,k_1);
+	if (cur!=0){
+		return bintreeGet(cur,k_2);
+	}
+	return 0;
+}
+
+static inline void cacheDel(int k_1,int k_2){
+	bintree* cur;
+	cur=bintreeGet(&cache,k_1);
+	bintreeDel(cur,k_2,free);
+}
 
 static inline float heuristic_cost_estimate(gnode * a,gnode * b){
 #define  ax (a->id/config.gridsize)
@@ -159,6 +209,7 @@ static inline int reconstruct_path(gnode *grid,gnode *goal,path* p){
 int aSearch(gnode* grid,gnode* start,gnode* goal, path* path){
 	set* closedset;   
 	set* openset;
+	cache_t* cache_cur;
 	
 	if (start->id<0 || goal->id<0){
 		printDebug("not correct nodes for path\n");
@@ -170,7 +221,12 @@ int aSearch(gnode* grid,gnode* start,gnode* goal, path* path){
 		return -1;
 	}
 	//TODO: add caching for path
-	
+	cache_cur=cacheGet(start->id,goal->id);
+	if (cache_cur!=0)
+		if (time(0)-cache_cur->timestamp<PATH_UPDATE_TIME || cache_cur->path[0].node==-1){//update after 10 seconds
+			memcpy(path,cache_cur->path,sizeof(cache_cur->path));
+			return 1;
+		}
 	openset = setInit();
 	closedset = setInit(); 
 	setAdd(openset,start);
@@ -187,7 +243,10 @@ int aSearch(gnode* grid,gnode* start,gnode* goal, path* path){
 		//	start->next=stat->id;
 			setRealize(openset);
 			setRealize(closedset);
-			return reconstruct_path(grid,goal,path); 
+			int out=reconstruct_path(grid,goal,path); 
+			cacheAdd(start->id,goal->id,path);
+			printDebug("add path to cache\n");
+			return out;
 		}
 		setDel(openset,x); 
 		setAdd(closedset,x); 
@@ -222,6 +281,8 @@ int aSearch(gnode* grid,gnode* start,gnode* goal, path* path){
 	}
 	setRealize(openset);
 	setRealize(closedset);
+	cacheAdd(start->id,goal->id,path);
+	printDebug("add bad path to cache\n");
 	return -1;
 }
 

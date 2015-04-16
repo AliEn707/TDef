@@ -479,6 +479,7 @@ int tickCleanNpc(gnode* grid,npc* n){
 }
 
 int tickMoveNpc(gnode* grid,npc* n){
+	int i;
 	npc_type * type=0;
 	if (n->type==HERO)
 		type=&config.players[n->owner].hero_type;
@@ -517,7 +518,8 @@ int tickMoveNpc(gnode* grid,npc* n){
 				if (n->path_count>=NPC_PATH || 
 						n->path[n->path_count].node==-1 || 
 						(grid[n->path[n->path_count].node].tower!=0 && n->path[n->path_count].tower<0)){
-					memset(n->path,-1,sizeof(path)*NPC_PATH);
+					for(i=0;i<NPC_PATH;i++)
+							n->path[i].node=-1;
 					if(aSearch(grid,
 							n->ttarget!=0?
 								(grid+n->ttarget->position):
