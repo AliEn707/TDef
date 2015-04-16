@@ -49,13 +49,13 @@ void pinfo(){
 			i++;
 		}
 		printDebug("|\t\t\t");
-		for(;config.npc_array[j].id<=0 && j<config.npc_max;j++);
+		for(;config.npc_array[j]->id<=0 && j<config.npc_num;j++);
 		if (j<config.npc_max){
-			printDebug("%d(%g,%g)%d %d",config.npc_array[j].id,
-					config.npc_array[j].position.x,
-					config.npc_array[j].position.y,
-					config.npc_array[j].health,
-					config.npc_array[j].status
+			printDebug("%d(%g,%g)%d %d",config.npc_array[j]->id,
+					config.npc_array[j]->position.x,
+					config.npc_array[j]->position.y,
+					config.npc_array[j]->health,
+					config.npc_array[j]->status
 					);
 			j++;
 		}

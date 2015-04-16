@@ -59,9 +59,9 @@ gnode * loadMap(char *path){
 //		printDebug("%s\n",buf);
 		if (strcmp(buf,"max_npcs")==0){
 			err=fscanf(file,"%d\n",&config.npc_max);
-			if ((config.npc_array=malloc(sizeof(npc)*config.npc_max))==0)
+			if ((config.npc_array=malloc(sizeof(npc*)*config.npc_max))==0)
 				perror("malloc NPC initArrays");
-			memset(config.npc_array,0,sizeof(npc)*config.npc_max);
+			memset(config.npc_array,0,sizeof(npc*)*config.npc_max);
 			continue;
 		}
 		if (strcmp(buf,"max_towers")==0){

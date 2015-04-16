@@ -34,14 +34,14 @@ npc* damageNpc(npc* n,bullet* b){
 }
 
 npc* newNpc(){
-	int i;
-	for(i=0;i<config.npc_max;i++)
-		if (config.npc_array[i].id==0){
-			config.npc_array[i].id=getGlobalId();
-			config.npc_num++;
-			return &config.npc_array[i];
-		}	
-	return 0;
+	if (config.npc_num==config.npc_max)
+		return 0;
+	if ((config.npc_array[config.npc_num]=malloc(sizeof(npc)))==0)
+		return 0;
+	memset(config.npc_array[config.npc_num],0,sizeof(npc));
+	config.npc_array[config.npc_num]->id=getGlobalId();
+	config.npc_num++;
+	return config.npc_array[config.npc_num-1];
 }
 
 
@@ -84,11 +84,16 @@ npc*  getNpc(gnode* grid,npc* n){
 
 int delNpc(gnode* grid,npc* n){
 	npc* tmp=getNpc(grid,n);
-	if (tmp!=0){
-		memset(tmp,0,sizeof(npc));
-		config.npc_num--;
-		return 0;
+	int i;
+	for(i=0;i<config.npc_num && config.npc_array[i]!=tmp;i++);
+	if (i==config.npc_num)
+		return -1;
+	free(config.npc_array[i]);
+	config.npc_num--;
+	if (config.npc_num!=i){
+		config.npc_array[i]=config.npc_array[config.npc_num];
 	}
+	config.npc_array[config.npc_num]=0;
 	return -1;
 }
 
@@ -100,7 +105,7 @@ void setNpcBase(npc* n){
 		type=typesNpcGet(n->type);
 	
 	if (type==0){
-		n->id=0;
+		n->health=-1;
 		return;
 	}
 	n->health=type->health;
@@ -159,7 +164,7 @@ tower* findNearTower(gnode* grid,npc* n,int range){
 	else
 		type=typesNpcGet(n->type);
 	if (type==0){
-		n->id=0;
+		n->health=-1;
 		return 0;
 	}
 //	printDebug("%d\n",n->id);
@@ -251,7 +256,7 @@ int tickTargetNpc(gnode* grid,npc* n){
 	else
 		type=typesNpcGet(n->type);
 	if (type==0){
-		n->id=0;
+		n->health=-1;
 		return 0;
 	}
 	if (config.players[n->owner].target_changed){
@@ -329,7 +334,7 @@ int tickAttackNpc(gnode* grid,npc* n){
 	else
 		type=typesNpcGet(n->type);
 	if (type==0){
-		n->id=0;
+		n->health=-1;
 		return 0;
 	}
 	if (n->status==IN_ATTACK || (rand()%100<20 && n->attack_count<type->attack_speed)){
@@ -457,7 +462,7 @@ int tickCleanNpc(gnode* grid,npc* n){
 	else
 		type=typesNpcGet(n->type);
 	if (type==0){
-		n->id=0;
+		n->health=-1;
 		return 0;
 	}
 	if (n->last_attack>0){
@@ -473,7 +478,6 @@ int tickCleanNpc(gnode* grid,npc* n){
 		printDebug("hero of %d died\n",n->owner);
 	}
 	delNpc(grid,n);
-	memset(n,0,sizeof(npc));
 	//foeachNpc
 	return 0;
 }
@@ -574,7 +578,7 @@ int tickMiscNpc(gnode* grid,npc* n){
 	else
 		type=typesNpcGet(n->type);
 	if (type==0){
-		n->id=0;
+		n->health=-1;
 		return 0;
 	}
 	if (n->attack_count<type->attack_speed)
@@ -591,10 +595,9 @@ int tickMiscNpc(gnode* grid,npc* n){
 
 int forEachNpc(gnode* grid, int (process)(gnode*g,npc*n)){//add function
 	int i;
-	for(i=0;i<config.npc_max;i++)
-		if(config.npc_array[i].id>0)
-			if (process(grid,&config.npc_array[i])!=0)
-				return -1;
+	for(i=0;i<config.npc_num;i++)
+		if (process(grid,config.npc_array[i])!=0)
+			return -1;
 	return 0;
 }
 

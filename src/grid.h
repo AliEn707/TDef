@@ -426,7 +426,7 @@ struct config{
 	unsigned int npc_num;
 //	unsigned int npc_types_size;
 //		npc_type* npc_types;
-		struct npc* npc_array;
+		struct npc** npc_array;
 	unsigned int bullet_max;
 //	unsigned int bullet_types_size;
 //		bullet_type* bullet_types;

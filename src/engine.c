@@ -46,23 +46,6 @@ int syncTPS(int z,int _TPS){
 }
 
 
-void initArrays(){
-	if ((config.tower_array=malloc(sizeof(tower)*config.tower_max))==0)
-		perror("malloc tower initArrays");
-	memset(config.tower_array,0,sizeof(tower)*config.tower_max);
-	if ((config.npc_array=malloc(sizeof(npc)*config.npc_max))==0)
-		perror("malloc NPC initArrays");
-	memset(config.npc_array,0,sizeof(npc)*config.npc_max);
-	if ((config.bullet_array=malloc(sizeof(bullet)*config.bullet_max))==0)
-		perror("malloc bullet initArrays");
-	memset(config.bullet_array,0,sizeof(bullet)*config.bullet_max);
-//	if ((config.players=malloc(sizeof(bullet)*config.player_max))==0)
-//		perror("malloc player initArrays");
-//	memset(config.players,0,sizeof(bullet)*config.player_max);
-	memset(config.players,0,sizeof(bullet)*PLAYER_MAX);
-	initAreaArray();
-//	printDebug("%d %d %d\n",sizeof(tower)*config.tower_max,sizeof(npc)*config.npc_max,sizeof(bullet)*config.bullet_max);
-}
 
 void realizeArrays(){
 //	free(config.players);
