@@ -284,6 +284,8 @@ struct npc{
 	struct tower* ttarget;
 	int finded_base;
 	
+	npc_type *type_data;
+	
 	int attack_count;
 	int path_count;
 	path path[NPC_PATH];
