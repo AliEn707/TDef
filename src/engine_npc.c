@@ -268,6 +268,7 @@ int tickTargetNpc(gnode* grid,npc* n){
 		int id=-1;
 		n->path_count=NPC_PATH;
 		n->status=IN_MOVE;
+		setMask(n,NPC_STATUS);
 		if (findNearTower(grid,n,type->see_distanse)!=0)
 			goto out;
 		
@@ -318,6 +319,7 @@ int tickTargetNpc(gnode* grid,npc* n){
 //		}
 		if (n->ttarget==0 && n->ntarget==0){
 			n->status=IN_IDLE;
+			setMask(n,NPC_STATUS);
 			return 0;
 		}
 out:
@@ -346,6 +348,7 @@ int tickAttackNpc(gnode* grid,npc* n){
 			if (findNearNpc(grid,n,(rand()%100<45)?type->see_distanse:type->attack_distanse)!=0){
 				n->status=IN_ATTACK;
 				n->path_count=NPC_PATH;
+				setMask(n,NPC_STATUS);
 				break;
 			}
 			n->ntarget=ntmp;
@@ -354,6 +357,7 @@ int tickAttackNpc(gnode* grid,npc* n){
 			if (findNearTower(grid,n,(rand()%100<45)?type->see_distanse:type->attack_distanse)!=0){
 				n->status=IN_ATTACK;
 				n->path_count=NPC_PATH;
+				setMask(n,NPC_STATUS);
 				break;
 			}
 			n->ttarget=ttmp;
@@ -373,6 +377,7 @@ int tickAttackNpc(gnode* grid,npc* n){
 		if (n->ntarget!=0){
 			if (n->ntarget==&config.players[n->owner].$npc$){
 				n->status=IN_MOVE;
+				setMask(n,NPC_STATUS);
 				return 0;
 			}
 			if (sqr(n->ntarget->position.x-n->position.x)+
@@ -385,6 +390,7 @@ int tickAttackNpc(gnode* grid,npc* n){
 					sqr(n->ntarget->position.y-n->position.y)>
 					sqr(type->attack_distanse)){
 				n->status=IN_MOVE;
+				setMask(n,NPC_STATUS);
 				n->attack_count=0;
 				return 0;
 			}
@@ -421,6 +427,7 @@ int tickAttackNpc(gnode* grid,npc* n){
 					sqr(n->position.y-getGridy(n->ttarget->position))>
 					sqr(type->attack_distanse)){
 				n->status=IN_MOVE;
+				setMask(n,NPC_STATUS);
 				n->attack_count=0;
 				return 0;
 			}
@@ -628,5 +635,6 @@ int setHeroTargetByNode(gnode * grid,npc* n, int node){
 	n->path_count=0;
 	memset(n->path,-1,sizeof(int)*NPC_PATH);
 	n->status=IN_MOVE;
+	setMask(n,NPC_STATUS);
 	return 0;
 }

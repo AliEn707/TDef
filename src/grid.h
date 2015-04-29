@@ -141,6 +141,7 @@
 #define NPC_CREATE BIT_3
 #define NPC_LEVEL BIT_4
 #define NPC_SHIELD BIT_5
+#define NPC_STATUS BIT_6
 
 #define TOWER_HEALTH BIT_1
 #define TOWER_TARGET BIT_2

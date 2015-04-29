@@ -257,6 +257,7 @@ int tickSendNpc(gnode* grid,npc* n){
 		bit_mask|=NPC_HEALTH;
 		bit_mask|=NPC_SHIELD;
 		bit_mask|=NPC_POSITION;
+		bit_mask|=NPC_STATUS;
 	}
 	if (bit_mask==0)
 		return 0;
@@ -280,6 +281,8 @@ int tickSendNpc(gnode* grid,npc* n){
 		sendData(n->health);
 	if(checkMask(bit_mask,NPC_SHIELD))
 		sendData(n->shield);
+	if(checkMask(bit_mask,NPC_STATUS))
+		sendData(n->status); //byte
 	return 0;
 }
 
