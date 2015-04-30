@@ -250,10 +250,15 @@ int findEnemyBase(int group){
 
 int tickTargetNpc(gnode* grid,npc* n){
 	npc_type * type=0;
-	if (n->type==HERO)//Hero not search for
+	if (n->type==HERO){//Hero not search for
+		if (n->ttarget==0 && n->ntarget==0)
+			if (n->status!=IN_IDLE){
+				n->status=IN_IDLE;
+				setMask(n,NPC_STATUS);
+			}
 		return 0;
 //		type=&config.players[n->owner].hero_type;
-	else
+	}else
 		type=typesNpcGet(n->type);
 	if (type==0){
 		n->health=-1;
@@ -267,8 +272,6 @@ int tickTargetNpc(gnode* grid,npc* n){
 	if(n->ttarget==0 && n->ntarget==0){
 		int id=-1;
 		n->path_count=NPC_PATH;
-		n->status=IN_MOVE;
-		setMask(n,NPC_STATUS);
 		if (findNearTower(grid,n,type->see_distanse)!=0)
 			goto out;
 		
@@ -323,6 +326,8 @@ int tickTargetNpc(gnode* grid,npc* n){
 			return 0;
 		}
 out:
+		n->status=IN_MOVE;
+		setMask(n,NPC_STATUS);
 		memcpy(&n->destination,&n->position,sizeof(vec));
 	}
 	return 0;
