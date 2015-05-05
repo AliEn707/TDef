@@ -136,7 +136,7 @@ int main(int argc, char* argv[]){
 	memset(&sem,0,sizeof(sem));
 	memset(&sem_pl,0,sizeof(sem_pl));
 	
-	sprintf(config.game.map,"4");//"test");
+	sprintf(config.game.map,"pvz11_11");//"test");//"4");
 	config.game.port=34140;
 
 	if (argc>1){
