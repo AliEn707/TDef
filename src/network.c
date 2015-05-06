@@ -65,7 +65,8 @@ int processMessage(worker_arg * data,char type){
 	struct sembuf sem_pl;
 	memset(&sem_pl,0,sizeof(sem_pl));
 	
-	int playerNotFailed = config.players[data->id].base == 0 ? 0 : 1;
+	//player not fail and game started
+	int playerNotFailed = config.players[data->id].base == 0 || config.game.wait_start>0 ? 0 : 1;
 	
 	if (type==MSG_SPAWN_TOWER){
 		int node_id=0;

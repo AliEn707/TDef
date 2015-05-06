@@ -22,18 +22,43 @@
 // printDebug("worker %d sem %d=>%d|%d=>%d|%d=>%d before sem %d action %d\n",data->id,0,semctl(t_sem.send,0,GETVAL),1,semctl(t_sem.send,1,GETVAL),2,semctl(t_sem.send,2,GETVAL),sem[x].sem_num,sem[x].sem_op); 
 #define semOp(x)				t_semop(t_sem.send,&sem[x],1)
 
+#define MESSAGES_GET_NUM 10
+
+//try to get MESSAGES_GET_NUM messages
+static inline int checkMessages(worker_arg *data){
+	char msg_type;
+	int i;
+	for(i=0;i<MESSAGES_GET_NUM;i++){
+		if (recv(data->sock,&msg_type,sizeof(msg_type),MSG_DONTWAIT)<0){
+			if (errno==EAGAIN){
+				sleep(0);
+				continue;
+			}else{
+				perror("recv threadWorker");
+//					semOp(3);
+//					goto out;
+				return 1;
+			}
+		}
+		//TODO: add check for errors and drop
+		if(processMessage(data,msg_type)<0){
+			return 1;
+		}
+	}
+	return 0;
+} 
+
 /// worker thread get data from server and change world
 void * threadWorker(void * arg){
 	worker_arg *data=arg;
-	struct sembuf sem[5]={{0,-1,0},
+	struct sembuf sem[5]={{0,-1,0}, //0
 						{1,-1,0},
 						{1,0,0},
-						{2,-1,0},
-						{2,0,0}};
+						{2,-1,0}, //3
+						{2,0,0}}; //4
 	struct sembuf sem_pl[2]={{0,-1,0},
 						   {0,1,0}};
-	int i;
-	char msg_type;
+	
 	config.players[data->id].first_send=1;
 	//send start data
 	if (networkAuth(data)!=0)
@@ -41,34 +66,21 @@ void * threadWorker(void * arg){
 	//printDebug("sock %d\n",data->sock);
 	//TODO: add send data about player
 	sendPlayers(data->sock,data->id);
+	int error=0;
 	while(config.game.wait_start>0){
 		networkWaitingTime(data);
+		if(checkMessages(data)!=0){
+			error++;
+			break;
+		}
 		usleep(START_WAITING_STEP);
 	}
-	int error=0;
 	while(config.game.run!=0){
 	//	printDebug("work\n");
 		usleep(10000);
 		semOp(3);
 	//	printDebug("sock %d\n",data->sock);
-		for(i=0;i<10;i++){
-			if (recv(data->sock,&msg_type,sizeof(msg_type),MSG_DONTWAIT)<0){
-				if (errno==EAGAIN){
-					sleep(0);
-					continue;
-				}else{
-					perror("recv threadWorker");
-					semOp(3);
-					goto out;
-					break;
-				}
-			}
-			//TODO: add check for errors and drop
-			if(processMessage(data,msg_type)<0){
-				error++;
-				break;
-			}
-		}
+		error+=checkMessages(data);
 		//set creation mark on new objects
 		if (config.players[data->id].first_send!=0){ //maybe not need
 			setMask(&config.players[data->id], PLAYER_CREATE);
@@ -78,9 +90,11 @@ void * threadWorker(void * arg){
 		//all threads in one time
 		semOp(3);
 		sleep(0);
-		semOp(4);  //thread 3 stops here
 		if (error)
 			break;
+		
+		semOp(4);  
+		
 		if (forEachNpc((gnode*)data,tickSendNpc)<0)
 			break;
 		if(forEachTower((gnode*)data,tickSendTower)<0)
@@ -89,16 +103,16 @@ void * threadWorker(void * arg){
 			break;
 		if (sendPlayers(data->sock,data->id)<0)
 			break;
-		//while(semctl(t_sem.send,1,GETVAL)!=config.players_num)
+		
 		semOp(1);
 		sleep(0);
-		semOp(2); //thread 4 stops here
+		semOp(2); 
 		semOp(0);
 		//need to check
 		if (config.players[data->id].first_send!=0)
 			config.players[data->id].first_send=0;
 	}
-out:
+
 	semOp(1); //drop sem send[1]
 	semOp(0);
 //	semOp(2);  //need to test, may be need

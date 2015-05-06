@@ -321,6 +321,7 @@ int tickTargetNpc(gnode* grid,npc* n){
 //			printDebug("on %d = %d\n",id,grid[id].tower);
 //		}
 		if (n->ttarget==0 && n->ntarget==0){
+			printf("idle %d\n",n->id);
 			n->status=IN_IDLE;
 			setMask(n,NPC_STATUS);
 			return 0;
@@ -347,25 +348,26 @@ int tickAttackNpc(gnode* grid,npc* n){
 	if (n->status!=IN_ATTACK || rand()%100<25)
 		do {
 			//search target in attack distanse
-			//if finded set IN_ATTACK
-			npc* ntmp=n->ntarget;
+			//if have target set IN_ATTACK
+			void* t_t=n->ntarget;
 			n->ntarget=0;
 			if (findNearNpc(grid,n,(rand()%100<45)?type->see_distanse:type->attack_distanse)!=0){
 				n->status=IN_ATTACK;
-				n->path_count=NPC_PATH;
 				setMask(n,NPC_STATUS);
+				n->path_count=NPC_PATH;
 				break;
 			}
-			n->ntarget=ntmp;
-			tower* ttmp=n->ttarget;
+			n->ntarget=t_t;
+	
+			t_t=n->ttarget;
 			n->ttarget=0;
 			if (findNearTower(grid,n,(rand()%100<45)?type->see_distanse:type->attack_distanse)!=0){
 				n->status=IN_ATTACK;
-				n->path_count=NPC_PATH;
 				setMask(n,NPC_STATUS);
+				n->path_count=NPC_PATH;
 				break;
 			}
-			n->ttarget=ttmp;
+			n->ttarget=t_t;
 		}while(0);
 	if (n->status==IN_ATTACK){
 		//if target !=0
@@ -389,6 +391,8 @@ int tickAttackNpc(gnode* grid,npc* n){
 					sqr(n->ntarget->position.y-n->position.y)>
 					sqr(type->see_distanse)){
 				n->ntarget=0;
+				n->status=IN_MOVE;
+				setMask(n,NPC_STATUS);
 				return 0;
 			}
 			if (sqr(n->ntarget->position.x-n->position.x)+
@@ -426,6 +430,8 @@ int tickAttackNpc(gnode* grid,npc* n){
 					sqr(n->position.y-getGridy(n->ttarget->position))>
 					sqr(type->see_distanse)){
 				n->ttarget=0;
+				n->status=IN_MOVE;
+				setMask(n,NPC_STATUS);
 				return 0;
 			}
 			if (sqr(n->position.x-getGridx(n->ttarget->position))+
@@ -571,8 +577,15 @@ int tickMoveNpc(gnode* grid,npc* n){
 					int area=n->path_count+type->see_distanse;
 					for(i=n->path_count;i<NPC_PATH && i<area;i++){
 						node_id=n->path[i].node;
+						if (node_id<0)
+							break;
 						if (grid[node_id].tower!=0)
-							n->ttarget=grid[node_id].tower;
+							if (config.players[grid[node_id].tower->owner].group!=config.players[n->owner].group){
+								n->ttarget=grid[node_id].tower;
+								n->status=IN_ATTACK;
+								setMask(n,NPC_STATUS);
+								break;
+							}
 					}
 				}
 				setMask(n,NPC_POSITION);
