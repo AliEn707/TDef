@@ -84,7 +84,7 @@ static void syncTPS(int z,int TPS){
 	}
 }
 
-int serverStart(int port){
+int serverStart(int port){ // TODO: add local variant
 	int listener;
 	struct sockaddr_in addr;
 	if ((listener = socket(AF_INET, SOCK_STREAM, 0)) < 0)
@@ -93,7 +93,7 @@ int serverStart(int port){
 				perror("Failed to set socket attributes");
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(port);
-	addr.sin_addr.s_addr = htonl(INADDR_ANY);
+	addr.sin_addr.s_addr = htonl(INADDR_ANY); // for only localhost inet_addr("127.0.0.1");
 	if (bind(listener, (struct sockaddr *)&addr, sizeof(addr)) < 0)
 		perror("Failed to bind");
 	if (listen(listener, 1)<0)
