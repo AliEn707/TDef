@@ -38,13 +38,13 @@ void pinfo(){
 	while(i<config.tower_max||
 		j<config.npc_max||
 		k<config.bullet_max){
-		for(;config.tower_array[i].id<=0 && i<config.tower_max;i++);
+		for(;config.tower_array[i]->id<=0 && i<config.tower_num;i++);
 		if (i<config.tower_max){
-			printDebug("%d(%d)%d ",config.tower_array[i].id,
-					config.tower_array[i].position,
-					config.tower_array[i].type!=BASE?
-						config.tower_array[i].health:
-						config.players[config.tower_array[i].owner].base_type.health
+			printDebug("%d(%d)%d ",config.tower_array[i]->id,
+					config.tower_array[i]->position,
+					config.tower_array[i]->type!=BASE?
+						config.tower_array[i]->health:
+						config.players[config.tower_array[i]->owner].base_type.health
 					);
 			i++;
 		}

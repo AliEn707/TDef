@@ -24,3 +24,5 @@
 *.hex
 bin/server
 bin/performance.txt
+
+bin/server

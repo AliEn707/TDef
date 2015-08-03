@@ -59,23 +59,23 @@ gnode * loadMap(char *path){
 //		printDebug("%s\n",buf);
 		if (strcmp(buf,"max_npcs")==0){
 			err=fscanf(file,"%d\n",&config.npc_max);
-			if ((config.npc_array=malloc(sizeof(npc*)*config.npc_max))==0)
+			if ((config.npc_array=malloc(sizeof(*config.npc_array)*config.npc_max))==0)
 				perror("malloc NPC initArrays");
-			memset(config.npc_array,0,sizeof(npc*)*config.npc_max);
+			memset(config.npc_array,0,sizeof(*config.npc_array)*config.npc_max);
 			continue;
 		}
 		if (strcmp(buf,"max_towers")==0){
 			err=fscanf(file,"%d\n",&config.tower_max);
-			if ((config.tower_array=malloc(sizeof(tower)*config.tower_max))==0)
+			if ((config.tower_array=malloc(sizeof(*config.tower_array)*config.tower_max))==0)
 				perror("malloc tower initArrays");
-			memset(config.tower_array,0,sizeof(tower)*config.tower_max);
+			memset(config.tower_array,0,sizeof(*config.tower_array)*config.tower_max);
 			continue;
 		}
 		if (strcmp(buf,"max_bullets")==0){
 			err=fscanf(file,"%d\n",&config.bullet_max);
-			if ((config.bullet_array=malloc(sizeof(bullet)*config.bullet_max))==0)
+			if ((config.bullet_array=malloc(sizeof(*config.bullet_array)*config.bullet_max))==0)
 				perror("malloc bullet initArrays");
-			memset(config.bullet_array,0,sizeof(bullet)*config.bullet_max);
+			memset(config.bullet_array,0,sizeof(*config.bullet_array)*config.bullet_max);
 			continue;
 		}
 		if (strcmp(buf,"pc_base")==0){

@@ -14,7 +14,7 @@ tower* damageTower(tower* t,bullet* b){
 	else
 		type=typesTowerGet(t->type);
 	if (type==0){
-		t->id=0;
+		t->health=-1;
 	}
 	if (t->shield>0){
 		t->shield-=b->damage;
@@ -34,16 +34,29 @@ tower* damageTower(tower* t,bullet* b){
 }
 
 tower* newTower(){
-	int i;
-	for(i=0;i<config.tower_max;i++)
-		if (config.tower_array[i].id==0){
-			config.tower_array[i].id=getGlobalId();
-			return &config.tower_array[i];
-		}	
-	return 0;
+	if (config.tower_num==config.tower_max)
+		return 0;
+	if ((config.tower_array[config.tower_num]=malloc(sizeof(tower)))==0)
+		return 0;
+	memset(config.tower_array[config.tower_num],0,sizeof(tower));
+	config.tower_array[config.tower_num]->id=getGlobalId();
+	config.tower_num++;
+	return config.tower_array[config.tower_num-1];
 }
 
-
+int delTower(gnode* grid,tower* t){
+	int i;
+	for(i=0;i<config.tower_num && config.tower_array[i]!=t;i++);
+	if (i==config.tower_num)
+		return -1;
+	free(config.tower_array[i]);
+	config.tower_num--;
+	if (config.tower_num!=i){
+		config.tower_array[i]=config.tower_array[config.tower_num];
+	}
+	config.tower_array[config.tower_num]=0;
+	return -1;
+}
 
 tower* diedCheckTower(tower* n){
 	if (n==0)
@@ -64,7 +77,7 @@ void setTowerBase(tower* t){
 			type=typesTowerGet(t->type);
 		
 		if (type==0){
-			t->id=0;
+			t->health=-1;
 			return;
 		}
 		t->health=type->health;
@@ -126,7 +139,7 @@ int tickMiscTower(gnode* grid,tower* t){
 		return 0;
 	type=typesTowerGet(t->type);
 	if (type==0){
-		t->id=0;
+		t->health=-1;
 		return 0;
 	}
 	if (t->attack_count<type->attack_speed)
@@ -153,7 +166,7 @@ int tickAttackTower(gnode* grid,tower* t){
 		return 0;
 	type=typesTowerGet(t->type);
 	if (type==0){
-		t->id=0;
+		t->health=-1;
 		return 0;
 	}
 	if (t->target==0){
@@ -245,7 +258,7 @@ int tickCleanTower(gnode* grid,tower* t){
 	else
 		type=typesTowerGet(t->type);
 	if (type==0){
-		t->id=0;
+		t->health=-1;
 		return 0;
 	}
 	grid[t->position].tower=0;
@@ -257,7 +270,7 @@ int tickCleanTower(gnode* grid,tower* t){
 		setMask(&config.players[t->last_attack], PLAYER_MONEY);
 	}
 	config.players[t->owner].stat.towers_lost++;//tower's owner lost tower
-	memset(t,0,sizeof(tower));
+	delTower(grid,t);
 	/**/
 	return 0;
 }
@@ -266,10 +279,9 @@ int tickCleanTower(gnode* grid,tower* t){
 
 int forEachTower(gnode* grid, int (process)(gnode*g,tower*t)){//add function
 	int i;
-	for(i=0;i<config.tower_max;i++)
-		if(config.tower_array[i].id>0)
-			if(process(grid,&config.tower_array[i])<0)
-				return -1;
+	for(i=0;i<config.tower_num;i++)
+		if(process(grid,config.tower_array[i])!=0)
+			return -1;
 	return 0;
 }
 

@@ -235,14 +235,13 @@ int findEnemyBase(int group){
 	#define t config.tower_array
 	int i;
 	int id=-1;
-	for(i=0;i<config.tower_max;i++)
-		if (t[i].id>0)
-			if (t[i].type==BASE)
-				if (config.players[t[i].owner].group!=group){//add friend check
-					id=t[i].position;
-					if (rand()%100<40)
-						return id;
-				}
+	for(i=0;i<config.tower_num;i++)
+		if (t[i]->type==BASE)
+			if (config.players[t[i]->owner].group!=group){//add friend check
+				id=t[i]->position;
+				if (rand()%100<40)
+					return id;
+			}
 	return id;
 	#undef t
 }
