@@ -50,7 +50,10 @@ int stop = 0;
 
 int menport  = 7922, servnum  = 0, startport = 0;//default values
 
-signed char *ports_info=0;	
+struct {
+	signed char status;
+	int timestamp;
+} *ports_info=0;	
 
 int recvData(int sock, void * buf, int size){
 	int need=size;
@@ -251,11 +254,12 @@ void * manager(void * arg) {
 				signed char data;
 				recvData(sock,&msg_port,sizeof(msg_port));
 				if (msg_port>=startport && msg_port<startport+servnum){
-					data=ports_info[msg_port-startport];
+					data=ports_info[msg_port-startport].status;
 //					printf("get port %d = %d\n",msg_port,data);
 					sendData(sock,&data,sizeof(data));
 					if (recvData(sock,&data,sizeof(data))>0){
-						ports_info[msg_port-startport]=data;
+						ports_info[msg_port-startport].status=data;
+						ports_info[msg_port-startport].timestamp=time(0);
 					}
 				}
 				close(sock);
