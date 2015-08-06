@@ -9,6 +9,7 @@
 #include "../src/threads.h"
 #include "../src/public.h"
 #include "../src/t_sem.h"
+#include "../src/system_info.h"
 //Test main file
 
 #define semInfo() printDebug("sem %d=>%d|%d=>%d|%d=>%d before sem %d action %d  %s:%d\n",0,semctl(t_sem.send,0,GETVAL),1,semctl(t_sem.send,1,GETVAL),2,semctl(t_sem.send,2,GETVAL),sem.sem_num,sem.sem_op,__FILE__,__LINE__)
@@ -108,7 +109,6 @@ int main(int argc, char* argv[]){
 //	FILE * file;
 	struct sembuf sem;
 	struct sembuf sem_pl;
-	short test=1;
 	
 	
 	int err;
@@ -140,13 +140,13 @@ int main(int argc, char* argv[]){
 	config.game.port=34140;
 
 	if (argc>1){
-		if (parseArgv(argc,argv)) {//get game.port, game.token
-			test=0;
+		parseArgv(argc,argv);
+		if (config.game.token!=0) {//get game.port, game.token
 			int manager=0;
 			char $_$=0;
 			manager=connectToHost("localhost",7920);
 			if (manager==0)
-				return 0;
+				return -1;
 			printDebug("connected to manager\n");
 			if (_sendData(manager,&config.game.port,sizeof(config.game.port))<=0)
 				return -1;
@@ -373,13 +373,13 @@ int main(int argc, char* argv[]){
 	//add wait treads to send results
 	
 	
-	if (test==0){
+	if (config.game.token!=0){
 		//send results
 		publicSendResults();
 	}
 end:
 	//send to clear port
-	if (test==0){
+	if (config.game.token!=0){
 		int manager=0;
 		char $_$=0;
 		manager=connectToHost("localhost",7920);

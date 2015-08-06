@@ -44,10 +44,12 @@ messages and commands must be described in this file or another
 
 #define MANAGER "manager.ini"
 
+int daemonize(char* pid_file, int (core)());
 
 int stop = 0;
 
 int menport  = 7922, servnum  = 0, startport = 0;//default values
+
 signed char *ports_info=0;	
 
 int recvData(int sock, void * buf, int size){
@@ -122,19 +124,21 @@ void * manager(void * arg) {
 		}
 		fclose (manager_file);
 	}
-	if ((ports_info = malloc(servnum*sizeof(char)))==0){
+	if ((ports_info = malloc(servnum*sizeof(*ports_info)))==0){
 		perror("ports malloc");
 		return 0;
 	}
-	memset(ports_info, 0, servnum*sizeof(char));
+	memset(ports_info, 0, servnum*sizeof(*ports_info));
 		
 	int listener;
+	printf("start contol on %d\n",menport);
 	if ((listener=serverStart(menport))<0){
 		perror("start listener");
 		return 0;
 	}
 	int p_listener;
-	if ((p_listener=serverStart(7920))<0){
+	printf("start clients on %d\n",7920);
+	if ((p_listener=serverStart(7920))<0){//for map servers from localhost
 		perror("start p_listener");
 		return 0;
 	}
@@ -282,3 +286,38 @@ pthread_t InitWorkThread()
 	return th;
 }
 
+int startManager(){
+	manager(0);
+	return 0;
+}
+
+int daemon_=0;
+char* log_file=0;
+
+int parseArgv(int argc,char * argv[]){
+	int i, ret = 0;
+	for(i=0;i<argc;i++){
+		if (strcmp(argv[i],"-l")==0){
+			i++;
+			log_file = argv[i];
+			continue;
+		}
+		if (strcmp(argv[i],"-d")==0){
+			daemon_ = 1;
+			continue;
+		}
+	}
+	return ret;
+}
+
+int main(){
+	char s[10];
+	if (daemon_!=0)
+		daemonize(log_file,startManager);
+	else{
+		InitWorkThread();
+		scanf("%s", s);
+		DestroyWorkThread();
+	}
+	return 0;
+}
