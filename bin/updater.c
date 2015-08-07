@@ -155,10 +155,13 @@ static inline void updateMaps(int sock){
 	}
 }
 
+
 static void * updater(void * arg) {
 	char msg_type=MESSAGE_UPDATE;
 	while(stop==0){
-		while (!access_$){
+		updating=1;
+		
+		while (canUpdate() || 1){
 			sleep(1);
 		}
 		int sock=connectToHost(PUBLIC_HOST,PUBLIC_PORT);
@@ -168,6 +171,8 @@ static void * updater(void * arg) {
 //		updateTypes(sock, MESSAGE_UPDATE_BULLET_TYPES, "../data/types/bullet.cfg");
 		updateMaps(sock);
 		close(sock);
+		
+		updating=0;
 		
 		sleep(SLEEP_TIME);
 	}

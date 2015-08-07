@@ -109,6 +109,17 @@ int serverStart(int port){ // TODO: add local variant
 	return listener;
 }
 
+int canUpdate(){
+	int i;
+	for(i=0;i<servnum;i++)
+		if (ports_info[i].status<0)
+			return 1;
+		else
+			if (ports_info[i].status>0)
+				if (time(0)-ports_info[i].timestamp<30)//30 sec anough
+					return 1;
+	return 0;
+}
 
 void * manager(void * arg) {
 	FILE * manager_file;
@@ -117,7 +128,7 @@ void * manager(void * arg) {
 	int TPS=10;  //ticks per sec
 	struct timeval tv={0,0};
 	stop=0;
-	access_$=1;
+	updating=0;
 	timePassed(&tv);
 	manager_file = fopen (MANAGER, "r");
 	if (manager_file == NULL) 
@@ -183,6 +194,10 @@ void * manager(void * arg) {
 //						sendData(sock, &msg_type, sizeof(msg_type));
 //						close(sock);
 //					}
+					if (updating){
+						close(sock);
+						continue;
+					}
 					int room_data = 0;
 					if (recvData(sock, &room_data, sizeof(room_data)) <= 0) {
 						close(sock);
