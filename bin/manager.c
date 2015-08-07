@@ -44,9 +44,12 @@ messages and commands must be described in this file or another
 
 #define MANAGER "manager.ini"
 
+//daemon.c
 int daemonize(char* pid_file, int (core)());
 
-int stop = 0;
+//updater.c
+pthread_t startUpdater();
+
 
 int menport  = 7922, servnum  = 0, startport = 0;//default values
 
@@ -113,6 +116,8 @@ void * manager(void * arg) {
 //	struct sembuf sem_server={0,0,0};
 	int TPS=10;  //ticks per sec
 	struct timeval tv={0,0};
+	stop=0;
+	access_$=1;
 	timePassed(&tv);
 	manager_file = fopen (MANAGER, "r");
 	if (manager_file == NULL) 
@@ -190,8 +195,8 @@ void * manager(void * arg) {
 //					semop(sem_id, &sem_server, 1);
 					int i = 0, flag = -1;
 					for(; i < servnum; i++)
-						if (ports_info[i] == 0) {
-							ports_info[i] = -1;
+						if (ports_info[i].status == 0) {
+							ports_info[i].status = -1;
 							flag = i+startport;
 							break; 
 						}
@@ -224,7 +229,7 @@ void * manager(void * arg) {
 //					semop(sem_id, &sem_server, 1);
 					int i = 0, flag = -1;
 					for(; i < servnum; i++)
-						if (ports_info[i] != 0) {
+						if (ports_info[i].status != 0) {
 							flag++;
 						}
 //					sem_server.sem_op = 1;
@@ -287,6 +292,7 @@ pthread_t InitWorkThread()
 	pthread_t th = 0;
 	if (pthread_create(&th, 0, manager, 0) != 0)
 		return 0;
+	startUpdater(&stop);
 	return th;
 }
 

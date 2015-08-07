@@ -1,2 +1,2 @@
 #!/bin/sh
-gcc manager.c daemon.c -g -Wall -lpthread -fsigned-char -o manager
+gcc manager.c daemon.c updater.c -g -Wall -lpthread -fsigned-char -o manager
