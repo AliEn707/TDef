@@ -45,13 +45,17 @@ int syncTPS(int z,int _TPS){
 	return z;
 }
 
-
+void allocArrays(){
+	allocNpcs();
+	allocTowers();
+	allocBullets();
+}
 
 void realizeArrays(){
 //	free(config.players);
-	free(config.tower_array);
-	free(config.npc_array);
-	free(config.bullet_array);
+	realizeNpcs();
+	realizeTowers();
+	realizeBullets();
 	free(config.points);
 	free(config.bases);
 	if (config.waves!=0){

@@ -1,4 +1,6 @@
 
+void allocArrays();
+
 int parseArgv(int argc,char * argv[]);
 //wait tto set need tps
 int syncTPS(int z,int _TPS);

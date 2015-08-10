@@ -6,6 +6,11 @@
 #include "gridmath.h"
 #include "types.h"
 
+
+static unsigned int npc_num=0;
+static unsigned int npc_max=1000; //defaults
+npc** npc_array=0;
+
 npc* damageNpc(npc* n,bullet* b){
 	npc_type * type=0;
 	if (n->type==HERO)
@@ -34,14 +39,14 @@ npc* damageNpc(npc* n,bullet* b){
 }
 
 npc* newNpc(){
-	if (config.npc_num==config.npc_max)
+	if (npc_num==npc_max)
 		return 0;
-	if ((config.npc_array[config.npc_num]=malloc(sizeof(npc)))==0)
+	if ((npc_array[npc_num]=malloc(sizeof(npc)))==0)
 		return 0;
-	memset(config.npc_array[config.npc_num],0,sizeof(npc));
-	config.npc_array[config.npc_num]->id=getGlobalId();
-	config.npc_num++;
-	return config.npc_array[config.npc_num-1];
+	memset(npc_array[npc_num],0,sizeof(npc));
+	npc_array[npc_num]->id=getGlobalId();
+	npc_num++;
+	return npc_array[npc_num-1];
 }
 
 
@@ -60,6 +65,19 @@ npc* addNpc(gnode* node,npc* n){
 	return 0;
 }
 
+void setNpcsMax(int size){
+	npc_max=size;
+}
+
+void allocNpcs(int size){
+	if ((npc_array=malloc(sizeof(*npc_array)*npc_max))==0)
+		perror("malloc NPC initArrays");
+	memset(npc_array,0,sizeof(*npc_array)*npc_max);
+}
+
+void realizeNpcs(){
+	free(npc_array);
+}
 
 npc*  getNpc(gnode* grid,npc* n){
 	npc* tmp;
@@ -85,15 +103,15 @@ npc*  getNpc(gnode* grid,npc* n){
 int delNpc(gnode* grid,npc* n){
 	npc* tmp=getNpc(grid,n);
 	int i;
-	for(i=0;i<config.npc_num && config.npc_array[i]!=tmp;i++);
-	if (i==config.npc_num)
+	for(i=0;i<npc_num && npc_array[i]!=tmp;i++);
+	if (i==npc_num)
 		return -1;
-	free(config.npc_array[i]);
-	config.npc_num--;
-	if (config.npc_num!=i){
-		config.npc_array[i]=config.npc_array[config.npc_num];
+	free(npc_array[i]);
+	npc_num--;
+	if (npc_num!=i){
+		npc_array[i]=npc_array[npc_num];
 	}
-	config.npc_array[config.npc_num]=0;
+	npc_array[npc_num]=0;
 	return -1;
 }
 
@@ -230,21 +248,6 @@ npc* diedCheckNpc(npc* n){
 	return n;
 }
 
-
-int findEnemyBase(int group){
-	#define t config.tower_array
-	int i;
-	int id=-1;
-	for(i=0;i<config.tower_num;i++)
-		if (t[i]->type==BASE)
-			if (config.players[t[i]->owner].group!=group){//add friend check
-				id=t[i]->position;
-				if (rand()%100<40)
-					return id;
-			}
-	return id;
-	#undef t
-}
 
 
 int tickTargetNpc(gnode* grid,npc* n){
@@ -634,8 +637,8 @@ int tickMiscNpc(gnode* grid,npc* n){
 
 int forEachNpc(gnode* grid, int (process)(gnode*g,npc*n)){//add function
 	int i;
-	for(i=0;i<config.npc_num;i++)
-		if (process(grid,config.npc_array[i])!=0)
+	for(i=0;i<npc_num;i++)
+		if (process(grid,npc_array[i])!=0)
 			return -1;
 	return 0;
 }

@@ -15,8 +15,6 @@ void setNpcBase(npc* n);
 // add npc to world
 npc* spawnNpc(gnode* grid,int node_id,int group,int type);
 
-int findEnemyBase(int group);
-
 int tickMiscNpc(gnode* grid,npc* n);
 
 int tickDiedCheckNpc(gnode* grid,npc* n);
@@ -32,3 +30,9 @@ int tickMoveNpc(gnode* grid,npc* n);
 int forEachNpc(gnode* grid, int (process)(gnode*g,npc*n));
 
 int setHeroTargetByNode(gnode * grid,npc* n, int node);
+
+void setNpcsMax(int size);
+//create array for npcs
+void allocNpcs();
+//free array of npcs
+void realizeNpcs();

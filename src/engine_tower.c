@@ -6,6 +6,10 @@
 #include "gridmath.h"
 #include "types.h"
 
+static unsigned int tower_max=1000;
+static unsigned int tower_num=0;
+static tower** tower_array=0;
+
 
 tower* damageTower(tower* t,bullet* b){
 	tower_type *type=0;
@@ -34,28 +38,58 @@ tower* damageTower(tower* t,bullet* b){
 }
 
 tower* newTower(){
-	if (config.tower_num==config.tower_max)
+	if (tower_num==tower_max)
 		return 0;
-	if ((config.tower_array[config.tower_num]=malloc(sizeof(tower)))==0)
+	if ((tower_array[tower_num]=malloc(sizeof(tower)))==0)
 		return 0;
-	memset(config.tower_array[config.tower_num],0,sizeof(tower));
-	config.tower_array[config.tower_num]->id=getGlobalId();
-	config.tower_num++;
-	return config.tower_array[config.tower_num-1];
+	memset(tower_array[tower_num],0,sizeof(tower));
+	tower_array[tower_num]->id=getGlobalId();
+	tower_num++;
+	return tower_array[tower_num-1];
 }
 
 int delTower(gnode* grid,tower* t){
 	int i;
-	for(i=0;i<config.tower_num && config.tower_array[i]!=t;i++);
-	if (i==config.tower_num)
+	for(i=0;i<tower_num && tower_array[i]!=t;i++);
+	if (i==tower_num)
 		return -1;
-	free(config.tower_array[i]);
-	config.tower_num--;
-	if (config.tower_num!=i){
-		config.tower_array[i]=config.tower_array[config.tower_num];
+	free(tower_array[i]);
+	tower_num--;
+	if (tower_num!=i){
+		tower_array[i]=tower_array[tower_num];
 	}
-	config.tower_array[config.tower_num]=0;
+	tower_array[tower_num]=0;
 	return -1;
+}
+
+void setTowersMax(int size){
+	tower_max=size;
+}
+
+void allocTowers(){
+	if ((tower_array=malloc(sizeof(*tower_array)*tower_max))==0)
+		perror("malloc tower initArrays");
+	memset(tower_array,0,sizeof(*tower_array)*tower_max);
+}
+
+void realizeTowers(){
+	free(tower_array);
+}
+
+
+int findEnemyBase(int group){
+	#define t tower_array
+	int i;
+	int id=-1;
+	for(i=0;i<tower_num;i++)
+		if (t[i]->type==BASE)
+			if (config.players[t[i]->owner].group!=group){//add friend check
+				id=t[i]->position;
+				if (rand()%100<40)
+					return id;
+			}
+	return id;
+	#undef t
 }
 
 tower* diedCheckTower(tower* n){
@@ -279,8 +313,8 @@ int tickCleanTower(gnode* grid,tower* t){
 
 int forEachTower(gnode* grid, int (process)(gnode*g,tower*t)){//add function
 	int i;
-	for(i=0;i<config.tower_num;i++)
-		if(process(grid,config.tower_array[i])!=0)
+	for(i=0;i<tower_num;i++)
+		if(process(grid,tower_array[i])!=0)
 			return -1;
 	return 0;
 }

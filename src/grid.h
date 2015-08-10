@@ -421,20 +421,6 @@ struct config{
 	
 	vecc * area_array[MAX_AREA];
 	int area_size[MAX_AREA];
-	unsigned int tower_max;
-	unsigned int tower_num;
-//	unsigned int tower_types_size;
-//		tower_type* tower_types;
-		struct tower** tower_array;
-	unsigned int npc_max;
-	unsigned int npc_num;
-//	unsigned int npc_types_size;
-//		npc_type* npc_types;
-		struct npc** npc_array;
-	unsigned int bullet_max;
-//	unsigned int bullet_types_size;
-//		bullet_type* bullet_types;
-		struct bullet* bullet_array;
 	
 	unsigned int global_id;
 	int players_num;

@@ -6,15 +6,31 @@
 #include "gridmath.h"
 #include "types.h"
 
+static unsigned int bullet_max=1000; //default value
+static bullet* bullet_array;
 
 bullet* newBullet(){
 	int i;
-	for(i=0;i<config.bullet_max;i++)
-		if (config.bullet_array[i].id==0){
-			config.bullet_array[i].id=getGlobalId();
-			return &config.bullet_array[i];
+	for(i=0;i<bullet_max;i++)
+		if (bullet_array[i].id==0){
+			bullet_array[i].id=getGlobalId();
+			return &bullet_array[i];
 		}
 	return 0;
+}
+
+void setBulletsMax(int size){
+	bullet_max=size;
+}
+
+void allocBullets(){
+	if ((bullet_array=malloc(sizeof(*bullet_array)*bullet_max))==0)
+		perror("malloc bullet initArrays");
+	memset(bullet_array,0,sizeof(*bullet_array)*bullet_max);
+}
+
+void realizeBullets(){
+	free(bullet_array);
 }
 
 int tickMiscBullet(gnode * grid,bullet * b){
@@ -64,7 +80,7 @@ int tickProcessBullet(gnode * grid,bullet * b){
 			int y=(int)b->position.y;
 			int xid,yid;
 			int _id=to2d(x,y);
-			if ( x<0 || y<0)
+			if ( x<0 || y<0 || x>=config.gridsize || y>=config.gridsize)
 				goto out;
 			//tower search
 			{
@@ -172,9 +188,9 @@ out:
 
 int forEachBullet(gnode* grid, int (process)(gnode*g,bullet*b)){
 	int i;
-	for(i=0;i<config.bullet_max;i++)
-		if(config.bullet_array[i].id>0)
-			if (process(grid,&config.bullet_array[i])!=0)
+	for(i=0;i<bullet_max;i++)
+		if(bullet_array[i].id>0)
+			if (process(grid,&bullet_array[i])!=0)
 				return -1;
 	return 0;
 }

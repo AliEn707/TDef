@@ -31,50 +31,6 @@ void* printInfo(void*p) {
 	return 0;
 }
 
-void pinfo(){
-	int i=0,
-		j=0,
-		k=0;
-	printDebug("Towers\t\t\tNpcs\t\t\tBullets\n");
-	while(i<config.tower_max||
-		j<config.npc_max||
-		k<config.bullet_max){
-		for(;config.tower_array[i]->id<=0 && i<config.tower_num;i++);
-		if (i<config.tower_max){
-			printDebug("%d(%d)%d ",config.tower_array[i]->id,
-					config.tower_array[i]->position,
-					config.tower_array[i]->type!=BASE?
-						config.tower_array[i]->health:
-						config.players[config.tower_array[i]->owner].base_type.health
-					);
-			i++;
-		}
-		printDebug("|\t\t\t");
-		for(;config.npc_array[j]->id<=0 && j<config.npc_num;j++);
-		if (j<config.npc_max){
-			printDebug("%d(%g,%g)%d %d",config.npc_array[j]->id,
-					config.npc_array[j]->position.x,
-					config.npc_array[j]->position.y,
-					config.npc_array[j]->health,
-					config.npc_array[j]->status
-					);
-			j++;
-		}
-		printDebug("|\t\t\t");
-		for(;config.bullet_array[k].id<=0 && k<config.bullet_max;k++);
-		if (k<config.bullet_max){
-			printDebug("%d(%g,%g) ",config.bullet_array[k].id,
-					config.bullet_array[k].position.x,
-					config.bullet_array[k].position.y
-					);
-			k++;
-		}
-		printDebug("\n");
-	}
-	
-		
-}
-
 void drawGrid(gnode* grid){
 	int i,j;
 	for(i=0;i<10;i++){
@@ -211,6 +167,7 @@ int main(int argc, char* argv[]){
 	loadBulletTypes();
 	grid=loadMap(config.game.map);
 	
+	allocArrays();
 	config.game.wait_start=START_WAITING_TIME;
 	
 	listener=startServer(config.game.port,grid);
