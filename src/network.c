@@ -516,3 +516,43 @@ int connectToHost(char* host, int port){
 	return sockfd;
 
 }
+
+
+int networkPortTake(){
+	int manager=0;
+	char $_$=0;
+	manager=connectToHost("localhost",7920);
+	if (manager==0)
+		return -1;
+	printDebug("connected to manager\n");
+	if (_sendData(manager,&config.game.port,sizeof(config.game.port))<=0)
+		return -1;
+	printDebug("sent port\n");
+	if (recvData(manager,&$_$,sizeof($_$))<=0)
+		return -1;
+	printDebug("get %d\n",$_$);
+	if ($_$!=-1)
+		return -1;
+	$_$=1;
+	if (_sendData(manager,&$_$,sizeof($_$))<=0)
+		return -1;
+	printDebug("send ");
+	close(manager);
+	return 0;
+}
+
+int networkPortFree(){
+	if (config.game.token!=0){
+		int manager=0;
+		char $_$=0;
+		manager=connectToHost("localhost",7920);
+		if (manager!=0){
+			if (_sendData(manager,&config.game.port,sizeof(config.game.port))<=0)
+				return -1;
+			if (_sendData(manager,&$_$,sizeof($_$))<=0)
+				return -1;
+			close(manager);
+		}
+	}
+	return 0;
+}

@@ -13,7 +13,7 @@ npc* diedCheckNpc(npc* n);
 // set basic parameters
 void setNpcBase(npc* n);
 // add npc to world
-npc* spawnNpc(gnode* grid,int node_id,int group,int type);
+npc* spawnNpc(gnode* grid,int node_id,int owner,int type);
 
 int tickMiscNpc(gnode* grid,npc* n);
 

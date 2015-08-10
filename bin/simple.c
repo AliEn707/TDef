@@ -10,6 +10,7 @@
 #include "../src/public.h"
 #include "../src/t_sem.h"
 #include "../src/system_info.h"
+#include "../src/statistic.h"
 //Test main file
 
 #define semInfo() printDebug("sem %d=>%d|%d=>%d|%d=>%d before sem %d action %d  %s:%d\n",0,semctl(t_sem.send,0,GETVAL),1,semctl(t_sem.send,1,GETVAL),2,semctl(t_sem.send,2,GETVAL),sem.sem_num,sem.sem_op,__FILE__,__LINE__)
@@ -50,14 +51,16 @@ void drawGrid(gnode* grid){
 	}		
 }
 
-void segfault_sigaction(int signal, siginfo_t *si, void *arg)
-{
+void segfault_sigaction(int signal, siginfo_t *si, void *arg){
 	printf("Caught segfault at address %p\n", si->si_addr);
 	config.game.run = 0;
-	printStats();
+	statisticsPrint();
 	realizeServer();
 	close(listener);
+	networkPortFree();
+	statisticsClear();
 	usleep(100000);
+	//TODO: add write info about segfault
 	exit(0);
 }
 
@@ -98,54 +101,7 @@ int main(int argc, char* argv[]){
 	if (argc>1){
 		parseArgv(argc,argv);
 		if (config.game.token!=0) {//get game.port, game.token
-			int manager=0;
-			char $_$=0;
-			manager=connectToHost("localhost",7920);
-			if (manager==0)
-				return -1;
-			printDebug("connected to manager\n");
-			if (_sendData(manager,&config.game.port,sizeof(config.game.port))<=0)
-				return -1;
-			printDebug("sent port\n");
-			if (recvData(manager,&$_$,sizeof($_$))<=0)
-				return -1;
-			printDebug("get %d\n",$_$);
-			if ($_$!=-1)
-				return -1;
-			$_$=1;
-			if (_sendData(manager,&$_$,sizeof($_$))<=0)
-				return -1;
-			printDebug("send ");
-			close(manager);
-	/* //TODO: repair
-			if ((file=fopen("manager.ini","r"))!=0){
-				char buffer[101];
-				int startport; //tmp need to set f_port
-				int servnum; //tmp need to size of shared memory
-				while (!feof (file)) {
-					if (fgets (buffer,100,file) == NULL ) 
-						break;
-	//				sscanf(buffer, "menport %d", &f_port);
-					sscanf(buffer, "servnum  %d", &servnum);
-					sscanf(buffer, "startport  %d", &startport);
-				}
-				fclose (file);
-				f_port=config.game.port-startport;
-				if ((f_token=ftok("manager.ini",100))>0)
-				//	if ((f_sem=t_semget(f_token,1,0))>0) //to change
-						if ((f_shmem=shmget(f_token, servnum*sizeof(char), 0777))>0)
-							if ((f_mem=shmat(f_shmem,0,0))!=0){
-	//							sem.sem_num=0; 
-	//							sem.sem_op=-1; 
-	//							t_semop(f_sem, &sem, 1);
-								//TODO change to sockets
-								f_mem[f_port]=1;
-	//							sem.sem_num=0; 
-	//							sem.sem_op=1; 
-	//							t_semop(f_sem, &sem, 1);
-							}
-			}
-	*/
+			networkPortTake();
 			printDebug("port %d token %d\n",config.game.port,config.game.token);
 		
 			if (publicGetGame()<0){
@@ -159,6 +115,7 @@ int main(int argc, char* argv[]){
 	printDebug("initialising\nmap %s\non port %d\n",config.game.map,config.game.port);
 	gnode* grid;
 	
+	statisticsInit();
 	initGridMath();
 	//	loadConfig("../test.cfg");
 //	loadTypes("../types.cfg");
@@ -316,7 +273,7 @@ int main(int argc, char* argv[]){
 		forEachTower(grid,tickMiscTower);
 		forEachBullet(grid,tickMiscBullet);
 	}
-	printStats();
+	statisticsPrint();
 	printDebug("closing\n");
 	config.game.run=0;
 	close(listener);	
@@ -335,19 +292,9 @@ int main(int argc, char* argv[]){
 		publicSendResults();
 	}
 end:
+	statisticsClear();
 	//send to clear port
-	if (config.game.token!=0){
-		int manager=0;
-		char $_$=0;
-		manager=connectToHost("localhost",7920);
-		if (manager!=0){
-			if (_sendData(manager,&config.game.port,sizeof(config.game.port))<=0)
-				return -1;
-			if (_sendData(manager,&$_$,sizeof($_$))<=0)
-				return -1;
-			close(manager);
-		}
-	}
+	networkPortFree();
 	
 //	memset(&config.wave_current,0,sizeof(config.wave_current));
 	

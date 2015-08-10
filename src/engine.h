@@ -56,6 +56,5 @@ void setPlayerHero(int id,npc* hero);
 void forEachPlayer(gnode * grid);
 void playersClearBitMasks();
 
-void printStats();
 void printDebug(const char* format, ...); 
 

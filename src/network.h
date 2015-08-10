@@ -24,3 +24,7 @@ int networkAuth(worker_arg *data);
 int networkWaitingTime(worker_arg *data);
 
 int connectToHost(char* host, int port);
+
+//function for sending take and free to manager about mapserver port
+int networkPortTake();
+int networkPortFree();
