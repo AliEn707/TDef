@@ -14,6 +14,7 @@
 #include <pthread.h>
 #include <fcntl.h>
 #include <netdb.h>
+#include <dirent.h>
 
 #include "manager.h"
 
@@ -33,6 +34,34 @@
 #define MESSAGE_UPDATE_MAPS 4
 
 
+
+typedef 
+struct{
+	char name[256];
+} dirFile;
+
+static inline dirFile* filesInDir(char* path, int* num){
+	DIR* dir;
+	struct dirent * dir_info;
+	dirFile * files;
+	int i=0;
+	if((dir=opendir(path))==0)
+		perror("cant read dir");
+	while((dir_info=readdir(dir))!=0)
+		if (dir_info->d_name[0]!='.') 
+			i++;
+	if (num!=0)
+		*num=i;
+	if((files=malloc(i*sizeof(*files)))==0)
+		perror("malloc filesInDir");
+	rewinddir(dir);
+	i=0;
+	while((dir_info=readdir(dir))!=0)
+		if (dir_info->d_name[0]!='.')
+			sprintf(files[i++].name,"%s",dir_info->d_name);
+	closedir(dir);
+	return files;
+}
 
 static inline int connectToHost(char* host, int port){
 	int sockfd;
@@ -118,25 +147,34 @@ static inline void updateMaps(int sock){
 	int size=1;
 	char path[150];
 	FILE* f;
+	dirFile * files;
+	int files$,i;
 	sendData(sock, &msg_type, sizeof(msg_type));
 	if(recvData(sock,&size,sizeof(size))<=0)
 		return;
+	files=filesInDir("../maps",&files$);
 	while(size>0){//lets get map
 		char buf[100];
 		//try to get name
 		memset(buf,0,sizeof(buf));
 		if(recvData(sock,buf,size)<=0)
-			return;
+			break;
+		//remove file from files
+		for (i=0;i<files$;i++)
+			if (strcmp(files[i].name,buf)==0){
+				files[i].name[0]=0;
+				break;
+			}
 		sprintf(path,"../maps/%s.mp",buf);
 		int timestamp=fileTime(path);
 		sendData(sock, &timestamp, sizeof(timestamp));
 		//try to get size of file
 		if(recvData(sock,&size,sizeof(size))<=0)
-			return;
+			break;
 		if (size==0)
-			return;
+			break;
 		if ((f=fopen(TMP_FILE,"wt+"))==0)
-			return;
+			break;
 		while(size>0){//het parts of file
 			while(size>0){//get 1 part of map
 				int get=size>sizeof(buf)?sizeof(buf):size;
@@ -151,8 +189,12 @@ static inline void updateMaps(int sock){
 		fclose(f);
 		copyFile(path,TMP_FILE);
 		if(recvData(sock,&size,sizeof(size))<=0)
-				return;
+				break;
 	}
+	for(i=0;i<files$;i++)
+		if (files[i].name[0]!=0)
+			remove(files[i].name);
+	free(files);
 }
 
 
