@@ -2,6 +2,7 @@
 void realizeMap(gnode* grid);
 
 gnode * loadMap(char *filepath);
+void loadWaves(FILE *file);
 /* map file format
 [size]
 [build string]
