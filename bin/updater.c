@@ -201,8 +201,7 @@ static inline void updateMaps(int sock){
 static void * updater(void * arg) {
 	char msg_type=MESSAGE_UPDATE;
 	while(stop==0){
-		updating=1;
-		
+		//updating=1;
 		while (canUpdate() || 1){
 			sleep(1);
 		}

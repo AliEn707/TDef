@@ -127,6 +127,7 @@ void * manager(void * arg) {
 //	struct sembuf sem_server={0,0,0};
 	int TPS=10;  //ticks per sec
 	struct timeval tv={0,0};
+	struct timeval sel={1,0};
 	stop=0;
 	updating=0;
 	timePassed(&tv);
@@ -174,7 +175,7 @@ void * manager(void * arg) {
 		FD_ZERO(&read_fds);
 		FD_SET(listener, &read_fds);
 		FD_SET(p_listener, &read_fds);
-		if (select (m_m + 1, &read_fds, 0, 0, 0/*&tv*/) > 0) {
+		if (select (m_m + 1, &read_fds, 0, 0, &sel/*&tv*/) > 0) {
 			if (FD_ISSET(listener, &read_fds)){
 				if ((sock = accept(listener, NULL, NULL))<0)
 					perror("Failed to accept");
@@ -186,6 +187,7 @@ void * manager(void * arg) {
 					close(sock);
 					continue;
 				}
+				printf("get msg %d\n",msg_type);
 				if (msg_type==99){// ascii 'c' 
 //				printf("get msg %d\n",msg_type);
 					//TODO: check client auth
@@ -203,7 +205,6 @@ void * manager(void * arg) {
 						close(sock);
 						continue;
 					}
-//					printf("get token %d\n",room_data);
 //					sem_server.sem_op = -1;
 //					printf("sem %d\n",semctl(sem_id,0,GETVAL));
 //					perror("sem");
@@ -217,6 +218,8 @@ void * manager(void * arg) {
 						}
 //					sem_server.sem_op = 1;
 //					semop(sem_id, &sem_server, 1);
+					printf("port %d\n",flag);
+					sendData(sock, &flag, sizeof(flag)); //int
 					pid_t pid;
 					if (flag != -1) {
 						char port_arg[15], token_arg[15];
@@ -229,7 +232,7 @@ void * manager(void * arg) {
 								sprintf(token_arg, "%d", room_data);
 								printf("!!!  port  %d token %d\n",flag,room_data);
 								if (execlp("./server", "./server", "-port", port_arg, "-token", token_arg, NULL) < 0) {//if (execlp("/bin/ls", "ls", 0, 0) < 0) {
-									msg_type='e';
+									msg_type=-1;
 									sendData(sock, &msg_type, sizeof(msg_type));
 									close(sock);
 								}
@@ -286,7 +289,8 @@ void * manager(void * arg) {
 			}
 		}
 		syncTPS(timePassed(&tv),TPS);
-		waitpid(0, 0, WNOHANG);
+		if (waitpid(0, 0, WNOHANG)>0)
+			printf("clean child\n");
 	}
 	waitpid(0, 0, WNOHANG);
 	close(listener);
