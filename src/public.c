@@ -8,9 +8,6 @@
 #include "engine_npc.h"
 #include "engine_bullet.h"
 
-#define PUBLIC_HOSTNAME "localhost"//"192.168.56.56"//
-#define PUBLIC_PORT 7000
-
 
 #define MESSAGE_ROOM_STATUS 1
 #define MESSAGE_ROOM_RESULT 2
@@ -24,8 +21,9 @@
 
 
 #define sendData(sock,x,y) if(send(sock,x,y,MSG_NOSIGNAL)<=0) return -1 
+
 static int publicConnect(){
-	config.game.sock=connectToHost(PUBLIC_HOSTNAME,PUBLIC_PORT);//set sock to config struct
+	config.game.sock=connectToHost(config.game.public.host,config.game.public.port);//set sock to config struct
 	return config.game.sock;
 }
 

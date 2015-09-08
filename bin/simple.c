@@ -15,6 +15,7 @@
 
 #define semInfo() printDebug("sem %d=>%d|%d=>%d|%d=>%d before sem %d action %d  %s:%d\n",0,semctl(t_sem.send,0,GETVAL),1,semctl(t_sem.send,1,GETVAL),2,semctl(t_sem.send,2,GETVAL),sem.sem_num,sem.sem_op,__FILE__,__LINE__)
 
+#define PUBLIC_CONF "public.ini"
 
 static int listener;
 
@@ -64,6 +65,16 @@ void segfault_sigaction(int signal, siginfo_t *si, void *arg){
 	exit(0);
 }
 
+static void getPublicData(){
+	FILE* f=fopen(PUBLIC_CONF,"rt");
+	if (f==0){
+		printf("Cant open %s used defaults\n",PUBLIC_CONF);
+		return;
+	}
+	fscanf(f,"%s %d",config.game.public.host,&config.game.public.port);
+	fclose(f);
+}
+
 int main(int argc, char* argv[]){
 //	FILE * file;
 	struct sembuf sem;
@@ -98,10 +109,16 @@ int main(int argc, char* argv[]){
 	sprintf(config.game.map,"pvz11_11");//"test");//"4");
 	config.game.port=34140;
 
+	sprintf(config.game.public.host,"localhost");//"test");//"4");
+	config.game.public.port=7000;
+
 	if (argc>1){
 		parseArgv(argc,argv);
 		if (config.game.token!=0) {//get game.port, game.token
-			networkPortTake();
+			getPublicData();
+			if (networkPortTake()!=0){
+				printf("can't take port");
+			}
 			printDebug("port %d token %d\n",config.game.port,config.game.token);
 		
 			if (publicGetGame()<0){

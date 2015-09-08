@@ -18,7 +18,7 @@
 
 #include "manager.h"
 
-#define SLEEP_TIME (60*5)
+#define SLEEP_TIME 15//(60*5)
 #define TMP_FILE "/tmp/update.tmp"
 
 #define PUBLIC_HOST "localhost"
@@ -33,7 +33,7 @@
 #define MESSAGE_UPDATE_BULLET_TYPES 3
 #define MESSAGE_UPDATE_MAPS 4
 
-
+#define MAPS_DIR "../maps"
 
 typedef 
 struct{
@@ -58,7 +58,7 @@ static inline dirFile* filesInDir(char* path, int* num){
 	i=0;
 	while((dir_info=readdir(dir))!=0)
 		if (dir_info->d_name[0]!='.')
-			sprintf(files[i++].name,"%s",dir_info->d_name);
+			sprintf(files[i++].name,"../maps/%s",dir_info->d_name);
 	closedir(dir);
 	return files;
 }
@@ -125,7 +125,7 @@ static inline void updateTypes(int sock,char msg_type, char* path){
 		return;
 	if (size==0)
 		return;
-	FILE* f=fopen(TMP_FILE,"wt+");
+	FILE* f=fopen(TMP_FILE,"wt+");//TODO: change to fmemopen
 	if (f==0)
 		return;
 	while(size>0){
@@ -152,20 +152,22 @@ static inline void updateMaps(int sock){
 	sendData(sock, &msg_type, sizeof(msg_type));
 	if(recvData(sock,&size,sizeof(size))<=0)
 		return;
-	files=filesInDir("../maps",&files$);
+	files=filesInDir(MAPS_DIR,&files$);
 	while(size>0){//lets get map
 		char buf[100];
 		//try to get name
 		memset(buf,0,sizeof(buf));
 		if(recvData(sock,buf,size)<=0)
 			break;
+		//set right path
+		sprintf(path,"%s/%s.mp",MAPS_DIR,buf);
 		//remove file from files
-		for (i=0;i<files$;i++)
-			if (strcmp(files[i].name,buf)==0){
+		for (i=0;i<files$;i++){
+			if (strcmp(files[i].name,path)==0){
 				files[i].name[0]=0;
 				break;
 			}
-		sprintf(path,"../maps/%s.mp",buf);
+		}
 		int timestamp=fileTime(path);
 		sendData(sock, &timestamp, sizeof(timestamp));
 		//try to get size of file
@@ -192,8 +194,10 @@ static inline void updateMaps(int sock){
 				break;
 	}
 	for(i=0;i<files$;i++)
-		if (files[i].name[0]!=0)
+		if (files[i].name[0]!=0){
+			printf("removed %s\n",files[i].name);
 			remove(files[i].name);
+		}
 	free(files);
 }
 
@@ -201,8 +205,8 @@ static inline void updateMaps(int sock){
 static void * updater(void * arg) {
 	char msg_type=MESSAGE_UPDATE;
 	while(stop==0){
-		//updating=1;
-		while (canUpdate() || 1){
+		updating=1;
+		while (canUpdate()){
 			sleep(1);
 		}
 		int sock=connectToHost(PUBLIC_HOST,PUBLIC_PORT);

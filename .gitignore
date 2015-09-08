@@ -29,3 +29,7 @@ bin/server
 bin/manager
 bin/server
 bin/server
+*.mp
+data/types/npc.cfg
+bin/public.ini
+bin/manager.ini

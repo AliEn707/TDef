@@ -448,7 +448,11 @@ struct config{
 		int wait_start;
 		int players;
 		char map[20];
-		} game;
+		struct {
+			char host[60];
+			int port;
+		} public;
+	} game;
 } engine_config;
 
 ///////

@@ -131,9 +131,10 @@ void * manager(void * arg) {
 	stop=0;
 	updating=0;
 	timePassed(&tv);
-	manager_file = fopen (MANAGER, "r");
+	manager_file = fopen (MANAGER, "rt");
 	if (manager_file == NULL) 
-		perror ("Can't read config file manager.ini");
+		perror ("Can't read config file %s\n",MANAGER);
+		exit(0);
 	else {
 		while (!feof (manager_file)) {
 			if (fgets (buffer , 100 , manager_file) == NULL ) //
@@ -283,6 +284,7 @@ void * manager(void * arg) {
 					if (recvData(sock,&data,sizeof(data))>0){
 						ports_info[msg_port-startport].status=data;
 						ports_info[msg_port-startport].timestamp=time(0);
+						printf("set port %d as %d\n",msg_port,data);
 					}
 				}
 				close(sock);
@@ -335,11 +337,18 @@ int parseArgv(int argc,char * argv[]){
 			daemon_ = 1;
 			continue;
 		}
+		if (strcmp(argv[i],"-v")==0){
+			printf("Built at %s %s\n", __DATE__,__TIME__);
+			exit(0);
+		}
 	}
 	return ret;
 }
 
 int main(){
+#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__//__ORDER_LITTLE_ENDIAN__ 
+	printf("Big endian version not implement yet\n");
+#else
 	char s[10];
 	if (daemon_!=0)
 		daemonize(log_file,startManager);
@@ -348,5 +357,6 @@ int main(){
 		scanf("%s", s);
 		DestroyWorkThread();
 	}
+#endif
 	return 0;
 }
