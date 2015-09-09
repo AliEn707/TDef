@@ -6,17 +6,19 @@
 #include "gridmath.h"
 #include "types.h"
 
+static unsigned int bullet_num=0;
 static unsigned int bullet_max=1000; //default value
-static bullet* bullet_array;
+static bullet** bullet_array;
 
 bullet* newBullet(){
-	int i;
-	for(i=0;i<bullet_max;i++)
-		if (bullet_array[i].id==0){
-			bullet_array[i].id=getGlobalId();
-			return &bullet_array[i];
-		}
-	return 0;
+	if (bullet_num>=bullet_max)
+		return 0;
+	if ((bullet_array[bullet_num]=malloc(sizeof(bullet)))==0)
+		return 0;
+	memset(bullet_array[bullet_num],0,sizeof(bullet));
+	bullet_array[bullet_num]->id=getGlobalId();
+	bullet_num++;
+	return bullet_array[bullet_num-1];
 }
 
 void setBulletsMax(int size){
@@ -33,6 +35,20 @@ void realizeBullets(){
 	free(bullet_array);
 }
 
+int delBullet(gnode* grid,bullet* b){
+	int i;
+	for(i=0;i<bullet_num && bullet_array[i]!=b;i++);
+	if (i==bullet_num)
+		return -1;
+	free(bullet_array[i]);
+	bullet_num--;
+	if (bullet_num!=i){
+		bullet_array[i]=bullet_array[bullet_num];
+	}
+	bullet_array[bullet_num]=0;
+	return -1;	
+}
+
 int tickMiscBullet(gnode * grid,bullet * b){
 	b->bit_mask=0;
 	return 0;
@@ -40,7 +56,7 @@ int tickMiscBullet(gnode * grid,bullet * b){
 
 int tickCleanBullet(gnode * grid,bullet * b){
 	if (b->detonate>0)
-		memset(b,0,sizeof(bullet));
+		delBullet(grid,b);
 	return 0;
 }
 
@@ -54,7 +70,7 @@ int tickProcessBullet(gnode * grid,bullet * b){
 	if (b->detonate==0){
 		bullet_type * type=typesBulletGet(b->type);
 		if (type==0){
-			b->id=0;
+			b->detonate=1;
 			return 0;
 		}
 		//vec dir={0,0};
@@ -188,10 +204,9 @@ out:
 
 int forEachBullet(gnode* grid, int (process)(gnode*g,bullet*b)){
 	int i;
-	for(i=0;i<bullet_max;i++)
-		if(bullet_array[i].id>0)
-			if (process(grid,&bullet_array[i])!=0)
-				return -1;
+	for(i=0;i<bullet_num;i++)
+		if (process(grid,bullet_array[i])!=0)
+			return -1;
 	return 0;
 }
 

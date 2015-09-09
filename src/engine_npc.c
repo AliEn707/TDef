@@ -9,7 +9,7 @@
 
 static unsigned int npc_num=0;
 static unsigned int npc_max=1000; //defaults
-npc** npc_array=0;
+static npc** npc_array=0;
 
 npc* damageNpc(npc* n,bullet* b){
 	npc_type * type=0;
@@ -247,8 +247,6 @@ npc* diedCheckNpc(npc* n){
 		return 0;
 	return n;
 }
-
-
 
 int tickTargetNpc(gnode* grid,npc* n){
 	npc_type * type=0;
