@@ -132,10 +132,10 @@ void * manager(void * arg) {
 	updating=0;
 	timePassed(&tv);
 	manager_file = fopen (MANAGER, "rt");
-	if (manager_file == NULL) 
-		perror ("Can't read config file %s\n",MANAGER);
+	if (manager_file == NULL){
+		printf("Can't read config file %s\n",MANAGER);
 		exit(0);
-	else {
+	}else {
 		while (!feof (manager_file)) {
 			if (fgets (buffer , 100 , manager_file) == NULL ) //
 				break;
