@@ -33,7 +33,7 @@
 #define MESSAGE_UPDATE_BULLET_TYPES 3
 #define MESSAGE_UPDATE_MAPS 4
 
-#define MAPS_DIR "../maps"
+#define MAPS_DIR "../data/maps"
 
 typedef 
 struct{

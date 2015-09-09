@@ -27,7 +27,9 @@ bin/performance.txt
 
 bin/server
 bin/manager
-map/*.mp
+maps/
+data/maps/
+*.mp
 data/types/npc.cfg
 bin/public.ini
 bin/manager.ini

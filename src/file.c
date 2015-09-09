@@ -16,7 +16,7 @@ gnode * loadMap(char *path){
 	FILE * file;
 //	int err;
 	char filepath[25];
-	sprintf(filepath,"../maps/%s.mp",path);
+	sprintf(filepath,"../data/maps/%s.mp",path);
 	config.global_id=1;
 	memset(config.players,0,sizeof(player)*PLAYER_MAX);
 	initAreaArray();
