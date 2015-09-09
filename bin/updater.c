@@ -24,7 +24,8 @@
 #define PUBLIC_HOST "localhost"
 #define PUBLIC_PORT 7000
 
-
+char public_host[50]="localhost";
+int public_port=7000;
 
 #define MESSAGE_UPDATE 3
 
@@ -58,7 +59,7 @@ static inline dirFile* filesInDir(char* path, int* num){
 	i=0;
 	while((dir_info=readdir(dir))!=0)
 		if (dir_info->d_name[0]!='.')
-			sprintf(files[i++].name,"../maps/%s",dir_info->d_name);
+			sprintf(files[i++].name,"%s/%s",MAPS_DIR,dir_info->d_name);
 	closedir(dir);
 	return files;
 }
@@ -204,12 +205,19 @@ static inline void updateMaps(int sock){
 
 static void * updater(void * arg) {
 	char msg_type=MESSAGE_UPDATE;
+	FILE* f=fopen("public.ini","rt");
+	if (f==0)
+		printf("can't open public.ini\n");
+	else{
+		fscanf(f,"%s %d",public_host,&public_port);
+		fclose(f);
+	}
 	while(stop==0){
 		updating=1;
 		while (canUpdate()){
 			sleep(1);
 		}
-		int sock=connectToHost(PUBLIC_HOST,PUBLIC_PORT);
+		int sock=connectToHost(public_host,public_port);
 		sendData(sock, &msg_type, sizeof(msg_type));
 		updateTypes(sock, MESSAGE_UPDATE_NPC_TYPES, "../data/types/npc.cfg");
 		updateTypes(sock, MESSAGE_UPDATE_TOWER_TYPES, "../data/types/tower.cfg");
