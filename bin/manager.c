@@ -116,7 +116,7 @@ int canUpdate(){
 			return 1;
 		else
 			if (ports_info[i].status>0)
-				if (time(0)-ports_info[i].timestamp<30)//30 sec anough
+				if (time(0)-ports_info[i].timestamp<5)//5 sec anough for load all data from disk
 					return 1;
 	return 0;
 }

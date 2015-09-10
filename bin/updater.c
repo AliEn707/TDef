@@ -18,7 +18,7 @@
 
 #include "manager.h"
 
-#define SLEEP_TIME 15//(60*5)
+#define SLEEP_TIME 30//(60*5)
 #define TMP_FILE "/tmp/update.tmp"
 
 #define PUBLIC_HOST "localhost"
@@ -215,12 +215,12 @@ static void * updater(void * arg) {
 	while(stop==0){
 		updating=1;
 		while (canUpdate()){
-			sleep(1);
+			sleep(5);
 		}
 		int sock=connectToHost(public_host,public_port);
 		sendData(sock, &msg_type, sizeof(msg_type));
 		updateTypes(sock, MESSAGE_UPDATE_NPC_TYPES, "../data/types/npc.cfg");
-		updateTypes(sock, MESSAGE_UPDATE_TOWER_TYPES, "../data/types/tower.cfg");
+//		updateTypes(sock, MESSAGE_UPDATE_TOWER_TYPES, "../data/types/tower.cfg");
 //		updateTypes(sock, MESSAGE_UPDATE_BULLET_TYPES, "../data/types/bullet.cfg");
 		updateMaps(sock);
 		close(sock);
