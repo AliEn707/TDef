@@ -110,7 +110,7 @@ static inline void copyFile(char *dest, char*src){
 	fclose(f2);
 }
 
-static inline int fileTime(char* path){
+static inline time_t fileTime(char* path){
 	struct stat st;
 	if (stat(path,&st)<0)
 		return 0;
@@ -118,9 +118,10 @@ static inline int fileTime(char* path){
 }
 
 static inline void updateTypes(int sock,char msg_type, char* path){
-	int timestamp=fileTime(path);
+	long long int timestamp=fileTime(path);//must be 64 bits
 	int size;
 	sendData(sock, &msg_type, sizeof(msg_type));
+	printf("sent timestamp%lld\n",timestamp);
 	sendData(sock, &timestamp, sizeof(timestamp));
 	if(recvData(sock,&size,sizeof(size))<=0)
 		return;
@@ -169,7 +170,7 @@ static inline void updateMaps(int sock){
 				break;
 			}
 		}
-		int timestamp=fileTime(path);
+		long long int timestamp=fileTime(path);
 		sendData(sock, &timestamp, sizeof(timestamp));
 		//try to get size of file
 		if(recvData(sock,&size,sizeof(size))<=0)
