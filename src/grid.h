@@ -357,7 +357,7 @@ struct player{
 	int _hero_counter;
 	
 	int money;
-	int level;
+	int level; // TODO: change to short
 	
 	short target;
 	struct {

@@ -422,13 +422,9 @@ int sendPlayers(int sock,int id){
 			}
 			sendData(config.players[i].group);
 			sendData(config.players[i]._hero_counter);
-			//send info about base 
-			//TODO: remove
-			int base_id=0;
-			if (config.players[i].base!=0) 
-				base_id=config.players[i].base->id;
-			sendData(base_id);
+			
 			sendData(config.players[i].base_type.health);
+			
 			sendData(config.players[i].hero_type.health);
 			sendData(config.players[i].hero_type.shield);
 		}	
