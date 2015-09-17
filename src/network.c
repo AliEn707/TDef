@@ -344,11 +344,13 @@ int tickSendBullet(gnode* grid,bullet * b){
 	
 	
 	int bit_mask=b->bit_mask;
-	if (config.players[id].first_send!=0)
+	if (config.players[id].first_send!=0){
 		bit_mask|=BULLET_CREATE;
-	if (checkMask(bit_mask,BULLET_CREATE)){
 	}
-	
+	if (checkMask(bit_mask,BULLET_CREATE)){
+		bit_mask|=BULLET_POSITION;
+	}
+	bit_mask|=BULLET_POSITION;
 //	if (bit_mask==0)
 //		return 0;
 	
@@ -358,9 +360,10 @@ int tickSendBullet(gnode* grid,bullet * b){
 	sendData(bit_mask);
 	sendData(b->id);
 	
-//	if(checkMask(bit_mask,BULLET_POSITION) || checkMask(bit_mask,BULLET_CREATE))
-	sendData(b->position.x);
-	sendData(b->position.y);
+	if(checkMask(bit_mask,BULLET_POSITION)){
+		sendData(b->position.x);
+		sendData(b->position.y);
+	}
 	if (checkMask(bit_mask,BULLET_CREATE)){
 		sendData(b->type);
 		sendData(b->owner);
