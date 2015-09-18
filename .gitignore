@@ -33,3 +33,5 @@ data/maps/
 data/types/npc.cfg
 bin/public.ini
 bin/manager.ini
+data/types/bullet.cfg
+data/types/tower.cfg
