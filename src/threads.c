@@ -11,13 +11,13 @@
 #include "engine_tower.h"
 #include "engine_bullet.h"
 #include "types.h"
-#include "t_sem.h"
+
 
 #define PRIVATE_POLICY "<cross-domain-policy><allow-access-from domain=\"*\" to-ports=\"*\" /></cross-domain-policy>"
 
 #define sendData(x) if(send(sock,&x,sizeof(x),0)<0) return -1
 
-#define getSem(x) semget(IPC_PRIVATE, x, 0666 | IPC_CREAT)
+#define getSem(x) t_semget(IPC_PRIVATE, x, 0666 | IPC_CREAT)
 
 // printDebug("worker %d sem %d=>%d|%d=>%d|%d=>%d before sem %d action %d\n",data->id,0,semctl(t_sem.send,0,GETVAL),1,semctl(t_sem.send,1,GETVAL),2,semctl(t_sem.send,2,GETVAL),sem[x].sem_num,sem[x].sem_op); 
 #define semOp(x)				t_semop(t_sem.send,&sem[x],1)

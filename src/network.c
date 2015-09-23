@@ -8,7 +8,7 @@
 #include "engine_npc.h"
 #include "engine_bullet.h"
 #include "types.h"
-#include "t_sem.h"
+
 
 #define sendData(x) if(_sendData(sock,&x,sizeof(x))<=0) return -1
 

@@ -214,7 +214,7 @@ static void * updater(void * arg) {
 		fclose(f);
 	}
 	while(stop==0){
-		updating=1;
+		setUpdate(1);
 		while (canUpdate()){
 			sleep(5);
 		}
@@ -226,7 +226,7 @@ static void * updater(void * arg) {
 		updateMaps(sock);
 		close(sock);
 		
-		updating=0;
+		setUpdate(0);
 		
 		sleep(SLEEP_TIME);
 	}

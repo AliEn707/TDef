@@ -17,6 +17,8 @@
 #include <pthread.h>
 #include <signal.h>
 
+#include "t_sem.h"
+
 #define BIT_1 1
 #define BIT_2 2
 #define BIT_3 4
@@ -458,6 +460,11 @@ struct config{
 ///////
 #define setGridSize(size) (config.gridsize=size)
 engine_config config;
+
+struct t_sem_struct{
+	t_sem_t send;
+	t_sem_t player;
+} t_sem;
 
 ///////
 #define getGridx(id) (1.0*idtox(id)+0.5f)

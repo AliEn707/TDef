@@ -28,10 +28,10 @@ messages and commands must be described in this file or another
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <sys/types.h>
-#include <sys/ipc.h>
-#include <sys/sem.h>
-#include <sys/shm.h>
+//#include <sys/types.h>
+//#include <sys/ipc.h>
+//#include <sys/sem.h>
+//#include <sys/shm.h>
 #include <sys/socket.h>
 #include <sys/wait.h>
 #include <sys/time.h>
@@ -41,6 +41,7 @@ messages and commands must be described in this file or another
 #include <fcntl.h>
 
 #include "manager.h"
+#include "../src/t_sem.h"
 
 #define MANAGER "manager.ini"
 
@@ -121,6 +122,25 @@ int canUpdate(){
 	return 0;
 }
 
+t_sem_t update;
+static short updating=0;
+void setUpdate(short a){
+  static struct sembuf sem[2]={{0,-1,0}, {0,1,0}};
+  t_semop(update,&sem[0],1);
+    updating=a;
+  t_semop(update,&sem[1],1);
+}
+
+int checkUpdate(){
+  return updating;
+}
+
+void initUpdate(){
+  static struct sembuf sem={0,1,0};
+  update=t_semget(IPC_PRIVATE, 1, 0666 | IPC_CREAT);
+	t_semop(update,&sem,1);
+}
+
 void * manager(void * arg) {
 	FILE * manager_file;
 	char buffer [100];
@@ -129,7 +149,6 @@ void * manager(void * arg) {
 	struct timeval tv={0,0};
 	struct timeval sel={1,0};
 	stop=0;
-	updating=0;
 	timePassed(&tv);
 	manager_file = fopen (MANAGER, "rt");
 	if (manager_file == NULL){
@@ -197,7 +216,7 @@ void * manager(void * arg) {
 //						sendData(sock, &msg_type, sizeof(msg_type));
 //						close(sock);
 //					}
-					if (updating){
+					if (checkUpdate()){
 						close(sock);
 						continue;
 					}
@@ -300,7 +319,7 @@ void * manager(void * arg) {
 	printf("Manager exited\n");
 	return 0;
 }
-
+ 
 // функция для остановки потоков и освобождения ресурсов
 void DestroyWorkThread()
 {
@@ -330,8 +349,8 @@ int parseArgv(int argc,char * argv[]){
 	for(i=0;i<argc;i++){
 		if (strcmp(argv[i],"-l")==0){
 			i++;
-			log_file = argv[i];
-			continue;
+      log_file = argv[i];
+      continue;
 		}
 		if (strcmp(argv[i],"-d")==0){
 			daemon_ = 1;
@@ -350,7 +369,8 @@ int main(){
 	printf("Big endian version not implement yet\n");
 #else
 	char s[10];
-	if (daemon_!=0)
+  initUpdate();
+  if (daemon_!=0)
 		daemonize(log_file,startManager);
 	else{
 		InitWorkThread();

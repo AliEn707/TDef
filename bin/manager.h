@@ -8,9 +8,9 @@ void * manager(void *);
 void DestroyWorkThread();
 pthread_t InitWorkThread();
 int canUpdate();
+int checkUpdate();
+void setUpdate(short a);
 
-
-short updating;
 int stop;
 
 #define sendData(sock,buf,need) send(sock,buf,need,MSG_NOSIGNAL)

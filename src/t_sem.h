@@ -12,17 +12,13 @@ struct t_sem_t {
 };
 
 //typedef int t_sem_t;
-typedef struct t_sem_t* t_sem_t;
+typedef struct t_sem_t *t_sem_t;
 //#define t_sem_t int
 /*
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/sem.h>
 */
-struct t_sem_struct{
-	t_sem_t send;
-	t_sem_t player;
-} t_sem;
 
 #define IPC_RMID 4096
 #define IPC_CREAT  0x0200
