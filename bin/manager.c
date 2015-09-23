@@ -148,7 +148,6 @@ void * manager(void * arg) {
 	int TPS=10;  //ticks per sec
 	struct timeval tv={0,0};
 	struct timeval sel={1,0};
-	stop=0;
 	timePassed(&tv);
 	manager_file = fopen (MANAGER, "rt");
 	if (manager_file == NULL){
@@ -370,6 +369,7 @@ int main(){
 #else
 	char s[10];
   initUpdate();
+ 	stop=0;
   if (daemon_!=0)
 		daemonize(log_file,startManager);
 	else{

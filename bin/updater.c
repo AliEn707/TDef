@@ -1,11 +1,7 @@
 ﻿#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <sys/types.h>
 #include <sys/stat.h>
-#include <sys/ipc.h>
-#include <sys/sem.h>
-#include <sys/shm.h>
 #include <sys/socket.h>
 #include <sys/wait.h>
 #include <sys/time.h>
@@ -213,6 +209,8 @@ static void * updater(void * arg) {
 		fscanf(f,"%s %d",public_host,&public_port);
 		fclose(f);
 	}
+  sleep(1);
+  printf("Updater started\n");
 	while(stop==0){
 		setUpdate(1);
 		while (canUpdate()){
