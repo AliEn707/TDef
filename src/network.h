@@ -1,6 +1,21 @@
+#define PACKET_SIZE 250
+typedef
+struct{
+	int sock;
+	int size;
+	char buf[PACKET_SIZE];
+} packet;
+
 //recv size data to buf
 int recvData(int sock, void * buf, int size);
 int _sendData(int sock, void * buf, int size);
+
+//create new packet
+packet* packetNew(int sock);
+//add data to packet, if size of packet more than PACKET_SIZE, send it and start new ( )
+int packetAdd(packet *p, void* data, int size);
+//send packet and free memory ( <=0 for error)
+int packetFinish(packet *p);
 
 int processMessage(worker_arg * data,char type);
 

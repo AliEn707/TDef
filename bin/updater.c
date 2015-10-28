@@ -217,12 +217,14 @@ static void * updater(void * arg) {
 			sleep(5);
 		}
 		int sock=connectToHost(public_host,public_port);
-		sendData(sock, &msg_type, sizeof(msg_type));
-		updateTypes(sock, MESSAGE_UPDATE_NPC_TYPES, "../data/types/npc.cfg");
-//		updateTypes(sock, MESSAGE_UPDATE_TOWER_TYPES, "../data/types/tower.cfg");
-//		updateTypes(sock, MESSAGE_UPDATE_BULLET_TYPES, "../data/types/bullet.cfg");
-		updateMaps(sock);
-		close(sock);
+		if (sock){
+			sendData(sock, &msg_type, sizeof(msg_type));
+			updateTypes(sock, MESSAGE_UPDATE_NPC_TYPES, "../data/types/npc.cfg");
+	//		updateTypes(sock, MESSAGE_UPDATE_TOWER_TYPES, "../data/types/tower.cfg");
+	//		updateTypes(sock, MESSAGE_UPDATE_BULLET_TYPES, "../data/types/bullet.cfg");
+			updateMaps(sock);
+			close(sock);
+		}
 		
 		setUpdate(0);
 		

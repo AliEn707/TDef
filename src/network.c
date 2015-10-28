@@ -61,6 +61,39 @@ int recvData(int sock, void * buf, int size){
 	return size;
 }
 
+//functions for work with packets
+
+//create new packet
+packet* packetNew(int sock){
+	packet * p;
+	if ((p=malloc(sizeof(*p)))==0)
+		return 0;
+	memset(p,0,sizeof(*p));
+	p->sock=sock;
+	return p;
+}
+
+//add data to packet, if size of packet more than PACKET_SIZE, send it and start new
+int packetAdd(packet *p, void* data, int size){
+	int o=1;
+	if (p->size+size>PACKET_SIZE){
+		o=_sendData(p->sock, p->buf, p->size);
+		p->size=0;
+	}
+	memcpy(p->buf+p->size,data,size);
+	p->size+=size;
+	return o;
+}
+
+//send packet and free memory
+int packetFinish(packet *p){
+	int o=_sendData(p->sock, p->buf, p->size);
+	free(p);
+	return o;
+}
+
+//massages
+
 int processMessage(worker_arg * data,char type){
 	struct sembuf sem_pl;
 	memset(&sem_pl,0,sizeof(sem_pl));
