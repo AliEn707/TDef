@@ -93,6 +93,7 @@ int main(int argc, char* argv[]){
 
 	sigaction(SIGSEGV, &sa, NULL);	
 	sigaction(SIGINT, &sa, NULL);	
+	sigaction(SIGTERM, &sa, NULL);	
 	
 	srand(time(0));
 	memset(&config,0,sizeof(config));
