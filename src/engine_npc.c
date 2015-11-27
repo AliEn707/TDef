@@ -11,6 +11,7 @@ static unsigned int npc_num=0;
 static unsigned int npc_max=1000; //defaults
 static npc** npc_array=0;
 
+//set damage to npc by bullet
 npc* damageNpc(npc* n,bullet* b){
 	npc_type * type=0;
 	if (n->type==HERO)
@@ -38,7 +39,8 @@ npc* damageNpc(npc* n,bullet* b){
 	return n;
 }
 
-npc* newNpc(){
+//create new npc
+static inline npc* newNpc(){
 	if (npc_num==npc_max)
 		return 0;
 	if ((npc_array[npc_num]=malloc(sizeof(npc)))==0)
@@ -49,8 +51,8 @@ npc* newNpc(){
 	return npc_array[npc_num-1];
 }
 
-
-npc* addNpc(gnode* node,npc* n){
+//add npc to grid
+static inline npc* addNpc(gnode* node,npc* n){
 	npc **root=&node->npcs[config.players[n->owner].group];
 	if (*root==0){
 		*root=n;
@@ -65,21 +67,24 @@ npc* addNpc(gnode* node,npc* n){
 	return 0;
 }
 
+//initial functions
 void setNpcsMax(int size){
 	npc_max=size;
 }
-
+//
 void allocNpcs(int size){
 	if ((npc_array=malloc(sizeof(*npc_array)*npc_max))==0)
 		perror("malloc NPC initArrays");
 	memset(npc_array,0,sizeof(*npc_array)*npc_max);
 }
 
+//clear arrays
 void realizeNpcs(){
 	free(npc_array);
 }
 
-npc*  getNpc(gnode* grid,npc* n){
+//pull npc from grid
+static inline npc *getNpc(gnode* grid,npc* n){
 	npc* tmp;
 	gnode * node=&grid[(int)getGridId(n->position)];
 	npc **root=&node->npcs[config.players[n->owner].group];
@@ -100,6 +105,7 @@ npc*  getNpc(gnode* grid,npc* n){
 	return 0;
 }
 
+//remove npc
 int delNpc(gnode* grid,npc* n){
 	npc* tmp=getNpc(grid,n);
 	int i;
@@ -115,6 +121,7 @@ int delNpc(gnode* grid,npc* n){
 	return -1;
 }
 
+//set base properties
 void setNpcBase(npc* n){
 	npc_type * type=0;
 	if (n->type==HERO)
@@ -133,7 +140,7 @@ void setNpcBase(npc* n){
 	//may be more
 }
 
-
+//create new npc and add it to grid
 npc* spawnNpc(gnode* grid,int node_id,int owner,int type){
 	npc* n;
 	npc_type* ntype=0;
@@ -167,8 +174,6 @@ npc* spawnNpc(gnode* grid,int node_id,int owner,int type){
 	setMask(&config.players[owner], PLAYER_MONEY);
 	return n;
 }
-
-
 
 tower* findNearTower(gnode* grid,npc* n,int range){
 	/**/
@@ -248,9 +253,10 @@ npc* diedCheckNpc(npc* n){
 	return n;
 }
 
+//search for target to move
 int tickTargetNpc(gnode* grid,npc* n){
 	npc_type * type=0;
-	if (n->type==HERO){//Hero not search for
+	if (n->type==HERO){//Hero not search for target
 		if (n->ttarget==0 && n->ntarget==0)
 			if (n->status!=IN_IDLE){
 				n->status=IN_IDLE;
@@ -264,20 +270,21 @@ int tickTargetNpc(gnode* grid,npc* n){
 		n->health=-1;
 		return 0;
 	}
-	if (config.players[n->owner].target_changed){
+	if (config.players[n->owner].target_changed){ //if type of avto targeting changed
 		n->ttarget=0;
 		n->ntarget=0;
 		n->finded_base=-1;
 	}
-	if(n->ttarget==0 && n->ntarget==0){
+	if(n->ttarget==0 && n->ntarget==0){ //if npc not have target already
 		int id=-1;
 		n->path_count=NPC_PATH;
+		//check for enemies which npc can attacks
 		if (findNearTower(grid,n,type->see_distanse)!=0)
 			goto out;
-		
-		//if near no Towers
+		//if near no Towers, search for npc
 		if (findNearNpc(grid,n,type->see_distanse)!=0)
 			goto out;
+		
 		//if player set target
 		if (config.players[n->owner].target>0){ //1 is o index
 			if (config.players[config.players[n->owner].target-1].base!=0){
@@ -297,7 +304,7 @@ int tickTargetNpc(gnode* grid,npc* n){
 				goto out;
 			}
 
-		//try to go to previous base
+		//else try to go to previous base
 		if (n->finded_base>=0){
 			if (config.players[n->finded_base].base==0){
 //				printDebug("not found base %d\n",n->finded_base);
@@ -308,11 +315,13 @@ int tickTargetNpc(gnode* grid,npc* n){
 			}
 		}
 		
+		//if we didn't find target already, search for random enemy base
 		if (id<0)
 			if((id=findEnemyBase(config.players[n->owner].group))<0)
 				return 0;  
 		
 //		printDebug("found %d \n",id);
+		//check for tower on found grid node
 		if ((n->ttarget=grid[id].tower)!=0){
 			n->finded_base=grid[id].tower->owner;
 //			printDebug("set base founded = %d\n",n->finded_base);
@@ -320,6 +329,8 @@ int tickTargetNpc(gnode* grid,npc* n){
 //			perror("ttarget tickTargetNpc"); //no base found
 //			printDebug("on %d = %d\n",id,grid[id].tower);
 //		}
+		
+		//check
 		if (n->ttarget==0 && n->ntarget==0){
 			printf("idle %d\n",n->id);
 			n->status=IN_IDLE;
@@ -334,7 +345,7 @@ out:
 	return 0;
 }
 
-
+//proceed attacking by npc
 int tickAttackNpc(gnode* grid,npc* n){
 	npc_type * type=0;
 	if (n->type==HERO)
@@ -345,12 +356,14 @@ int tickAttackNpc(gnode* grid,npc* n){
 		n->health=-1;
 		return 0;
 	}
+	//when npc not in attack
 	if (n->status!=IN_ATTACK || rand()%100<25)
 		do {
 			//search target in attack distanse
 			//if have target set IN_ATTACK
 			void* t_t=n->ntarget;
 			n->ntarget=0;
+			//search for target and set status attack
 			if (findNearNpc(grid,n,(rand()%100<45)?type->see_distanse:type->attack_distanse)!=0){
 				n->status=IN_ATTACK;
 				setMask(n,NPC_STATUS);
@@ -361,6 +374,7 @@ int tickAttackNpc(gnode* grid,npc* n){
 	
 			t_t=n->ttarget;
 			n->ttarget=0;
+			//search for target and set status attack
 			if (findNearTower(grid,n,(rand()%100<45)?type->see_distanse:type->attack_distanse)!=0){
 				n->status=IN_ATTACK;
 				setMask(n,NPC_STATUS);
@@ -469,7 +483,8 @@ int tickAttackNpc(gnode* grid,npc* n){
 
 	return 0;
 }
-  
+
+//check npc targets for dead units
 int tickDiedCheckNpc(gnode* grid,npc* n){
 	//need to correct
 	n->ntarget=diedCheckNpc(n->ntarget);
@@ -477,6 +492,7 @@ int tickDiedCheckNpc(gnode* grid,npc* n){
 	return 0;
 }
 
+//remove daed npcs
 int tickCleanNpc(gnode* grid,npc* n){
 	npc_type *type=0;
 	if (n->health>0)
@@ -501,11 +517,12 @@ int tickCleanNpc(gnode* grid,npc* n){
 		setMask(&config.players[n->owner],PLAYER_HERO);
 		printDebug("hero of %d died\n",n->owner);
 	}
-	delNpc(grid,n);
+	delNpc(grid,n); //may not clean all npcs in one loop
 	//foeachNpc
 	return 0;
 }
 
+//npc moving 
 int tickMoveNpc(gnode* grid,npc* n){
 	int i;
 	npc_type * type=0;
@@ -611,6 +628,7 @@ int tickMoveNpc(gnode* grid,npc* n){
 	return 0;
 }
 
+//another actions
 int tickMiscNpc(gnode* grid,npc* n){
 	npc_type * type=0;
 	n->bit_mask=0;

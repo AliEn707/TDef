@@ -1,11 +1,5 @@
 // set damage to npc
 npc* damageNpc(npc* n,bullet* b);
-//get new npc
-npc* newNpc();
-//add npc to gnode list
-npc* addNpc(gnode* node,npc* n);
-//get npc from gnode list
-npc* getNpc(gnode* grid,npc* n);
 // delete npc !not used!
 int delNpc(gnode* grid,npc* n);
 // check npc health
