@@ -56,8 +56,14 @@ void realizeBullets(){
 }
 
 int delBullet(gnode* grid,bullet* b){
-	int i=*(int*)bintreeGet(&bullet_tree, b->id);
-//	for(i=0;i<bullet_num && bullet_array[i]!=b;i++);
+	int i, *$i;
+	$i=bintreeGet(&bullet_tree, b->id);
+	if ($i!=0)
+		i=*$i;
+	else{
+		for(i=0;i<bullet_num && bullet_array[i]!=b;i++);
+		printDebug("delBullet id=%d slow searching\n", b->id);
+	}
 	if (i==bullet_num)
 		return -1;
 	bintreeDel(&bullet_tree, bullet_array[i]->id, free);

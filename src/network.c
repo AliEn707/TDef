@@ -189,20 +189,32 @@ int processMessage(worker_arg * data,char type){
 		}
 		return 0;
 	}
-	if (type==MSG_MOVE_HERO){
+	if (type==MSG_MOVE_NPCS){
+		int i, id;
 		int node=0;
+		char num;
 		npc * h=0;
 		if (recvData(data->sock,&node,sizeof(node))<0){
 			perror("recv Message");
 			return -1;
 		}
-		if (playerNotFailed) {
-			h=config.players[data->id].hero;
-			if (h==0)
-				return 0;
-			printDebug("%d move hero to %d\n",data->id, node);
-			//move hero to node
-			setHeroTargetByNode(data->grid,h,node);
+		if (recvData(data->sock,&num,sizeof(num))<0){
+			perror("recv Message");
+			return -1;
+		}
+		for (i=0;i<num;i++){
+			if (recvData(data->sock,&id,sizeof(id))<0){
+				perror("recv Message");
+				return -1;
+			}
+			if (playerNotFailed) {
+				h=getNpcById(id);
+				if (h!=0){
+					printDebug("%d move npc %d to %d\n",data->id, id, node);
+					//move hero to node
+					setNpcTargetByNode(data->grid,h,node);
+				}
+			}
 		}
 		return 0;
 	}

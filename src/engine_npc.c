@@ -445,7 +445,7 @@ int tickAttackNpc(gnode* grid,npc* n){
 //		printDebug("\t %d %d %d\n",n->id,n->attack_count,type->attack_speed);
 		n->attack_count++;
 		if (n->ntarget!=0){
-			if (n->ntarget==&config.players[n->owner].$npc$){
+			if ((void*)&n->ntarget==(void*)&n->$npc$){
 				n->status=IN_MOVE;
 				setMask(n,NPC_STATUS);
 				return 0;
@@ -726,13 +726,14 @@ npc* getNpcById(int id){
 		return 0;
 }
 
-int setHeroTargetByNode(gnode * grid,npc* n, int node){
-	npc * fake=&config.players[n->owner].$npc$;
+int setNpcTargetByNode(gnode * grid,npc* n, int node){
+	npc * fake=(void*)&n->$npc$;
 	if (grid[node].walkable<=0)
 		return -1;
 	fake->position.x=getGridx(node);
 	fake->position.y=getGridy(node);
 	fake->health=1;
+	fake->owner=n->owner;
 	n->ntarget=fake;
 	n->path_count=0;
 	memset(n->path,-1,sizeof(int)*NPC_PATH);

@@ -122,7 +122,7 @@
 #define MSG_SPAWN_TOWER 1
 #define MSG_SPAWN_NPC 2
 #define MSG_DROP_TOWER 3
-#define MSG_MOVE_HERO 4
+#define MSG_MOVE_NPCS 4
 #define MSG_SET_TARGET 5
 
 ///////bit mask
@@ -287,8 +287,21 @@ struct npc{
 	struct npc* ntarget;
 	struct tower* ttarget;
 	int finded_base;
-	
-	npc_type *type_data;
+	struct {
+		char status;
+		int owner;
+		int bit_mask;
+		vec position;
+		vec destination;
+		vec direction;
+		int id;
+		int type;
+		int health;
+		int shield;
+		short $shield;  //shield not attack counter
+		int energy;
+		short level;
+	} $npc$;
 	
 	int attack_count;
 	int path_count;
@@ -355,7 +368,6 @@ struct player{
 	
 	tower_type base_type;
 	npc_type hero_type;
-	npc $npc$; //fake npc need to click move
 	int hero_counter;
 	int _hero_counter;
 	

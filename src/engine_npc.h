@@ -26,7 +26,7 @@ int forEachNpcRemove(gnode* grid, int (process)(gnode*g,npc*n));
 
 npc* getNpcById(int id);
 
-int setHeroTargetByNode(gnode * grid,npc* n, int node);
+int setNpcTargetByNode(gnode * grid,npc* n, int node);
 
 void setNpcsMax(int size);
 //create array for npcs
