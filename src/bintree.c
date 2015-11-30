@@ -16,9 +16,9 @@
 
 
 
-int bintreeAdd(bintree* root,int key,void* data){
+int bintreeAdd(bintree* root, bintree_key key,void* data){
 	bintree* tmp=root;
-	int next;
+	bintree_key next;
 //	printDebug("add key %d\n",key);
 	while(key>0){
 		next=(int)(key&1);
@@ -38,9 +38,9 @@ int bintreeAdd(bintree* root,int key,void* data){
 	return 1;
 }
 
-void * bintreeGet(bintree* root, int key){
+void * bintreeGet(bintree* root, bintree_key key){
 	bintree* tmp=root;
-	int next;
+	bintree_key next;
 	while(key>0){
 		next=(int)(key&1);
 		if(tmp->next[next]==0)
@@ -51,9 +51,9 @@ void * bintreeGet(bintree* root, int key){
 	return tmp->data;
 }
 
-int _bintreeDel(bintree* root, int key, void (f)(void*v)){
+int _bintreeDel(bintree* root, bintree_key key, void (f)(void*v)){
 	int get;
-	int next;
+	bintree_key next;
 	if (root==0)
 		return 0;
 	if (key==0){
@@ -82,9 +82,9 @@ int _bintreeDel(bintree* root, int key, void (f)(void*v)){
 	return 0;
 }
 
-int bintreeDel(bintree* root, int key, void (f)(void*v)){
+int bintreeDel(bintree* root, bintree_key key, void (f)(void*v)){
 	int get;
-	int next=key&1;
+	bintree_key next=key&1;
 	get=_bintreeDel(root->next[next],key>>1,f);
 	if (get!=0)
 		root->next[next]=0;

@@ -5,12 +5,12 @@ struct bintree{
 	struct bintree * next[2];
 } bintree;
 
+typedef long long bintree_key;
 
+int bintreeAdd(bintree* root,bintree_key key,void* data);
 
-int bintreeAdd(bintree* root,int key,void* data);
+void * bintreeGet(bintree* root, bintree_key key);
 
-void * bintreeGet(bintree* root, int key);
-
-int bintreeDel(bintree* root, int key, void (f)(void*v));
+int bintreeDel(bintree* root, bintree_key key, void (f)(void*v));
 
 void bintreeErase(bintree * root,void (f)(void*v));

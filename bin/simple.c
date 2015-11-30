@@ -200,9 +200,9 @@ int main(int argc, char* argv[]){
 		forEachTower(grid,tickDiedCheckTower);
 		forEachBullet(grid,tickDiedCheckBullet);
 
-		forEachNpc(grid,tickCleanNpc);
+		forEachNpcRemove(grid,tickCleanNpc);
 		forEachTower(grid,tickCleanTower);
-		forEachBullet(grid,tickCleanBullet);
+		forEachBulletRemove(grid,tickCleanBullet);
 			
 		forEachNpc(grid,tickMoveNpc);
 		forEachNpc(grid,tickTargetNpc);

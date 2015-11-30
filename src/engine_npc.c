@@ -5,11 +5,16 @@
 #include "engine_bullet.h"
 #include "gridmath.h"
 #include "types.h"
+#include "bintree.h"
 
 
 static unsigned int npc_num=0;
 static unsigned int npc_max=1000; //defaults
 static npc** npc_array=0;
+static bintree npc_tree;
+
+static t_sem_t npc_sem;
+static struct sembuf sem[2]={{0,-1,0},{0,1,0}};
 
 //set damage to npc by bullet
 npc* damageNpc(npc* n,bullet* b){
@@ -43,12 +48,32 @@ npc* damageNpc(npc* n,bullet* b){
 static inline npc* newNpc(){
 	if (npc_num==npc_max)
 		return 0;
-	if ((npc_array[npc_num]=malloc(sizeof(npc)))==0)
+	if ((npc_array[npc_num]=malloc(sizeof(npc)))==0){
+		perror("newNpc npc malloc");
 		return 0;
+	}
 	memset(npc_array[npc_num],0,sizeof(npc));
 	npc_array[npc_num]->id=getGlobalId();
-	npc_num++;
-	return npc_array[npc_num-1];
+	do{
+		int *index;
+		if ((index=malloc(sizeof(*index)))==0){
+			perror("newNpc index malloc");
+			break;
+		}
+		*index=npc_num;
+//		printf("%d newNpc index %d added %d\n",npc_array[npc_num]->id, npc_num,*index);
+		t_semop(npc_sem,&sem[0],1);
+		int err=bintreeAdd(&npc_tree, npc_array[npc_num]->id, index);
+		t_semop(npc_sem,&sem[1],1);
+		if (err==0){
+			perror("newNpc bintreeAdd malloc");
+			break;
+		}
+		npc_num++;
+		return npc_array[npc_num-1];
+	}while(0);
+	delNpc(0, npc_array[npc_num]); //if we cant create index we must clean memory
+	return 0;
 }
 
 //add npc to grid
@@ -76,10 +101,15 @@ void allocNpcs(int size){
 	if ((npc_array=malloc(sizeof(*npc_array)*npc_max))==0)
 		perror("malloc NPC initArrays");
 	memset(npc_array,0,sizeof(*npc_array)*npc_max);
+	
+	npc_sem=t_semget(IPC_PRIVATE, 1, 0755 | IPC_CREAT);
+	t_semop(npc_sem,&sem[1],1);
 }
 
 //clear arrays
 void realizeNpcs(){
+	t_semctl(npc_sem,0,IPC_RMID);
+	bintreeErase(&npc_tree, free);
 	free(npc_array);
 }
 
@@ -107,15 +137,34 @@ static inline npc *getNpc(gnode* grid,npc* n){
 
 //remove npc
 int delNpc(gnode* grid,npc* n){
-	npc* tmp=getNpc(grid,n);
-	int i;
-	for(i=0;i<npc_num && npc_array[i]!=tmp;i++);
+	npc* tmp=(grid!=0) ? getNpc(grid,n) : n;
+	int i, *$i;
+	t_semop(npc_sem,&sem[0],1);
+		$i=bintreeGet(&npc_tree, tmp->id); //try fast way
+	t_semop(npc_sem,&sem[1],1);
+	if ($i!=0) //fast way
+		i=*$i;
+	else{ //TODO: find while bintree returns 0, when key is id of first hero (3)
+		for(i=0;i<npc_num && npc_array[i]!=tmp;i++);  //slow way, if fast broken
+		printDebug("delNpc id=%d slow searching\n", n->id);
+	}
 	if (i==npc_num)
 		return -1;
+//	printf("%d find %d on tree %d\n",tmp->id, i, *(int*)bintreeGet(&npc_tree, tmp->id));
+	t_semop(npc_sem,&sem[0],1);
+		bintreeDel(&npc_tree, tmp->id, free);
+	t_semop(npc_sem,&sem[1],1);
 	free(npc_array[i]);
 	npc_num--;
 	if (npc_num!=i){
+		int *index;
 		npc_array[i]=npc_array[npc_num];
+		
+		t_semop(npc_sem,&sem[0],1);
+			index=bintreeGet(&npc_tree, npc_array[i]->id);
+		t_semop(npc_sem,&sem[1],1);
+		
+		*index=i;
 	}
 	npc_array[npc_num]=0;
 	return -1;
@@ -517,9 +566,8 @@ int tickCleanNpc(gnode* grid,npc* n){
 		setMask(&config.players[n->owner],PLAYER_HERO);
 		printDebug("hero of %d died\n",n->owner);
 	}
-	delNpc(grid,n); //may not clean all npcs in one loop
-	//foeachNpc
-	return 0;
+	//foeachNpcRemove
+	return 1;
 }
 
 //npc moving 
@@ -659,6 +707,24 @@ int forEachNpc(gnode* grid, int (process)(gnode*g,npc*n)){//add function
 	return 0;
 }
 
+int forEachNpcRemove(gnode* grid, int (process)(gnode*g,npc*n)){//add function
+	int i;
+	for(i=0;i<npc_num;i++)
+		if (process(grid,npc_array[i])!=0){
+			delNpc(grid, npc_array[i]);
+//			printDebug("Npc on %d position removed\n", i);
+			i--;
+		}
+	return 0;
+}
+
+npc* getNpcById(int id){
+	int *i=bintreeGet(&npc_tree, id);
+	if (i!=0)
+		return npc_array[*i];
+	else
+		return 0;
+}
 
 int setHeroTargetByNode(gnode * grid,npc* n, int node){
 	npc * fake=&config.players[n->owner].$npc$;
