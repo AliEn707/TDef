@@ -363,14 +363,15 @@ int parseArgv(int argc,char * argv[]){
 	return ret;
 }
 
-int main(){
+int main(int argc,char * argv[]){
 #if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__//__ORDER_LITTLE_ENDIAN__ 
 	printf("Big endian version not implement yet\n");
 #else
 	char s[10];
-  initUpdate();
- 	stop=0;
-  if (daemon_!=0)
+	parseArgv(argc,argv);
+	initUpdate();
+	stop=0;
+	if (daemon_!=0)
 		daemonize(log_file,startManager);
 	else{
 		InitWorkThread();
