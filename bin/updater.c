@@ -115,12 +115,13 @@ static inline long long fileTime(char* path){
 
 static inline void updateTypes(int sock,char msg_type, char* path){
 	long long int timestamp=fileTime(path);//must be 64 bits
-	int size;
+	int size=0;
 	sendData(sock, &msg_type, sizeof(msg_type));
-	printf("sent timestamp%lld\n",timestamp);
 	sendData(sock, &timestamp, sizeof(timestamp));
-	if(recvData(sock,&size,sizeof(size))<=0)
+	if(recvData(sock,&size,sizeof(size))<=0){
+		perror("updateTypes socket error");
 		return;
+	}
 	if (size==0)
 		return;
 	FILE* f=fopen(TMP_FILE,"wt+");//TODO: change to fmemopen
@@ -224,6 +225,7 @@ static void * updater(void * arg) {
 	//		updateTypes(sock, MESSAGE_UPDATE_BULLET_TYPES, "../data/types/bullet.cfg");
 			updateMaps(sock);
 			close(sock);
+			printf("Updated\n");
 		}
 		
 		setUpdate(0);
