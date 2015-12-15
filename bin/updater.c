@@ -106,11 +106,11 @@ static inline void copyFile(char *dest, char*src){
 	fclose(f2);
 }
 
-static inline time_t fileTime(char* path){
+static inline long long fileTime(char* path){
 	struct stat st;
 	if (stat(path,&st)<0)
 		return 0;
-	return st.st_mtime;
+	return (long long)((unsigned long)st.st_mtime);
 }
 
 static inline void updateTypes(int sock,char msg_type, char* path){

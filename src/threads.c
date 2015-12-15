@@ -12,7 +12,7 @@
 #include "engine_bullet.h"
 #include "types.h"
 
-
+#define HTTP_ANSWER "HTTP/1.1 200 OK\r\nContent-Type: text/xml; charset=utf-8\r\nContent-Length: 88\r\nConnection: close\r\n\r\n"
 #define PRIVATE_POLICY "<cross-domain-policy><allow-access-from domain=\"*\" to-ports=\"*\" /></cross-domain-policy>"
 
 #define sendData(x) if(send(sock,&x,sizeof(x),0)<0) return -1
@@ -188,6 +188,8 @@ void * threadListener(void * arg){
 	while(config.game.run!=0){
 		FD_ZERO(&read_fds);
 		FD_SET(listener, &read_fds);
+		//sync TPS
+		syncTPS(timePassed(&tv),TPS);
 		printDebug("wait for client\n");
 		if (select (listener + 1, &read_fds, 0, 0, 0) > 0) {
 			if((sock = accept(listener, NULL, NULL))<0)  //thread 2 stops here
@@ -195,11 +197,23 @@ void * threadListener(void * arg){
 			char t_t[14];
 			memset(t_t,0,sizeof(t_t));
 			recvData(sock,t_t,13);//get 13 bytes
-//			printf("%s\n",t_t);
-			if (strstr(t_t,"<policy")!=0){
+			printf("%s\n",t_t);
+			if (strstr(t_t,"<policy")!=0 ){
 				_sendData(sock,PRIVATE_POLICY,sizeof(PRIVATE_POLICY));
 				close(sock);
+			}else if (strstr(t_t,"crossdom")!=0){
+				_sendData(sock,HTTP_ANSWER,sizeof(HTTP_ANSWER)-1);
+				_sendData(sock,PRIVATE_POLICY,sizeof(PRIVATE_POLICY)-1);
+				close(sock);
 			}else{
+				if (strcmp(t_t, "FlashHello^_^")==0){
+					printf("connect using Flash\n");
+				}else if (strcmp(t_t, "JavaApplet^_^")==0){
+					printf("connect using Java\n");
+				}else{
+					close(sock);
+					continue;
+				}
 				if (config.players_num>=config.game.players-1){
 					close(sock);
 					continue;
@@ -250,7 +264,6 @@ void * threadListener(void * arg){
 				//break;
 			}
 		}
-		syncTPS(timePassed(&tv),TPS);
 	}
 //	close(listener);
 	printDebug("close listener\n");

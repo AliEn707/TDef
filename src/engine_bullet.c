@@ -5,20 +5,39 @@
 #include "engine_bullet.h"
 #include "gridmath.h"
 #include "types.h"
+#include "bintree.h"
 
 static unsigned int bullet_num=0;
 static unsigned int bullet_max=1000; //default value
 static bullet** bullet_array;
+static bintree bullet_tree;
 
 bullet* newBullet(){
 	if (bullet_num>=bullet_max)
 		return 0;
-	if ((bullet_array[bullet_num]=malloc(sizeof(bullet)))==0)
+	if ((bullet_array[bullet_num]=malloc(sizeof(bullet)))==0){
+		perror("newBullet bullet malloc");
 		return 0;
+	}
 	memset(bullet_array[bullet_num],0,sizeof(bullet));
 	bullet_array[bullet_num]->id=getGlobalId();
-	bullet_num++;
-	return bullet_array[bullet_num-1];
+	do{
+		int *index;
+		if ((index=malloc(sizeof(*index)))==0){
+			perror("newBullet index malloc");
+			break;
+		}
+		*index=bullet_num;
+//		printf("%d newNpc index %d added %d\n",npc_array[npc_num]->id, npc_num,*index);
+		if (bintreeAdd(&bullet_tree, bullet_array[bullet_num]->id, index)==0){
+			perror("newBullet bintreeAdd malloc");
+			break;
+		}
+		bullet_num++;
+		return bullet_array[bullet_num-1];
+	}while(0);
+	delBullet(0, bullet_array[bullet_num]);
+	return 0;
 }
 
 void setBulletsMax(int size){
@@ -32,18 +51,28 @@ void allocBullets(){
 }
 
 void realizeBullets(){
+	bintreeErase(&bullet_tree, free);
 	free(bullet_array);
 }
 
 int delBullet(gnode* grid,bullet* b){
-	int i;
-	for(i=0;i<bullet_num && bullet_array[i]!=b;i++);
+	int i, *$i;
+	$i=bintreeGet(&bullet_tree, b->id);
+	if ($i!=0)
+		i=*$i;
+	else{
+		for(i=0;i<bullet_num && bullet_array[i]!=b;i++);
+		printDebug("delBullet id=%d slow searching\n", b->id);
+	}
 	if (i==bullet_num)
 		return -1;
+	bintreeDel(&bullet_tree, bullet_array[i]->id, free);
 	free(bullet_array[i]);
 	bullet_num--;
 	if (bullet_num!=i){
 		bullet_array[i]=bullet_array[bullet_num];
+		int *index=bintreeGet(&bullet_tree, bullet_array[i]->id);
+		*index=i;
 	}
 	bullet_array[bullet_num]=0;
 	return -1;	
@@ -56,7 +85,7 @@ int tickMiscBullet(gnode * grid,bullet * b){
 
 int tickCleanBullet(gnode * grid,bullet * b){
 	if (b->detonate>0)
-		delBullet(grid,b);
+		return 1;
 	return 0;
 }
 
@@ -207,6 +236,16 @@ int forEachBullet(gnode* grid, int (process)(gnode*g,bullet*b)){
 	for(i=0;i<bullet_num;i++)
 		if (process(grid,bullet_array[i])!=0)
 			return -1;
+	return 0;
+}
+
+int forEachBulletRemove(gnode* grid, int (process)(gnode*g,bullet*b)){
+	int i;
+	for(i=0;i<bullet_num;i++)
+		if (process(grid,bullet_array[i])!=0){
+			delBullet(grid,bullet_array[i]);
+			i--;
+		}
 	return 0;
 }
 

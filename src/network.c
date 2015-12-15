@@ -73,6 +73,7 @@ packet* packetNew(int sock){
 	return p;
 }
 
+#define packetAddData(data) packetAdd(pack, &data, sizeof(data))
 //add data to packet, if size of packet more than PACKET_SIZE, send it and start new
 int packetAdd(packet *p, void* data, int size){
 	int o=1;
@@ -188,20 +189,32 @@ int processMessage(worker_arg * data,char type){
 		}
 		return 0;
 	}
-	if (type==MSG_MOVE_HERO){
+	if (type==MSG_MOVE_NPCS){
+		int i, id;
 		int node=0;
+		char num;
 		npc * h=0;
 		if (recvData(data->sock,&node,sizeof(node))<0){
 			perror("recv Message");
 			return -1;
 		}
-		if (playerNotFailed) {
-			h=config.players[data->id].hero;
-			if (h==0)
-				return 0;
-			printDebug("%d move hero to %d\n",data->id, node);
-			//move hero to node
-			setHeroTargetByNode(data->grid,h,node);
+		if (recvData(data->sock,&num,sizeof(num))<0){
+			perror("recv Message");
+			return -1;
+		}
+		for (i=0;i<num;i++){
+			if (recvData(data->sock,&id,sizeof(id))<0){
+				perror("recv Message");
+				return -1;
+			}
+			if (playerNotFailed) {
+				h=getNpcById(id);
+				if (h!=0){
+					printDebug("%d move npc %d to %d\n",data->id, id, node);
+					//move hero to node
+					setNpcTargetByNode(data->grid,h,node);
+				}
+			}
 		}
 		return 0;
 	}
@@ -279,6 +292,7 @@ int tickSendNpc(gnode* grid,npc* n){
 	id=((worker_arg*)grid)->id;
 	if (sock==0)
 		return 0;
+	packet* pack=packetNew(sock);
 	
 	int bit_mask=n->bit_mask;
 	bit_mask|=NPC_POSITION;
@@ -298,26 +312,27 @@ int tickSendNpc(gnode* grid,npc* n){
 	
 	char type=MSG_NPC;
 	
-	sendData(type);
-	sendData(bit_mask);
-	sendData(n->id);
+	packetAddData(type);//sendData(type);
+	packetAddData(bit_mask);//sendData(bit_mask);
+	packetAddData(n->id);//sendData(n->id);
 	
 	if (checkMask(bit_mask,NPC_CREATE)){
-		sendData(n->owner);
-		sendData(n->type);
+		packetAddData(n->owner);//sendData(n->owner);
+		packetAddData(n->type);//sendData(n->type);
 	}
 	if(checkMask(bit_mask,NPC_POSITION))
-		sendData(n->position.x);
-		sendData(n->position.y);
+		packetAddData(n->position.x);//sendData(n->position.x);
+		packetAddData(n->position.y);//sendData(n->position.y);
 	if(checkMask(bit_mask,NPC_LEVEL))
-		sendData(n->level);
+		packetAddData(n->level);//sendData(n->level);
 	if(checkMask(bit_mask,NPC_HEALTH))
-		sendData(n->health);
+		packetAddData(n->health);//sendData(n->health);
 	if(checkMask(bit_mask,NPC_SHIELD))
-		sendData(n->shield);
+		packetAddData(n->shield);//sendData(n->shield);
 	if(checkMask(bit_mask,NPC_STATUS))
-		sendData(n->status); //byte
-	return 0;
+		packetAddData(n->status);//sendData(n->status); //byte
+	
+	return (packetFinish(pack)<=0) ? -1 : 0;
 }
 
 
@@ -327,6 +342,7 @@ int tickSendTower(gnode* grid,tower* t){
 	id=((worker_arg*)grid)->id;
 	if (sock==0)
 		return 0;
+	packet* pack=packetNew(sock);
 	
 	int bit_mask=t->bit_mask;
 	if (config.players[id].first_send!=0)
@@ -342,29 +358,30 @@ int tickSendTower(gnode* grid,tower* t){
 	
 	char type=MSG_TOWER;
 	
-	sendData(type);
-	sendData(bit_mask);
-	sendData(t->id);
+	packetAddData(type);
+	packetAddData(bit_mask);
+	packetAddData(t->id);
 	
 	if(checkMask(bit_mask,TOWER_CREATE)){
-		sendData(t->type);
-		sendData(t->owner);
-		sendData(t->position);
+		packetAddData(t->type);
+		packetAddData(t->owner);
+		packetAddData(t->position);
 	}
 	if(checkMask(bit_mask,TOWER_TARGET)){
 		short target=-1;
 		if(t->target!=0)
 			target=getGridId(t->target->position);
-		sendData(target);
+		packetAddData(target);
 	}
 	if(checkMask(bit_mask,TOWER_LEVEL)){
-		sendData(t->level);
+		packetAddData(t->level);
 	}
 	if(checkMask(bit_mask,TOWER_HEALTH))
-		sendData(t->health);
+		packetAddData(t->health);
 	if(checkMask(bit_mask,TOWER_SHIELD))
-		sendData(t->shield);
-	return 0;
+		packetAddData(t->shield);
+	
+	return (packetFinish(pack)<=0) ? -1 : 0;
 }
 
 
@@ -374,7 +391,7 @@ int tickSendBullet(gnode* grid,bullet * b){
 	id=((worker_arg*)grid)->id;
 	if (sock==0)
 		return 0;
-	
+	packet* pack=packetNew(sock);
 	
 	int bit_mask=b->bit_mask;
 	if (config.players[id].first_send!=0){
@@ -389,24 +406,25 @@ int tickSendBullet(gnode* grid,bullet * b){
 	
 	char type=MSG_BULLET;
 	
-	sendData(type);	
-	sendData(bit_mask);
-	sendData(b->id);
+	packetAddData(type);	
+	packetAddData(bit_mask);
+	packetAddData(b->id);
 	
 	if(checkMask(bit_mask,BULLET_POSITION)){
-		sendData(b->position.x);
-		sendData(b->position.y);
+		packetAddData(b->position.x);
+		packetAddData(b->position.y);
 	}
 	if (checkMask(bit_mask,BULLET_CREATE)){
-		sendData(b->type);
-		sendData(b->owner);
-		sendData(b->source.x);
-		sendData(b->source.y);
-//		sendData(b->destination);
+		packetAddData(b->type);
+		packetAddData(b->owner);
+		packetAddData(b->source.x);
+		packetAddData(b->source.y);
+//		packetAddData(b->destination);
 	}
 	if(checkMask(bit_mask,BULLET_DETONATE))
-		sendData(b->detonate);
-	return 0;
+		packetAddData(b->detonate);
+	
+	return (packetFinish(pack)<=0) ? -1 : 0;
 }
 
 int sendPlayers(int sock,int id){
@@ -415,6 +433,8 @@ int sendPlayers(int sock,int id){
 	char mes;
 	if (sock==0)
 		return 0;
+	packet* pack=packetNew(sock);
+	
 	for(i=0;i<=config.game.players;i++){
 		if (config.players[i].id==0)
 			continue;
@@ -423,6 +443,7 @@ int sendPlayers(int sock,int id){
 			bit_mask|=PLAYER_CREATE;
 		}
 		if(checkMask(bit_mask,PLAYER_CREATE)){
+			bit_mask|=PLAYER_SETS;
 			bit_mask|=PLAYER_MONEY;
 			bit_mask|=PLAYER_HERO;
 			bit_mask|=PLAYER_HERO_COUNTER;
@@ -438,58 +459,59 @@ int sendPlayers(int sock,int id){
 		if (bit_mask==0)
 			return 0;
 		
-		sendData(mes);
-		sendData(bit_mask);
-		sendData(i);
-		
+		packetAddData(mes);
+		packetAddData(bit_mask);
+		packetAddData(i);
+		int j;
 		if(checkMask(bit_mask,PLAYER_CREATE)){
-			int j;
-			sendData(config.players[i].id);
+			packetAddData(config.players[i].id);
+			packetAddData(config.players[i].group);
+			packetAddData(config.players[i]._hero_counter);
+			//base type
+			packetAddData(config.players[i].base_type.health);
+			//hero type
+			packetAddData(config.players[i].hero_type.health);
+			packetAddData(config.players[i].hero_type.shield);
+		}
+		if(checkMask(bit_mask,PLAYER_SETS)){
 			for(j=0;j<TOWER_SET_NUM;j++){
-				sendData(config.players[i].tower_set[j].id);
-				sendData(config.players[i].tower_set[j].num);
+				packetAddData(config.players[i].tower_set[j].id);
+				packetAddData(config.players[i].tower_set[j].num);
 			}
 			for(j=0;j<NPC_SET_NUM;j++){
-				sendData(config.players[i].npc_set[j].id);
-				sendData(config.players[i].npc_set[j].num);
+				packetAddData(config.players[i].npc_set[j].id);
+				packetAddData(config.players[i].npc_set[j].num);
 			}
-			sendData(config.players[i].group);
-			sendData(config.players[i]._hero_counter);
-			
-			sendData(config.players[i].base_type.health);
-			
-			sendData(config.players[i].hero_type.health);
-			sendData(config.players[i].hero_type.shield);
-		}	
+		}
 		if(checkMask(bit_mask,PLAYER_HERO)){
 			int hero_id=0;
 			if (config.players[i].hero!=0) //TODO: check why not on first time
 				hero_id=config.players[i].hero->id;
-			sendData(hero_id);
+			packetAddData(hero_id);
 		}
 		if(checkMask(bit_mask,PLAYER_HERO_COUNTER)){
-			sendData(config.players[i].hero_counter);
+			packetAddData(config.players[i].hero_counter);
 		}
 		if(checkMask(bit_mask,PLAYER_BASE)){
 			int base_id=0;
 			if (config.players[i].base!=0) //TODO: check why not on first time
 				base_id=config.players[i].base->id;
-			sendData(base_id);
+			packetAddData(base_id);
 		}
 		if(checkMask(bit_mask,PLAYER_LEVEL))
-			sendData(config.players[i].level);
+			packetAddData(config.players[i].level);
 		if(/*i == id && */(checkMask(bit_mask,PLAYER_MONEY))){
 			printDebug("send_money\n");
-			sendData(config.players[i].money);
+			packetAddData(config.players[i].money);
 		}
 		if(checkMask(bit_mask,PLAYER_TARGET)){
-			sendData(config.players[i].target);
+			packetAddData(config.players[i].target);
 		}
 		if(checkMask(bit_mask,PLAYER_FAIL)) { //TODO: decomment and add to client app
-			sendData(config.players[i].stat.xp);
+			packetAddData(config.players[i].stat.xp);
 		}
 	}
-	return 0;
+	return (packetFinish(pack)<=0) ? -1 : 0;
 }
 
 int sendTest(int sock){

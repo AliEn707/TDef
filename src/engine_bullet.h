@@ -1,5 +1,7 @@
 // get new bullet
 bullet* newBullet();
+
+int delBullet(gnode* grid,bullet* b);
 //set mask to 0
 int tickMiscBullet(gnode * grid,bullet * b);
 
@@ -10,6 +12,7 @@ int tickCleanBullet(gnode * grid,bullet * b);
 int tickProcessBullet(gnode * grid,bullet * b);
 
 int forEachBullet(gnode* grid, int (process)(gnode*g,bullet*b));
+int forEachBulletRemove(gnode* grid, int (process)(gnode*g,bullet*b));
 
 void setBulletsMax(int size);
 //create array for npcs

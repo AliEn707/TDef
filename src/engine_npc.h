@@ -1,11 +1,5 @@
 // set damage to npc
 npc* damageNpc(npc* n,bullet* b);
-//get new npc
-npc* newNpc();
-//add npc to gnode list
-npc* addNpc(gnode* node,npc* n);
-//get npc from gnode list
-npc* getNpc(gnode* grid,npc* n);
 // delete npc !not used!
 int delNpc(gnode* grid,npc* n);
 // check npc health
@@ -28,8 +22,11 @@ int tickAttackNpc(gnode* grid,npc* n);
 int tickMoveNpc(gnode* grid,npc* n);
 
 int forEachNpc(gnode* grid, int (process)(gnode*g,npc*n));
+int forEachNpcRemove(gnode* grid, int (process)(gnode*g,npc*n));
 
-int setHeroTargetByNode(gnode * grid,npc* n, int node);
+npc* getNpcById(int id);
+
+int setNpcTargetByNode(gnode * grid,npc* n, int node);
 
 void setNpcsMax(int size);
 //create array for npcs

@@ -93,6 +93,7 @@ int main(int argc, char* argv[]){
 
 	sigaction(SIGSEGV, &sa, NULL);	
 	sigaction(SIGINT, &sa, NULL);	
+	sigaction(SIGTERM, &sa, NULL);	
 	
 	srand(time(0));
 	memset(&config,0,sizeof(config));
@@ -199,9 +200,9 @@ int main(int argc, char* argv[]){
 		forEachTower(grid,tickDiedCheckTower);
 		forEachBullet(grid,tickDiedCheckBullet);
 
-		forEachNpc(grid,tickCleanNpc);
+		forEachNpcRemove(grid,tickCleanNpc);
 		forEachTower(grid,tickCleanTower);
-		forEachBullet(grid,tickCleanBullet);
+		forEachBulletRemove(grid,tickCleanBullet);
 			
 		forEachNpc(grid,tickMoveNpc);
 		forEachNpc(grid,tickTargetNpc);
