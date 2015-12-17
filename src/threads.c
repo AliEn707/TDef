@@ -65,7 +65,7 @@ void * threadWorker(void * arg){
 		return (void *)-1;
 	//printDebug("sock %d\n",data->sock);
 	//TODO: add send data about player
-	sendPlayers(data->sock,data->id);
+	//sendPlayers(data->sock,data->id);
 	int error=0;
 	while(config.game.wait_start>0){
 		networkWaitingTime(data);
@@ -75,8 +75,10 @@ void * threadWorker(void * arg){
 		}
 		usleep(START_WAITING_STEP);
 	}
+
 	while(config.game.run!=0){
 	//	printDebug("work\n");
+		//need to check
 		usleep(10000);
 		semOp(3);
 	//	printDebug("sock %d\n",data->sock);
@@ -94,28 +96,29 @@ void * threadWorker(void * arg){
 			break;
 		
 		semOp(4);  
-		
+		if (sendPlayers(data->sock,data->id)<0)
+			break;
 		if (forEachNpc((gnode*)data,tickSendNpc)<0)
 			break;
 		if(forEachTower((gnode*)data,tickSendTower)<0)
 			break;
 		if(forEachBullet((gnode*)data,tickSendBullet)<0)
 			break;
-		if (sendPlayers(data->sock,data->id)<0)
-			break;
 		
 		semOp(1);
 		sleep(0);
 		semOp(2); 
 		semOp(0);
-		//need to check
+		
 		if (config.players[data->id].first_send!=0)
 			config.players[data->id].first_send=0;
 	}
 
 	semOp(1); //drop sem send[1]
+	sleep(0);
+	semOp(2);
 	semOp(0);
-//	semOp(2);  //need to test, may be need
+//	  //need to test, may be need
 	//go for one another iteration
 	semOp(3);
 	//here we can do different things, after that will be sending to clients
@@ -135,12 +138,12 @@ void * threadWorker(void * arg){
 	semOp(1);
 	sleep(0);
 	semOp(2); //thread 4 stops here
-	semOp(0);
 	
 	t_semop(t_sem.player,&sem_pl[0],1);
 	config.players_num--;
 	t_semop(t_sem.player,&sem_pl[1],1);
 	
+	semOp(0);
 	//add send stats to public
 	
 	config.players[data->id].id=0;	

@@ -230,7 +230,7 @@ int main(int argc, char* argv[]){
 //		semInfo();
 		usleep(10);
 		t_semop(t_sem.send,&sem,1);
-		
+		//player wait here after connect
 		sem.sem_num=2;
 		sem.sem_op=config.players_num*2;
 //		semInfo();

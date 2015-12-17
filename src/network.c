@@ -433,9 +433,9 @@ int sendPlayers(int sock,int id){
 	char mes;
 	if (sock==0)
 		return 0;
-	packet* pack=packetNew(sock);
-	
-	for(i=0;i<=config.game.players;i++){
+
+	packet* pack=packetNew(sock);	
+	for(i=0;i<=config.game.players;i++){		
 		if (config.players[i].id==0)
 			continue;
 		bit_mask=config.players[i].bit_mask;
@@ -457,7 +457,7 @@ int sendPlayers(int sock,int id){
 		mes=MSG_PLAYER;
 		
 		if (bit_mask==0)
-			return 0;
+			continue;
 		
 		packetAddData(mes);
 		packetAddData(bit_mask);
@@ -511,7 +511,11 @@ int sendPlayers(int sock,int id){
 			packetAddData(config.players[i].stat.xp);
 		}
 	}
-	return (packetFinish(pack)<=0) ? -1 : 0;
+	packetFinish(pack);
+	
+//	return (packetFinish(pack)<=0) ? -1 : 0;
+	
+	return 0;
 }
 
 int sendTest(int sock){

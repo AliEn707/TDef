@@ -14,7 +14,7 @@
 
 #include "manager.h"
 
-#define SLEEP_TIME 30//(60*5)
+#define SLEEP_TIME (60*5)
 #define TMP_FILE "/tmp/update.tmp"
 
 #define PUBLIC_HOST "localhost"

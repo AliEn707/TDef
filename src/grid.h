@@ -60,7 +60,7 @@
 #define MAX_AREA 33
 
 //time constants on game start
-#define START_WAITING_TIME 30000000
+#define START_WAITING_TIME 3000000 //30000000
 #define START_WAITING_STEP 1000000
 
 #define PLAYER_MAX 8
@@ -501,3 +501,4 @@ int aSearch(gnode* grid,gnode* start,gnode* goal, path* path);//start-куда, 
 
 #define getGlobalId() (++config.global_id!=0?config.global_id:++config.global_id)
 
+#define printf(format, ...) printDebug(format, ## __VA_ARGS__) //TODO: set info level
