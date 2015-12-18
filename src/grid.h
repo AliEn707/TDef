@@ -287,21 +287,7 @@ struct npc{
 	struct npc* ntarget;
 	struct tower* ttarget;
 	int finded_base;
-	struct {
-		char status;
-		int owner;
-		int bit_mask;
-		vec position;
-		vec destination;
-		vec direction;
-		int id;
-		int type;
-		int health;
-		int shield;
-		short $shield;  //shield not attack counter
-		int energy;
-		short level;
-	} $npc$;
+	struct npc *$npc$;
 	
 	int attack_count;
 	int path_count;

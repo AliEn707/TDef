@@ -1,7 +1,5 @@
 // set damage to npc
 npc* damageNpc(npc* n,bullet* b);
-// delete npc !not used!
-int delNpc(gnode* grid,npc* n);
 // check npc health
 npc* diedCheckNpc(npc* n);
 // set basic parameters

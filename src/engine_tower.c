@@ -10,13 +10,14 @@ static unsigned int tower_max=1000;
 static unsigned int tower_num=0;
 static tower** tower_array=0;
 
+static inline tower_type* getType(int type, int owner){
+	if (type==BASE)
+			return &config.players[owner].base_type;
+	return typesTowerGet(type);
+}
 
 tower* damageTower(tower* t,bullet* b){
-	tower_type *type=0;
-	if (t->type==BASE)
-		type=&config.players[t->owner].base_type;
-	else
-		type=typesTowerGet(t->type);
+	tower_type *type=getType(t->type, t->owner);
 	if (type==0){
 		t->health=-1;
 	}
@@ -105,10 +106,7 @@ tower* diedCheckTower(tower* n){
 void setTowerBase(tower* t){
 	tower_type *type;
 	if (t!=0){
-		if (t->type==BASE)
-			type=&config.players[t->owner].base_type;
-		else
-			type=typesTowerGet(t->type);
+		type=getType(t->type, t->owner);
 		
 		if (type==0){
 			t->health=-1;
@@ -127,13 +125,12 @@ tower* spawnTower(gnode * grid,int node_id,int owner,int type){
 //	printDebug("spawn tower %d on %d by %d\n",type,node_id,owner);
 	if (node_id<0 || node_id>=config.gridsize*config.gridsize)
 		return 0;
+	
 	if (grid[node_id].tower!=0)
 		return 0;
+	
 	gnode* node=&grid[node_id];
-	if (type==BASE)
-			ttype=&config.players[owner].base_type;
-		else
-			ttype=typesTowerGet(type);
+	ttype=getType(type, owner);
 	if (ttype==0)
 		return 0;
 
@@ -171,7 +168,7 @@ int tickMiscTower(gnode* grid,tower* t){
 	t->bit_mask=0;
 	if (t->type==BASE)
 		return 0;
-	type=typesTowerGet(t->type);
+	type=getType(t->type, t->owner);
 	if (type==0){
 		t->health=-1;
 		return 0;
@@ -198,7 +195,7 @@ int tickAttackTower(gnode* grid,tower* t){
 	tower_type *type;
 	if (t->type==BASE)
 		return 0;
-	type=typesTowerGet(t->type);
+	type=getType(t->type, t->owner);
 	if (type==0){
 		t->health=-1;
 		return 0;
@@ -287,10 +284,7 @@ int tickCleanTower(gnode* grid,tower* t){
 		setMask(&config.players[t->owner], PLAYER_FAIL);
 //		return 0;
 	}
-	if (t->type==BASE)
-		type=&config.players[t->owner].base_type;
-	else
-		type=typesTowerGet(t->type);
+	type=getType(t->type, t->owner);
 	if (type==0){
 		t->health=-1;
 		return 0;

@@ -16,6 +16,12 @@ static bintree npc_tree;
 static t_sem_t npc_sem;
 static struct sembuf sem[2]={{0,-1,0},{0,1,0}};
 
+static inline npc_type* getType(int type, int owner){
+	if (type==HERO)
+		return &config.players[owner].hero_type;
+	return typesNpcGet(type);
+}
+
 //set damage to npc by bullet
 npc* damageNpc(npc* n,bullet* b){
 	npc_type * type=0;
@@ -42,38 +48,6 @@ npc* damageNpc(npc* n,bullet* b){
 	n->last_attack = b->owner;//save last attacking player to 
 	setMask(n,NPC_HEALTH);
 	return n;
-}
-
-//create new npc
-static inline npc* newNpc(){
-	if (npc_num==npc_max)
-		return 0;
-	if ((npc_array[npc_num]=malloc(sizeof(npc)))==0){
-		perror("newNpc npc malloc");
-		return 0;
-	}
-	memset(npc_array[npc_num],0,sizeof(npc));
-	npc_array[npc_num]->id=getGlobalId();
-	do{
-		int *index;
-		if ((index=malloc(sizeof(*index)))==0){
-			perror("newNpc index malloc");
-			break;
-		}
-		*index=npc_num;
-//		printf("%d newNpc index %d added %d\n",npc_array[npc_num]->id, npc_num,*index);
-		t_semop(npc_sem,&sem[0],1);
-		int err=bintreeAdd(&npc_tree, npc_array[npc_num]->id, index);
-		t_semop(npc_sem,&sem[1],1);
-		if (err==0){
-			perror("newNpc bintreeAdd malloc");
-			break;
-		}
-		npc_num++;
-		return npc_array[npc_num-1];
-	}while(0);
-	delNpc(0, npc_array[npc_num]); //if we cant create index we must clean memory
-	return 0;
 }
 
 //add npc to grid
@@ -136,7 +110,7 @@ static inline npc *getNpc(gnode* grid,npc* n){
 }
 
 //remove npc
-int delNpc(gnode* grid,npc* n){
+static inline int delNpc(gnode* grid,npc* n){
 	npc* tmp=(grid!=0) ? getNpc(grid,n) : n;
 	int i, *$i;
 	t_semop(npc_sem,&sem[0],1);
@@ -148,12 +122,14 @@ int delNpc(gnode* grid,npc* n){
 		for(i=0;i<npc_num && npc_array[i]!=tmp;i++);  //slow way, if fast broken
 		printDebug("delNpc id=%d slow searching\n", n->id);
 	}
-	if (i==npc_num)
+	if (i==npc_num) //we don't find by slow way
 		return -1;
 //	printf("%d find %d on tree %d\n",tmp->id, i, *(int*)bintreeGet(&npc_tree, tmp->id));
 	t_semop(npc_sem,&sem[0],1);
 		bintreeDel(&npc_tree, tmp->id, free);
 	t_semop(npc_sem,&sem[1],1);
+	if (npc_array[i]->$npc$!=0)
+		free(npc_array[i]->$npc$);
 	free(npc_array[i]);
 	npc_num--;
 	if (npc_num!=i){
@@ -170,14 +146,45 @@ int delNpc(gnode* grid,npc* n){
 	return -1;
 }
 
+//create new npc
+static inline npc* newNpc(){
+	if (npc_num==npc_max)
+		return 0;
+	if ((npc_array[npc_num]=malloc(sizeof(npc)))==0){
+		perror("newNpc npc malloc");
+		return 0;
+	}
+	memset(npc_array[npc_num],0,sizeof(npc));
+	npc_array[npc_num]->id=getGlobalId();
+	do{
+		if ((npc_array[npc_num]->$npc$=malloc(sizeof(*npc_array[npc_num]->$npc$)))==0){
+			perror("newNpc $npc$ malloc");
+			break;
+		}
+		int *index;
+		if ((index=malloc(sizeof(*index)))==0){
+			perror("newNpc index malloc");
+			break;
+		}
+		*index=npc_num;
+//		printf("%d newNpc index %d added %d\n",npc_array[npc_num]->id, npc_num,*index);
+		t_semop(npc_sem,&sem[0],1);
+		int err=bintreeAdd(&npc_tree, npc_array[npc_num]->id, index);
+		t_semop(npc_sem,&sem[1],1);
+		if (err==0){
+			perror("newNpc bintreeAdd malloc");
+			break;
+		}
+		npc_num++;
+		return npc_array[npc_num-1];
+	}while(0);
+	delNpc(0, npc_array[npc_num]); //if we cant create index we must clean memory
+	return 0;
+}
+
 //set base properties
 void setNpcBase(npc* n){
-	npc_type * type=0;
-	if (n->type==HERO)
-		type=&config.players[n->owner].hero_type;
-	else
-		type=typesNpcGet(n->type);
-	
+	npc_type * type=getType(n->type, n->owner);
 	if (type==0){
 		n->health=-1;
 		return;
@@ -192,11 +199,7 @@ void setNpcBase(npc* n){
 //create new npc and add it to grid
 npc* spawnNpc(gnode* grid,int node_id,int owner,int type){
 	npc* n;
-	npc_type* ntype=0;
-	if (type==HERO)
-		ntype=&config.players[owner].hero_type;
-	else
-		ntype=typesNpcGet(type);
+	npc_type* ntype=getType(type, owner);
 	if (ntype==0)
 		return 0;
 	if((n=newNpc())==0){
@@ -230,11 +233,7 @@ tower* findNearTower(gnode* grid,npc* n,int range){
 	int x=(int)n->position.x;
 	int y=(int)n->position.y;
 	int yid,xid;
-	npc_type * type=0;
-	if (n->type==HERO)
-		type=&config.players[n->owner].hero_type;
-	else
-		type=typesNpcGet(n->type);
+	npc_type * type=getType(n->type, n->owner);
 	if (type==0){
 		n->health=-1;
 		return 0;
@@ -304,7 +303,6 @@ npc* diedCheckNpc(npc* n){
 
 //search for target to move
 int tickTargetNpc(gnode* grid,npc* n){
-	npc_type * type=0;
 	if (n->type==HERO){//Hero not search for target
 		if (n->ttarget==0 && n->ntarget==0)
 			if (n->status!=IN_IDLE){
@@ -313,8 +311,8 @@ int tickTargetNpc(gnode* grid,npc* n){
 			}
 		return 0;
 //		type=&config.players[n->owner].hero_type;
-	}else
-		type=typesNpcGet(n->type);
+	}
+	npc_type * type=getType(n->type, n->owner);
 	if (type==0){
 		n->health=-1;
 		return 0;
@@ -396,11 +394,7 @@ out:
 
 //proceed attacking by npc
 int tickAttackNpc(gnode* grid,npc* n){
-	npc_type * type=0;
-	if (n->type==HERO)
-		type=&config.players[n->owner].hero_type;
-	else
-		type=typesNpcGet(n->type);
+	npc_type * type=getType(n->type, n->owner);
 	if (type==0){
 		n->health=-1;
 		return 0;
@@ -546,10 +540,7 @@ int tickCleanNpc(gnode* grid,npc* n){
 	npc_type *type=0;
 	if (n->health>0)
 		return 0;
-	if (n->type==HERO)
-		type=&config.players[n->owner].hero_type;
-	else
-		type=typesNpcGet(n->type);
+	type=getType(n->type, n->owner);
 	if (type==0){
 		n->health=-1;
 		return 0;
@@ -573,11 +564,7 @@ int tickCleanNpc(gnode* grid,npc* n){
 //npc moving 
 int tickMoveNpc(gnode* grid,npc* n){
 	int i;
-	npc_type * type=0;
-	if (n->type==HERO)
-		type=&config.players[n->owner].hero_type;
-	else
-		type=typesNpcGet(n->type);
+	npc_type * type=getType(n->type, n->owner);
 	if (type==0){
 		n->id=0;
 		return 0;
@@ -678,12 +665,8 @@ int tickMoveNpc(gnode* grid,npc* n){
 
 //another actions
 int tickMiscNpc(gnode* grid,npc* n){
-	npc_type * type=0;
+	npc_type * type=getType(n->type, n->owner);
 	n->bit_mask=0;
-	if (n->type==HERO)
-		type=&config.players[n->owner].hero_type;
-	else
-		type=typesNpcGet(n->type);
 	if (type==0){
 		n->health=-1;
 		return 0;
