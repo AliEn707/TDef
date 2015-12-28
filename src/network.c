@@ -537,7 +537,7 @@ int networkAuth(worker_arg *data){
 
 int networkWaitingTime(worker_arg *data){
 	int sock=data->sock;
-	short wait=config.game.wait_start/1000; //miliseconds
+	int wait=config.game.wait_start/1000; //miliseconds
 	char msg=MSG_INFO;
 	int mes=MSG_INFO_WAITING_TIME;
 	sendData(msg);
