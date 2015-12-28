@@ -86,6 +86,9 @@ int main(int argc, char* argv[]){
 	
 	struct sigaction sa;
 
+	if (wrongByteOrder())
+		return 0;
+	
 	memset(&sa, 0, sizeof(sigaction));
 	sigemptyset(&sa.sa_mask);
 	sa.sa_sigaction = segfault_sigaction;

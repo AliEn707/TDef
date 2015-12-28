@@ -10,7 +10,7 @@
 #include "types.h"
 
 
-#define sendData(x) if(_sendData(sock,&x,sizeof(x))<=0) return -1
+#define sendData(x) if(({typeof(x) _x=biteSwap(x);_sendData(sock,&_x,sizeof(_x));})<=0) return -1
 
 #define getSem(x) t_semget(IPC_PRIVATE, x, 0755 | IPC_CREAT)
 
@@ -73,7 +73,7 @@ packet* packetNew(int sock){
 	return p;
 }
 
-#define packetAddData(data) packetAdd(pack, &data, sizeof(data))
+#define packetAddData(data) ({typeof(data) a=biteSwap(data);packetAdd(pack, &a, sizeof(a));})
 //add data to packet, if size of packet more than PACKET_SIZE, send it and start new
 int packetAdd(packet *p, void* data, int size){
 	int o=1;
@@ -110,10 +110,12 @@ int processMessage(worker_arg * data,char type){
 			perror("recv Message");
 			return -1;
 		}
+		node_id=biteSwap(node_id);
 		if (recvData(data->sock,&t_id,sizeof(t_id))<0){
 			perror("recv Message");
 			return -1;
 		}
+		t_id=biteSwap(t_id);
 		if (playerNotFailed) {
 			type=typesTowerGet(config.players[data->id].tower_set[t_id].id);
 			if (type==0)
@@ -144,6 +146,7 @@ int processMessage(worker_arg * data,char type){
 			perror("recv Message");
 			return -1;
 		}
+		node_id=biteSwap(node_id);
 		if (playerNotFailed) {
 			printDebug("%d drop tower on %hd\n",data->id,node_id);		
 			sem_pl.sem_num=0;
@@ -164,6 +167,7 @@ int processMessage(worker_arg * data,char type){
 			perror("recv Message");
 			return -1;
 		}
+		n_id=biteSwap(n_id);
 		if (playerNotFailed) {
 			type=typesNpcGet(config.players[data->id].npc_set[n_id].id);
 			if (type==0)
@@ -198,15 +202,18 @@ int processMessage(worker_arg * data,char type){
 			perror("recv Message");
 			return -1;
 		}
+		node=biteSwap(node);
 		if (recvData(data->sock,&num,sizeof(num))<0){
 			perror("recv Message");
 			return -1;
 		}
+		num=biteSwap(num);
 		for (i=0;i<num;i++){
 			if (recvData(data->sock,&id,sizeof(id))<0){
 				perror("recv Message");
 				return -1;
 			}
+			id=biteSwap(id);
 			if (playerNotFailed) {
 				h=getNpcById(id);
 				if (h!=0){
@@ -224,6 +231,7 @@ int processMessage(worker_arg * data,char type){
 			perror("recv Message");
 			return -1;
 		}
+		type=biteSwap(type);
 		if (playerNotFailed) {
 			config.players[data->id].target=type;
 			config.players[data->id].target_changed=1;
@@ -614,3 +622,30 @@ int networkPortFree(){
 	}
 	return 0;
 }
+
+int wrongByteOrder(){
+	char c4[4]={-92, 112, 69, 65};
+	float *f=(void*)c4, f0=12.34;
+	int *i=(void*)c4, i0=1095069860;
+	if (biteSwap(*i)!=i0){
+		perror("wrongByteOrder int");
+		return 1;
+	}
+	if (biteSwap(*f)!=f0){
+		perror("wrongByteOrder float");
+		return 1;
+	}
+	char c8[8]={-82, 71, -31, 122, 20, -82, 40, 64};
+	long long *l=(void*)c8, l0=4623136420479977390;
+	double *d=(void*)c8, d0=12.34;
+	if (biteSwap(*l)!=l0){
+		perror("wrongByteOrder long long");
+		return 1;
+	}
+	if (biteSwap(*d)!=d0){
+		perror("wrongByteOrder double");
+		return 1;
+	}
+	return 0;
+}
+
