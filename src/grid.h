@@ -63,7 +63,7 @@
 #define START_WAITING_TIME 3000000 //30000000
 #define START_WAITING_STEP 1000000
 
-#define PLAYER_MAX 8
+#define PLAYER_MAX 64
 #define TOWER_SET_NUM 9
 #define NPC_SET_NUM 9
 
@@ -106,7 +106,7 @@
 //gnode type (buildable component)
 #define NOTHING -1
 //>1 may walk and build
-#define MAX_GROUPS 20
+#define MAX_GROUPS 32
 
 //msg to client
 #define MSG_TEST 0
