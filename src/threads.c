@@ -95,7 +95,7 @@ void * threadWorker(void * arg){
 		if (error)
 			break;
 		
-		semOp(4);  
+		semOp(4);  //must quit at this block
 		if (sendPlayers(data->sock,data->id)<0)
 			break;
 		if (forEachNpc((gnode*)data,tickSendNpc)<0)
@@ -104,6 +104,9 @@ void * threadWorker(void * arg){
 			break;
 		if(forEachBullet((gnode*)data,tickSendBullet)<0)
 			break;
+		
+		if(checkGameEnd())
+			break; 
 		
 		semOp(1);
 		sleep(0);

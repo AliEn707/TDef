@@ -253,7 +253,7 @@ void forEachPlayer(gnode* grid) {
 		if (config.players[i].id==0)
 			continue;
 //		config.players[i].bit_mask = 0;
-		if (needLevelInc (&config.players[i])) {
+		if (needLevelInc(&config.players[i])) {
 			printDebug("player = %d level = %d\n", i, config.players[i].level);
 			config.players[i].level++;
 			setMask(&config.players[i],PLAYER_LEVEL);
@@ -272,6 +272,9 @@ void forEachPlayer(gnode* grid) {
 			}
 		}
 		config.players[i].target_changed=0;
+		if (checkMask(config.players[i].bit_mask,PLAYER_FAIL)){
+			config.players[i].failed=1; //set player fail
+		}
 	}
 	if (money_flag)
 		config.current_money_timer = 0;
@@ -285,6 +288,16 @@ void playersClearBitMasks(){
 		config.players[i].bit_mask = 0;
 	}
 } 
+
+//function for check and set if game ends
+int setGameEnd(){
+	return 0;
+}
+
+//function for check if game already ends
+int checkGameEnd(){
+	return 0;
+}
 
 
 void printDebug(const char* format, ...) {

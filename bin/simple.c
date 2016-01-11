@@ -217,6 +217,9 @@ int main(int argc, char* argv[]){
 		
 		forEachPlayer(grid);
 		
+		//check game ends and set
+		setGameEnd();
+		
 		//set 1
 		sem_pl.sem_num=0;
 		sem_pl.sem_op=-1;

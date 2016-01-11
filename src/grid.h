@@ -340,6 +340,7 @@ struct player{
 	int group; //player number [0-7]
 	int first_send:1;
 	int target_changed:1;
+	int failed:1;
 	struct {
 		int id;
 		int num;
