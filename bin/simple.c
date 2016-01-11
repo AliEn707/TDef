@@ -8,7 +8,6 @@
 #include "../src/network.h"
 #include "../src/threads.h"
 #include "../src/public.h"
-#include "../src/system_info.h"
 #include "../src/statistic.h"
 //Test main file
 
