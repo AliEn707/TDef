@@ -170,7 +170,7 @@ void * manager(void * arg) {
 	memset(ports_info, 0, servnum*sizeof(*ports_info));
 		
 	int listener;
-	printf("start contol on %d\n",menport);
+	printf("start control on %d\n",menport);
 	if ((listener=serverStart(menport))<0){
 		perror("start listener");
 		return 0;
@@ -212,7 +212,7 @@ void * manager(void * arg) {
 					//TODO: check client auth
 //					if (err){
 //						msg_type='e';
-//						sendData(sock, &msg_type, sizeof(msg_type));
+//						sendData(sock, msg_type);
 //						close(sock);
 //					}
 					if (checkUpdate()){
@@ -224,6 +224,7 @@ void * manager(void * arg) {
 						close(sock);
 						continue;
 					}
+					room_data=biteSwap(room_data);
 //					sem_server.sem_op = -1;
 //					printf("sem %d\n",semctl(sem_id,0,GETVAL));
 //					perror("sem");
@@ -238,7 +239,7 @@ void * manager(void * arg) {
 //					sem_server.sem_op = 1;
 //					semop(sem_id, &sem_server, 1);
 					printf("port %d\n",flag);
-					sendData(sock, &flag, sizeof(flag)); //int
+					sendData(sock, flag); //int
 					pid_t pid;
 					if (flag != -1) {
 						char port_arg[15], token_arg[15];
@@ -252,7 +253,7 @@ void * manager(void * arg) {
 								printf("!!!  port  %d token %d\n",flag,room_data);
 								if (execlp("./server", "./server", "-port", port_arg, "-token", token_arg, NULL) < 0) {//if (execlp("/bin/ls", "ls", 0, 0) < 0) {
 									msg_type=-1;
-									sendData(sock, &msg_type, sizeof(msg_type));
+									sendData(sock, msg_type);
 									close(sock);
 								}
 								break;
@@ -272,13 +273,13 @@ void * manager(void * arg) {
 //					sem_server.sem_op = 1;
 //					semop(sem_id, &sem_server, 1);
 					//send num of free servers
-					sendData(sock, &flag, sizeof(flag));//int
+					sendData(sock, flag);//int
 					close(sock);
 				}
 				if (msg_type==105){// ascii 'i' 
-					sendData(sock, &menport, sizeof(menport));//int
-					sendData(sock, &servnum, sizeof(servnum));//int
-					sendData(sock, &startport, sizeof(startport));//int
+					sendData(sock, menport);//int
+					sendData(sock, servnum);//int
+					sendData(sock, startport);//int
 					close(sock);
 				}
 				if (msg_type==114){// ascii 'r' 
@@ -295,10 +296,11 @@ void * manager(void * arg) {
 				int msg_port;
 				signed char data;
 				recvData(sock,&msg_port,sizeof(msg_port));
+				//msg_port=biteSwap(msg_port);
 				if (msg_port>=startport && msg_port<startport+servnum){
 					data=ports_info[msg_port-startport].status;
 //					printf("get port %d = %d\n",msg_port,data);
-					sendData(sock,&data,sizeof(data));
+					sendData(sock,data);
 					if (recvData(sock,&data,sizeof(data))>0){
 						ports_info[msg_port-startport].status=data;
 						ports_info[msg_port-startport].timestamp=time(0);

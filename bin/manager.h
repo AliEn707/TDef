@@ -1,6 +1,6 @@
 
 #include <pthread.h>
-
+#include "../src/biteswap.h"
 
 int recvData(int sock, void * buf, int size);
 
@@ -13,5 +13,5 @@ void setUpdate(short a);
 
 int stop;
 
-#define sendData(sock,buf,need) send(sock,buf,need,MSG_NOSIGNAL)
+#define sendData(sock,x) ({typeof(x) _x=biteSwap(x);send(sock,&_x,sizeof(_x),MSG_NOSIGNAL);})
 

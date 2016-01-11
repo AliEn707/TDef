@@ -116,12 +116,13 @@ static inline long long fileTime(char* path){
 static inline void updateTypes(int sock,char msg_type, char* path){
 	long long int timestamp=fileTime(path);//must be 64 bits
 	int size=0;
-	sendData(sock, &msg_type, sizeof(msg_type));
-	sendData(sock, &timestamp, sizeof(timestamp));
+	sendData(sock, msg_type);
+	sendData(sock, timestamp);
 	if(recvData(sock,&size,sizeof(size))<=0){
 		perror("updateTypes socket error");
 		return;
 	}
+	size=biteSwap(size);
 	if (size==0)
 		return;
 	FILE* f=fopen(TMP_FILE,"wt+");//TODO: change to fmemopen
@@ -136,6 +137,7 @@ static inline void updateTypes(int sock,char msg_type, char* path){
 			size-=get;
 		}while(size>0);
 		recvData(sock,&size,sizeof(size));
+		size=biteSwap(size);
 	}
 	fclose(f);
 	copyFile(path,TMP_FILE);
@@ -148,9 +150,10 @@ static inline void updateMaps(int sock){
 	FILE* f;
 	dirFile * files;
 	int files$,i;
-	sendData(sock, &msg_type, sizeof(msg_type));
+	sendData(sock, msg_type);
 	if(recvData(sock,&size,sizeof(size))<=0)
 		return;
+	size=biteSwap(size);
 	files=filesInDir(MAPS_DIR,&files$);
 	while(size>0){//lets get map
 		char buf[100];
@@ -168,10 +171,11 @@ static inline void updateMaps(int sock){
 			}
 		}
 		long long int timestamp=fileTime(path);
-		sendData(sock, &timestamp, sizeof(timestamp));
+		sendData(sock, timestamp);
 		//try to get size of file
 		if(recvData(sock,&size,sizeof(size))<=0)
 			break;
+		size=biteSwap(size);
 		if (size==0)
 			break;
 		if ((f=fopen(TMP_FILE,"wt+"))==0)
@@ -186,11 +190,13 @@ static inline void updateMaps(int sock){
 			}
 			if(recvData(sock,&size,sizeof(size))<=0)
 				break;
+			size=biteSwap(size);
 		}	
 		fclose(f);
 		copyFile(path,TMP_FILE);
 		if(recvData(sock,&size,sizeof(size))<=0)
 				break;
+		size=biteSwap(size);
 	}
 	for(i=0;i<files$;i++)
 		if (files[i].name[0]!=0){
@@ -219,7 +225,7 @@ static void * updater(void * arg) {
 		}
 		int sock=connectToHost(public_host,public_port);
 		if (sock){
-			sendData(sock, &msg_type, sizeof(msg_type));
+			sendData(sock, msg_type);
 			updateTypes(sock, MESSAGE_UPDATE_NPC_TYPES, "../data/types/npc.cfg");
 	//		updateTypes(sock, MESSAGE_UPDATE_TOWER_TYPES, "../data/types/tower.cfg");
 	//		updateTypes(sock, MESSAGE_UPDATE_BULLET_TYPES, "../data/types/bullet.cfg");
