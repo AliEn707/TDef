@@ -1,3 +1,5 @@
+![build status](https://travis-ci.org/AliEn707/TDef.svg?branch=master)
+
 TDef
 ====
 a Tower Defense engine, makes in 2.5D style.
