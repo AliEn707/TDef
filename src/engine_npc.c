@@ -640,7 +640,6 @@ int tickMoveNpc(gnode* grid,npc* n){
 							}
 					}
 				}
-				setMask(n,NPC_POSITION);
 			}
 			
 			vec pos={n->position.x+n->direction.x*type->move_speed,
@@ -657,7 +656,7 @@ int tickMoveNpc(gnode* grid,npc* n){
 			
 			//write new position
 			memcpy(&n->position,&pos,sizeof(vec));
-//			setMask(n,NPC_POSITION);
+			setMask(n,NPC_POSITION); //set bit if position changed
 		}
 	}
 	return 0;

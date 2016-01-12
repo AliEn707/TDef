@@ -296,7 +296,14 @@ int setGameEnd(){
 
 //function for check if game already ends
 int checkGameEnd(){
-	return 0;
+	short ended=0;
+	if (config.waves_size>0){ //if we have waves
+		if (config.wave_current.wave_num<config.waves_size) //if waves not ended
+			ended++;
+	}
+	//TODO: add another checks
+	ended++; //TODO: remove
+	return !ended!=0;
 }
 
 

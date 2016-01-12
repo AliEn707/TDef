@@ -38,7 +38,7 @@ int sendTest(int sock);
 int networkAuth(worker_arg *data);
 
 //send time before game start
-int networkWaitingTime(worker_arg *data);
+int sendMessageInfo(worker_arg *data, int mes, int wait);
 
 int connectToHost(char* host, int port);
 

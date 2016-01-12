@@ -68,7 +68,7 @@ void * threadWorker(void * arg){
 	//sendPlayers(data->sock,data->id);
 	int error=0;
 	while(config.game.wait_start>0){
-		networkWaitingTime(data);
+		sendMessageInfo(data, MSG_INFO_WAITING_TIME ,config.game.wait_start/1000);
 		if(checkMessages(data)!=0){
 			error++;
 			break;
