@@ -48,8 +48,8 @@ static inline gnode* setFind(set* s,gnode * n){
 }
 
 static inline gnode * setMinf(set* s){
-	int i;
-	float min=-1;
+	register int i;
+	register float min=-1;
 	gnode* out=0;
 	
 	for(i=0;i<s->fullsize;i++)
@@ -151,8 +151,8 @@ static inline int * neighbor_nodes(gnode* grid,gnode* n){
 	if((z=malloc(sizeof(int)*out+sizeof(int)))==0)
 		perror("malloc neighbor_nodes");
 	memset(z,0,sizeof(sizeof(int)*out+sizeof(int)));
-	int x=n->id/config.gridsize;
-	int y=n->id%config.gridsize;
+	register int x=n->id/config.gridsize;
+	register int y=n->id%config.gridsize;
 	int a[8]={(y+1<config.gridsize)?to2d(x,y+1):-1,
 			(x-1>=0)?to2d(x-1,y):-1,
 			(x-1>=0&&y-1>=0)?to2d(x-1,y-1):-1,

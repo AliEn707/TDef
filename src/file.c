@@ -157,7 +157,7 @@ int loadNpcTypes(){
 	npc_type* n_n=0;
 //	int err;
 	char buf[100];
-	printDebug("Load npc types....");
+	printDebug("Start loading npc types\n");
 	if ((file=fopen(filepath,"rt"))==0){
 		perror("fopen loadNpcTypes");
 		return 1;
@@ -266,7 +266,7 @@ int loadTowerTypes(){
 	tower_type* t_t=0;
 	char buf[100];
 //	int err;
-	printDebug("Load tower types....");
+	printDebug("Start loading tower types\n");
 	if ((file=fopen(filepath,"rt"))==0){
 		perror("fopen loadTowerTypes");
 		return 1;
@@ -361,7 +361,7 @@ int loadBulletTypes(){
 	bullet_type* b_b=0;
 	char buf[100];
 //	int err;
-	printDebug("Load bullet types....");
+	printDebug("Start loading bullet types");
 	if ((file=fopen(filepath,"rt"))==0){
 		perror("fopen loadBulletTypes");
 		return 1;

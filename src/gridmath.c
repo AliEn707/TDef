@@ -55,7 +55,7 @@ float glength(vec* v1,vec* v2){
 }
 
 float getDir(vec* v1,vec* v2, vec* out){
-	float length=glength(v1,v2);
+	register float length=glength(v1,v2);
 //	printDebug("%g\n",length);
 	out->x=(v2->x-v1->x)/length;
 	out->y=(v2->y-v1->y)/length;

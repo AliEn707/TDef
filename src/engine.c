@@ -308,11 +308,15 @@ int checkGameEnd(){
 
 
 void printDebug(const char* format, ...) {
-	if (config.debug == 0)
-		return;
+	char str[500];
+	char tstr[20]="";
+	time_t t=time(0);
+	strftime(tstr, sizeof(tstr), "%F %T", localtime(&t));
 	va_list argptr;
 	va_start(argptr, format);
-	vfprintf(stdout, format, argptr);
+		vsprintf(str, format, argptr);
 	va_end(argptr);	
+	if (config.debug)
+		fprintf(stdout, "%s: %s", tstr, str);
 }
 
