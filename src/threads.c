@@ -22,7 +22,7 @@
 // printDebug("worker %d sem %d=>%d|%d=>%d|%d=>%d before sem %d action %d\n",data->id,0,semctl(t_sem.send,0,GETVAL),1,semctl(t_sem.send,1,GETVAL),2,semctl(t_sem.send,2,GETVAL),sem[x].sem_num,sem[x].sem_op); 
 #define semOp(x)				t_semop(t_sem.send,&sem[x],1)
 
-#define MESSAGES_GET_NUM 10
+#define MESSAGES_GET_NUM 3 //messages can proceed for 1 time
 
 //try to get MESSAGES_GET_NUM messages
 static inline int checkMessages(worker_arg *data){
@@ -68,7 +68,7 @@ void * threadWorker(void * arg){
 	//sendPlayers(data->sock,data->id);
 	int error=0;
 	while(config.game.wait_start>0){
-		sendMessageInfo(data, MSG_INFO_WAITING_TIME ,config.game.wait_start/1000);
+		sendInfoMessage(data, MSG_INFO_WAITING_TIME ,config.game.wait_start/1000);
 		if(checkMessages(data)!=0){
 			error++;
 			break;
@@ -97,6 +97,8 @@ void * threadWorker(void * arg){
 		
 		semOp(4);  //must quit at this block
 		if (sendPlayers(data->sock,data->id)<0)
+			break;
+		if (sendChatMessages(data->sock,data->id)<0)
 			break;
 		if (forEachNpc((gnode*)data,tickSendNpc)<0)
 			break;

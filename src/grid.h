@@ -18,6 +18,7 @@
 #include <signal.h>
 
 #include "t_sem.h"
+#include "list.h"
 
 #define BIT_1 1
 #define BIT_2 2
@@ -115,6 +116,7 @@
 #define MSG_BULLET 3
 #define MSG_PLAYER 4
 #define MSG_INFO 5
+#define MSG_CHAT_C 6
 //additional messages to client
 #define MSG_INFO_WAITING_TIME 1
 
@@ -124,6 +126,7 @@
 #define MSG_DROP_TOWER 3
 #define MSG_MOVE_NPCS 4
 #define MSG_SET_TARGET 5
+#define MSG_CHAT_S 6
 
 ///////bit mask
 #define setMask(z,x) (z)->bit_mask|=x
@@ -371,6 +374,8 @@ struct player{
 		int towers_lost;
 		int xp;//experience
 	} stat;
+	
+	worklist messages;
 } player;
 
 
@@ -436,7 +441,9 @@ struct config{
 		base* bases;
 	unsigned int points_size;
 		point* points;
-		
+	
+	worklist messages;
+	
 	int current_money_timer;
 	int max_money_timer;
 	

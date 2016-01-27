@@ -81,8 +81,12 @@ int packetAdd(packet *p, void* data, int size){
 		o=_sendData(p->sock, p->buf, p->size);
 		p->size=0;
 	}
-	memcpy(p->buf+p->size,data,size);
-	p->size+=size;
+	if (size>=PACKET_SIZE){
+		o=_sendData(p->sock, data, size);
+	}else{
+		memcpy(p->buf+p->size,data,size);
+		p->size+=size;
+	}
 	return o;
 }
 
@@ -237,6 +241,29 @@ int processMessage(worker_arg * data,char type){
 			config.players[data->id].target_changed=1;
 			setMask(&config.players[data->id],PLAYER_TARGET);
 		}
+		return 0;
+	}
+	if (type==MSG_CHAT_S){
+		short size;
+		char *message;
+		worklist *w;
+		if (recvData(data->sock,&size,sizeof(size))<0){
+			perror("recv Message");
+			return -1;
+		}
+		size=biteSwap(size);
+		if ((message=malloc(size*sizeof(char)))==0){
+			perror("malloc ChatMessage");
+			return 0;
+		}
+		if (recvData(data->sock,message,size)<0){
+			perror("recv Message");
+			return -1;
+		}
+		w=worklistAdd(&config.players[data->id].messages, data->id);
+		w->size=size;
+		w->data=message;
+		return 0;
 	}
 	return -1;
 }
@@ -526,6 +553,22 @@ int sendPlayers(int sock,int id){
 	return 0;
 }
 
+int sendChatMessages(int sock,int id){
+	void *action(worklist *w, void *arg){
+		char m_m=MSG_CHAT_C; //message to client
+		short l_l=w->size; //message size
+		packet* pack=packetNew(sock);	
+		packetAddData(m_m);
+		packetAddData(w->id); //message owner id
+		packetAddData(l_l);
+		packetAdd(pack, w->data, l_l);
+		packetFinish(pack);
+		return 0;
+	}
+	worklistForEachReturn(&config.messages, action, 0);
+	return 0;
+}
+
 int sendTest(int sock){
 	char mes=MSG_TEST;
 	sendData(mes);
@@ -543,7 +586,7 @@ int networkAuth(worker_arg *data){
 	return 0;
 }
 
-int sendMessageInfo(worker_arg *data, int mes, int wait){
+int sendInfoMessage(worker_arg *data, int mes, int wait){
 	int sock=data->sock;
 	char msg=MSG_INFO;
 	sendData(msg);

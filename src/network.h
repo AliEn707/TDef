@@ -32,13 +32,14 @@ int tickSendTower(gnode* grid,tower* t);
 int tickSendBullet(gnode* grid,bullet * b);
 
 int sendPlayers(int sock,int id);
+int sendChatMessages(int sock,int id);
 
 int sendTest(int sock);
 
 int networkAuth(worker_arg *data);
 
 //send time before game start
-int sendMessageInfo(worker_arg *data, int mes, int wait);
+int sendInfoMessage(worker_arg *data, int mes, int wait);
 
 int connectToHost(char* host, int port);
 

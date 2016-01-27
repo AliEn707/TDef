@@ -244,12 +244,27 @@ static int needLevelInc(player *pl) {
 	return pl->stat.xp > pow(1.2, pl->level)*1000;
 }
 
+//TODO: rename
+//proceed players
 void forEachPlayer(gnode* grid) {
 	int i, money_flag = 0;
+	
+	void *moveMessage(worklist* w, void* arg){
+		worklist* m_m=arg;
+		m_m=worklistAdd(arg, w->id);
+		m_m->size=w->size;
+		m_m->data=w->data;
+		return (void*)1 ;
+	}
+
 	if (config.current_money_timer%(config.max_money_timer + 1) == config.max_money_timer) {
 		money_flag = 1; //need to give money!
 	}	
+	//clear messages
+	worklistErase(&config.messages, free);
+	//for every player
 	for (i = 0; i < config.game.players; i++) {
+		//check if player connected
 		if (config.players[i].id==0)
 			continue;
 //		config.players[i].bit_mask = 0;
@@ -275,6 +290,8 @@ void forEachPlayer(gnode* grid) {
 		if (checkMask(config.players[i].bit_mask,PLAYER_FAIL)){
 			config.players[i].failed=1; //set player fail
 		}
+		//proceed chat messages, and remove after copy
+		worklistForEachRemove(&config.players[i].messages, moveMessage, &config.messages);
 	}
 	if (money_flag)
 		config.current_money_timer = 0;
