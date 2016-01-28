@@ -361,7 +361,7 @@ int loadBulletTypes(){
 	bullet_type* b_b=0;
 	char buf[100];
 //	int err;
-	printDebug("Start loading bullet types");
+	printDebug("Start loading bullet types\n");
 	if ((file=fopen(filepath,"rt"))==0){
 		perror("fopen loadBulletTypes");
 		return 1;

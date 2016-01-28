@@ -18,8 +18,10 @@
 
 int bintreeAdd(bintree* root, bintree_key key,void* data){
 	bintree* tmp=root;
-	bintree_key next;
+	register int next;
 //	printDebug("add key %d\n",key);
+	if (data==0)
+		return 0;
 	while(key>0){
 		next=(int)(key&1);
 		if(tmp->next[next]==0){
@@ -51,9 +53,19 @@ void * bintreeGet(bintree* root, bintree_key key){
 	return tmp->data;
 }
 
+//get or add object size of "size"
+void * bintreeFetch(bintree* root,bintree_key key,int size){
+	void * a=bintreeGet(root,key);
+	if (a==0){
+		a=malloc(size);
+		bintreeAdd(root,key,a);
+	}
+	return a;
+}
+
 int _bintreeDel(bintree* root, bintree_key key, void (f)(void*v)){
 	int get;
-	bintree_key next;
+	int next;
 	if (root==0)
 		return 0;
 	if (key==0){

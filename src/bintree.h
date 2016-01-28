@@ -11,6 +11,8 @@ int bintreeAdd(bintree* root,bintree_key key,void* data);
 
 void * bintreeGet(bintree* root, bintree_key key);
 
+void * bintreeFetch(bintree* root, bintree_key key,int size);
+
 int bintreeDel(bintree* root, bintree_key key, void (f)(void*v));
 
 void bintreeErase(bintree * root,void (f)(void*v));

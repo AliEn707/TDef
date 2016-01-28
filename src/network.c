@@ -260,6 +260,7 @@ int processMessage(worker_arg * data,char type){
 			perror("recv Message");
 			return -1;
 		}
+		printf("Chat %d: %s\n", data->id, message);
 		w=worklistAdd(&config.players[data->id].messages, data->id);
 		w->size=size;
 		w->data=message;
